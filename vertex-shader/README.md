@@ -391,7 +391,7 @@ Not much happened but we need to increase the instance count in KodeLife:
 
 Hopefully you have 200 cubes on the screen that are animated.
 
-If you struggle getting the examples to work you can download the[KodeLife project](200_boxes.klproj)
+If you struggle getting the examples to work you can download the [KodeLife project](200_boxes.klproj)
 
 ## That's it
 
@@ -401,14 +401,14 @@ In order to perhaps help you along a bit more I dug around in my library of inco
 
 The code is in the state it was when I lost interest in it so it might actually hurt you more than help you. You have been warned.
 
-[mrange & Virgill - Delusions of mediocrity (Windows 4k intro)](delusions.klproj)
-[A fractal 2D tree](2d_tree.klproj)
-[A fractal 3D tree](falling_leaves.klproj)
-[Tinkering with parametric 3D shapes](parametric3d.klproj)
-[Solid Supershape](solid_supershapes.klproj)
-[Neonwave sunset](neonwave.klproj)
-["Star" scroller](starscroller_variant.klproj)
-[Underwater bubbles](bubble_bobble.klproj)
+1. [mrange & Virgill - Delusions of mediocrity (Windows 4k intro)](delusions.klproj)
+1. [A fractal 2D tree](2d_tree.klproj)
+1. [A fractal 3D tree](falling_leaves.klproj)
+1. [Tinkering with parametric 3D shapes](parametric3d.klproj)
+1. [Solid Supershape](solid_supershapes.klproj)
+1. [Neonwave sunset](neonwave.klproj)
+1. ["Star" scroller](starscroller_variant.klproj)
+1. [Underwater bubbles](bubble_bobble.klproj)
 
 ## Licensing information
 

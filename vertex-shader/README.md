@@ -19,65 +19,61 @@ I’ve added code comments to clarify the key differences from fragment shaders.
 ```glsl
 #version 150
 
-// Uniforms are "global" variables set by the host program
-//  Works the same as for fragment shaders
-uniform float time;
-uniform vec2 resolution;
-uniform vec2 mouse;
-uniform vec3 spectrum;
+// ==== Input Uniforms ====
+// Uniforms are global variables that remain constant across all vertices
+// They are set by the application (KodeLife in this case)
+uniform float time;        // Time since shader started (in seconds)
+uniform vec2 resolution;   // Window size in pixels
+uniform vec2 mouse;        // Mouse position in pixels
+uniform vec3 spectrum;     // Audio spectrum data
 
-// One important difference from fragment shaders is that the model view
-//  projection (mvp) transform is injected.
-//  This allows the host program to control the rotation of the object and the
-//  camera position. The projection part transforms the 3D coordinate to a
-//  2D screen position.
-//  The math is a bit finicky for this but luckily KodeLife sets that up for us
-//  and it is easy to use
+// ==== Transform Matrix ====
+// The Model-View-Projection (MVP) matrix is crucial for 3D rendering
+// It combines three transformations:
+// 1. Model: Positions object in world space
+// 2. View: Positions camera in world
+// 3. Projection: Converts 3D coordinates to 2D screen space
 uniform mat4 mvp;
 
-//  The position of the current vertex in the model
-in vec4 a_position;
-//  The normal of the current vertex in the model
-in vec3 a_normal;
-//  The texture coordiante of the current vertex in the model
-in vec2 a_texcoord;
-// These are inputs into the vertex shader and the host process has defined a
-//  model whose vertexes are fed into the vertex shader
-//  These are very common inputs but it is possible for the host process to
-//  remove any of these are send extra data such as color of the vertex
+// ==== Vertex Attributes ====
+// These are unique inputs for each vertex in your 3D model
+in vec4 a_position;  // Vertex position in model space (x, y, z, w)
+in vec3 a_normal;    // Surface normal at vertex (for lighting)
+in vec2 a_texcoord;  // Texture coordinates (UV mapping)
 
-// The output of the vertex shader, this can be read by the fragment shaders
-//  to control the shading
-out VertexData
-{
-    // The transformed position, this is not the input position sent through
-    //  the MVP. Rather one approach I sometimes use is just run the in position
-    //  through the model transform so that it is rotated relative to the view
-    //  so I can compute the lighting in the fragment shader correctly
+// ==== Outputs to Fragment Shader ====
+// This struct contains data that will be interpolated and passed
+// to each fragment (pixel) between vertices
+out VertexData {
+    // We often want to pass the original position for effects
+    // This position hasn't been transformed by MVP, useful for
+    // things like lighting calculations
     vec4 v_position;
-    // Same goes for the normal
+
+    // Surface normal, essential for lighting calculations
+    // Interpolated between vertices for smooth lighting
     vec3 v_normal;
-    // I usually pass the texture coordinate untransformed but tinkering here
-    //  is possible to get cool effects.
+
+    // Texture coordinates for mapping images or patterns
+    // These are interpolated for each fragment
     vec2 v_texcoord;
 } outData;
-// This is common outputs of the vertex shader but it is easy and common to
-//  extend this with more outputs to contol the shading done by the fragment
-//  shader
 
-void main(void)
-{
-    // gl_Position is the 2D coordinate of the vertex
-    //  therefore we pass the input position through the MVP
-    //  transform. The `w` part of the `vec4` will be used for
-    //  applying perspective transformation.
+void main(void) {
+    // ==== Required Output ====
+    // gl_Position is a special output variable that defines
+    // where this vertex appears on screen
+    // The MVP matrix transforms the vertex from model space
+    // to screen space coordinates
     gl_Position = mvp * a_position;
 
-    // In the standard KodeLife vertex shader the input data is just forwarded
-    //  to the fragment shader
-    outData.v_position = a_position;
-    outData.v_normal = a_normal;
-    outData.v_texcoord = a_texcoord;
+    // ==== Pass-through Values ====
+    // In this basic shader, we're simply forwarding the input
+    // attributes to the fragment shader. More complex shaders
+    // might transform these values first
+    outData.v_position = a_position;  // Original position
+    outData.v_normal = a_normal;      // Original normal
+    outData.v_texcoord = a_texcoord;  // Original UV coordinates
 }
 ```
 
@@ -105,64 +101,70 @@ Replace the current fragment shader with this code to add simple lighting. I’v
 ```glsl
 #version 150
 
+// ==== Basic Uniforms ====
+// Unlike ShaderToy, KodeLife uses different uniform names
+// ShaderToy's iTime becomes simply 'time' here
 uniform float time;
 
-// This the input from the vertex shader
-//  since the 2D primitive is a textured triangle
-//  the input is blended between the 3 vertices
-//  that makes up the triangle
-//  If you desire you can ask use "flat" blending
-//  so you get the value produced by the vertex shader.
-in VertexData
-{
-    vec4 v_position;
-    vec3 v_normal;
-    vec2 v_texcoord;
+// ==== Vertex Shader Input ====
+// In ShaderToy, you only work with fragment shaders and get UV coordinates
+// In a full 3D pipeline, the vertex shader passes interpolated data to us
+in VertexData {
+    vec4 v_position;  // Position in model space
+    vec3 v_normal;    // Surface normal (interpolated)
+    vec2 v_texcoord;  // Texture coordinates (UV)
 } inData;
+// Note: Values are automatically interpolated between vertices
+// Use the 'flat' qualifier if you need exact vertex values instead
 
+// ==== Output ====
+// ShaderToy uses fragColor by convention - same here!
 out vec4 fragColor;
 
-// The direction of the light to illuminate our cube
-const vec3 lightDir = normalize(vec3(1,1,2));
-// The camera pos, should match the "eye" parameter in the View setting in KodeLife
-//  In a real app this is likely injected as an uniform instead
-const vec3 cameraPos   = vec3(0,0,4);
+// ==== Scene Setup ====
+// Light and camera configuration
+// In a real application, these would typically be uniforms
+const vec3 lightDir = normalize(vec3(1, 1, 2));  // Light direction
+const vec3 cameraPos = vec3(0, 0, 4);           // Matches KodeLife's "eye" parameter
 
 void main(void) {
-  // Compute diffuse lighting by taking the dot product of the surface normal
-  //  Classic stuff!
-  float dif = max(dot(lightDir, inData.v_normal), 0);
-  // Multiply with itself to give bit more metallic look
-  dif *= dif;
-  // Base illumination
-  dif += 0.05;
+    // ==== Diffuse Lighting ====
+    // Calculate how directly the surface faces the light
+    float diffuse = max(dot(lightDir, inData.v_normal), 0.0);
+    // Square the value for a more metallic appearance
+    diffuse *= diffuse;
+    // Add ambient light to prevent completely dark areas
+    float ambient = 0.05;
+    float lighting = diffuse + ambient;
 
-  // Compute the ray direction from the eye position on the surface position in 3D
-  vec3 rayDir = normalize(inData.v_position.xyz-cameraPos);
-  // Now we can reflect the ray direction using it and the normal of the surface
-  vec3 refDir = reflect(rayDir, inData.v_normal);
-  // Given the reflected ray and the light dir we can compute the specular lighting
-  //  by taking the dot product that will be closer to 1 the more the reflect ray
-  //  aligns with the direction to the light
-  //  To make it more "point-like" use the pow function
-  float spe = pow(max(dot(lightDir, refDir), 0), 10.0);
+    // ==== Specular Highlights ====
+    // Calculate reflection vector for specular lighting
+    vec3 rayDir = normalize(inData.v_position.xyz - cameraPos);
+    vec3 reflectDir = reflect(rayDir, inData.v_normal);
 
-  // Ready to compute the color
-  vec3 col = vec3(0.0);
-  // The diffuse color
-  col += dif*vec3(1,0., 0.25);
-  // The specular color
-  col += spe;
-  // Fake sRGB conversion
-  //  Most screens are sRGB (although new screen tech liked OLED makes sRGB a bit outdated)
+    // Compute specular intensity
+    // Higher power (10.0) = smaller, sharper highlights
+    float specular = pow(max(dot(lightDir, reflectDir), 0.0), 10.0);
 
-  //  sRGB color luminence is not linear
-  //  so we need to convert our linear RGB into non-linear sRGB
-  //  Which is a bit complicated, so I cheat and use sqrt as an approximation
-  col = sqrt(col);
+    // ==== Final Color Composition ====
+    vec3 color = vec3(0.0);
+    vec3 diffuseColor = vec3(1.0, 0.0, 0.25);  // Pinkish-red base color
 
-  // Finally write output fragment color
-  fragColor = vec4(col, 1.0);
+    // Add diffuse and specular contributions
+    color += lighting * diffuseColor;  // Diffuse color
+    color += specular;                 // Add white specular highlight
+
+    // ==== Color Space Conversion ====
+    // Most displays expect sRGB color space (standardized in 1996)
+    // While sRGB is becoming dated with OLED and newer display tech,
+    // we still need to convert our linear RGB values to match expected input
+    //
+    // Proper sRGB conversion is more complex, but sqrt() provides a decent
+    // approximation for our purposes here
+    color = sqrt(color);
+
+    // Output final color with full opacity
+    fragColor = vec4(color, 1.0);
 }
 ```
 
@@ -183,26 +185,40 @@ Luckily, KodeLife lets us add the model transform as a uniform input to our vert
 
 Now, in the vertex shader source code, add this `model` uniform below the `mvp` uniform.
 ```glsl
-// Should already be in the file
+// Locate the line below in the file to find and add the model uniform like below
 uniform mat4 mvp;
-// Add this line to import the model uniform
+// The model matrix handles object-space transformations only
+// This is useful when we need the vertex position in world space,
+// for example when calculating lighting
 uniform mat4 model;
 ```
 
 Finally modify the main method of the vertex shader:
 ```glsl
 void main(void) {
-  gl_Position = mvp * a_position;
+    // ==== Screen-Space Position ====
+    // Transform vertex to final screen position using combined MVP matrix
+    gl_Position = mvp * a_position;
 
-  // Multiply the model and a_position to create a position transform with the model transform
-  //  Note that the ordering is important as matrix multiplication is non-commuative meaning the
-  //  unlike normal algebra where a*b = b*a this is not true in general for matrix algebra
-  outData.v_position  = model*a_position;
-  // We also need to transform the normal the same way but we change the model from mat4 into mat3
-  //  to match the dimensions of the normal (vec3). We lose the translation part of the matrix
-  //  that way but that makes no sense to the normals anyway and what remains is just the rotation part.
-  outData.v_normal    = mat3(model)*a_normal;
-  outData.v_texcoord  = a_texcoord;
+    // ==== World-Space Position ====
+    // Transform vertex to world space using only the model matrix
+    // Order matters! Matrix multiplication is not commutative:
+    // model * position ≠ position * model
+    outData.v_position = model * a_position;
+
+    // ==== Normal Transform ====
+    // Transform the normal vector to world space
+    // We convert model matrix to 3x3 by dropping the translation component
+    // because:
+    // 1. Normals are vectors (direction only), not points in space
+    // 2. Translation doesn't affect direction vectors
+    // 3. mat3(model) extracts just the rotation/scale components
+    outData.v_normal = mat3(model) * a_normal;
+
+    // ==== Texture Coordinates ====
+    // UV coordinates pass through unchanged
+    // They're already in texture space (0 to 1 range)
+    outData.v_texcoord = a_texcoord;
 }
 ```
 
@@ -218,72 +234,93 @@ Replace the vertex shader with the code below:
 ```glsl
 #version 150
 
-uniform float time;
-uniform mat4 mvp;
-uniform mat4 model;
+// ==== Input Uniforms ====
+uniform float time;        // Time in seconds
+uniform mat4 mvp;         // Model-View-Projection matrix
+uniform mat4 model;       // Model matrix
 
+// ==== Vertex Attributes ====
 in vec4 a_position;
 in vec3 a_normal;
 in vec2 a_texcoord;
 
-out VertexData
-{
+// ==== Output to Fragment Shader ====
+out VertexData {
     vec4 v_position;
     vec3 v_normal;
     vec2 v_texcoord;
 } outData;
 
-// In order to support time based rotations we need functions to create rotation matrix from
-//  an angle
-//  rotX rotates around the X axis, rotY around the Y axis and rotZ around the Z axis.
+// ==== Rotation Matrix Functions ====
+// These functions create 3x3 rotation matrices for each axis
+// They use the standard rotation matrices from linear algebra:
+// https://en.wikipedia.org/wiki/Rotation_matrix#Basic_rotations
 
-mat3 rotX(float a) {
-  float c = cos(a);
-  float s = sin(a);
-  return mat3(
-    1.0 , 0.0 , 0.0
-  , 0.0 , +c  , +s
-  , 0.0 , -s  , +c
-  );
+// Rotate around X axis (pitch)
+mat3 rotX(float angle) {
+    float c = cos(angle);
+    float s = sin(angle);
+    return mat3(
+        1.0, 0.0, 0.0,  // First column
+        0.0,  +c,  +s,  // Second column
+        0.0,  -s,  +c   // Third column
+    );
 }
 
-mat3 rotY(float a) {
-  float c = cos(a);
-  float s = sin(a);
-  return mat3(
-    +c  , 0.0 , +s
-  , 0.0 , 1.0 , 0.0
-  , -s  , 0.0 , +c
-  );
+// Rotate around Y axis (yaw)
+mat3 rotY(float angle) {
+    float c = cos(angle);
+    float s = sin(angle);
+    return mat3(
+        +c, 0.0,  +s,   // First column
+        0.0, 1.0, 0.0,  // Second column
+        -s, 0.0,  +c    // Third column
+    );
 }
 
-mat3 rotZ(float a) {
-  float c = cos(a);
-  float s = sin(a);
-  return mat3(
-    +c  , +s  , 0.0
-  , -s  , +c  , 0.0
-  , 0.0 , 0.0 , 1.0
-  );
+// Rotate around Z axis (roll)
+mat3 rotZ(float angle) {
+    float c = cos(angle);
+    float s = sin(angle);
+    return mat3(
+        +c,  +s, 0.0,   // First column
+        -s,  +c, 0.0,   // Second column
+        0.0, 0.0, 1.0   // Third column
+    );
 }
 
 void main(void) {
-  // Create a rotation matrix that uses time to create an appealing (I hope)
-  //  rotation
-  //  We will use mat3 to rotate the normal
-  mat3 trot3 = rotX(time)*rotY(sqrt(0.5)*time)*rotZ(0.3*sqrt(0.5)*time);
-  // But as we also need to transform the position we need a mat4 version
-  mat4 trot4 = mat4(trot3);
+    // ==== Create Time-Based Rotation ====
+    // Combine rotations around all three axes:
+    // - Base rotation around X axis with time
+    // - Slower rotation around Y axis (sqrt(0.5) ≈ 0.707)
+    // - Even slower rotation around Z axis (0.3 * sqrt(0.5) ≈ 0.212)
+    // Different speeds create a more interesting animation pattern
+    mat3 trot3 = rotX(time) *
+                 rotY(sqrt(0.5) * time) *
+                 rotZ(0.3 * sqrt(0.5) * time);
 
-  // Combine mvp and our rotation matrix to transform the
-  //  position into a 2D position
-  gl_Position = (mvp * trot4) * a_position;
+    // Convert 3x3 rotation to 4x4 matrix for position transforms
+    // The mat4 constructor preserves rotation and adds identity translation
+    mat4 trot4 = mat4(trot3);
 
-  // Combine the model and the rotation matrix to transform the position
-  outData.v_position  = (model*trot4)*a_position;
-  // And do the same for the normal but using mat3s
-  outData.v_normal    = (mat3(model)*trot3)*a_normal;
-  outData.v_texcoord  = a_texcoord;
+    // ==== Apply Transformations ====
+    // Transform vertex to screen space:
+    // 1. Apply our time-based rotation (trot4)
+    // 2. Apply the combined MVP matrix from KodeLife
+    gl_Position = (mvp * trot4) * a_position;
+
+    // Transform position to world space:
+    // 1. Apply time-based rotation
+    // 2. Apply model matrix for world position
+    outData.v_position = (model * trot4) * a_position;
+
+    // Transform normal to world space:
+    // Use 3x3 matrices since normals don't need translation
+    outData.v_normal = (mat3(model) * trot3) * a_normal;
+
+    // Pass through texture coordinates unchanged
+    outData.v_texcoord = a_texcoord;
 }
 ```
 
@@ -303,84 +340,101 @@ Replace the vertex shader with the code below:
 ```glsl
 #version 150
 
-uniform float time;
-uniform mat4 mvp;
-uniform mat4 model;
+// ==== Input Uniforms ====
+uniform float time;        // Time in seconds
+uniform mat4 mvp;         // Model-View-Projection matrix
+uniform mat4 model;       // Model matrix
 
+// ==== Vertex Attributes ====
 in vec4 a_position;
 in vec3 a_normal;
 in vec2 a_texcoord;
 
-out VertexData
-{
+// ==== Output to Fragment Shader ====
+out VertexData {
     vec4 v_position;
     vec3 v_normal;
     vec2 v_texcoord;
 } outData;
 
-// In order to support time based rotations we need functions to create rotation matrix from
-//  an angle
-//  rotX rotates around the X axis, rotY around the Y axis and rotZ around the Z axis.
-
-mat3 rotX(float a) {
-  float c = cos(a);
-  float s = sin(a);
-  return mat3(
-    1.0 , 0.0 , 0.0
-  , 0.0 , +c  , +s
-  , 0.0 , -s  , +c
-  );
+// ==== Rotation Matrix Functions ====
+// These functions create rotation matrices for each axis
+mat3 rotX(float angle) {
+    float c = cos(angle);
+    float s = sin(angle);
+    return mat3(
+        1.0, 0.0, 0.0,
+        0.0,  +c,  +s,
+        0.0,  -s,  +c
+    );
 }
 
-mat3 rotY(float a) {
-  float c = cos(a);
-  float s = sin(a);
-  return mat3(
-    +c  , 0.0 , +s
-  , 0.0 , 1.0 , 0.0
-  , -s  , 0.0 , +c
-  );
+mat3 rotY(float angle) {
+    float c = cos(angle);
+    float s = sin(angle);
+    return mat3(
+        +c, 0.0,  +s,
+        0.0, 1.0, 0.0,
+        -s, 0.0,  +c
+    );
 }
 
-mat3 rotZ(float a) {
-  float c = cos(a);
-  float s = sin(a);
-  return mat3(
-    +c  , +s  , 0.0
-  , -s  , +c  , 0.0
-  , 0.0 , 0.0 , 1.0
-  );
+mat3 rotZ(float angle) {
+    float c = cos(angle);
+    float s = sin(angle);
+    return mat3(
+        +c,  +s, 0.0,
+        -s,  +c, 0.0,
+        0.0, 0.0, 1.0
+    );
 }
 
 void main(void) {
-  const float tau = acos(-1.)*2.;
+    // ==== Constants and Instance Setup ====
+    const float tau = 2.*acos(-1.);  // 2π, full circle in radians
 
-  // Should match instance count in KodeLife
-  const float numberOfInstances = 200;
-  const float angleMul = tau*numberOfInstances/40.;
-  // gl_InstanceID is an integer that is 0 for the first instance, 1 for the second and so on
-  //  using this instance id we can apply different kind of transforms to the output of the vertex shader
-  //  to create cool effects
-  float i = float(gl_InstanceID)/numberOfInstances;
-  float tm = 0.5*time;
+    // Configure instancing parameters
+    const float numberOfInstances = 200.0;  // Should match KodeLife's instance count
+    // Controls the "spread" of instances in space
+    const float angleMul = tau * numberOfInstances / 40.0;
 
-  // Let's tweak the vertex position depending on the time and instance
-  vec4 pos = a_position;
-  // Some random combinations of sin and cos to produce new x,y,z coords
-  pos.x += 13.*(0.25+cos(0.25*angleMul*i+tm))*sin(angleMul*i+tm);
-  pos.y += 17.*(0.25+cos(0.25*angleMul*i+tm))*sin(0.25*angleMul*i+tm);
-  pos.z += 19.*(0.25+cos(0.25*angleMul*i+tm))*cos(angleMul*i+tm);
+    // Convert instance ID to normalized range [0,1]
+    // gl_InstanceID is built-in, unique per instance (0, 1, 2, ...)
+    float instanceProgress = float(gl_InstanceID) / numberOfInstances;
 
-  // Then we compute an angle that depends on the time and instance id and compute a rotation transform from that
-  float angle = tm+i*tau*2;
-  mat3 trot3 = rotX(angle)*rotY(sqrt(0.5)*angle)*rotZ(0.3*sqrt(0.5)*angle);
-  mat4 trot4 = mat4(0.1*trot3);
+    // Slow down time for smoother animation
+    float animationTime = 0.5 * time;
 
-  gl_Position = (mvp * trot4) * pos;
+    // ==== Position Modification ====
+    // Start with the original vertex position
+    vec4 pos = a_position;
 
-  outData.v_position  = (model*trot4)*pos;
-  outData.v_normal    = (mat3(model)*trot3)*a_normal;
-  outData.v_texcoord  = a_texcoord;
+    // Create unique wave patterns for each instance
+    float wave = 0.25 + cos(0.25 * angleMul * instanceProgress + animationTime);
+    pos.x += 13.0 * wave * sin(angleMul * instanceProgress + animationTime);
+    pos.y += 17.0 * wave * sin(0.25 * angleMul * instanceProgress + animationTime);
+    pos.z += 19.0 * wave * cos(angleMul * instanceProgress + animationTime);
+
+    // ==== Rotation Animation ====
+    // Create unique rotation angle for each instance
+    float rotationAngle = animationTime + instanceProgress * tau * 2.0;
+
+    // Combine rotations at different speeds for complexity
+    mat3 trot3 = rotX(rotationAngle) *
+                 rotY(sqrt(0.5) * rotationAngle) *
+                 rotZ(0.3 * sqrt(0.5) * rotationAngle);
+
+    // Scale positions by 0.1 to make the cubes fit inside the screen
+    mat4 trot4 = mat4(0.1 * trot3);
+
+    // ==== Final Transformations ====
+    // Transform to screen space with all effects applied
+    gl_Position = (mvp * trot4) * pos;
+
+    // Transform to world space for fragment shader
+    outData.v_position = (model * trot4) * pos;
+    outData.v_normal = (mat3(model) * trot3) * a_normal;
+    outData.v_texcoord = a_texcoord;
 }
 ```
 

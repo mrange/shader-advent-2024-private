@@ -1,23 +1,21 @@
-# Vertex Shaders in KodeLife by mrange
+# 🎄🌟🎄Vertex Shaders in KodeLife by 🎅 mrange🎄🌟🎄
 
-Hello.
+Hello!
 
-[ShaderToy](https://www.shadertoy.com/) let's us experiment and share Fragment Shaders (or Pixel Shaders if you are using DirectX).
+Many of us know [ShaderToy](https://www.shadertoy.com/) as a playground for experimenting with and sharing Fragment Shaders (also called Pixel Shaders in DirectX). But there's another type of shader that often flies under the radar: Vertex Shaders. Though less popular among shader enthusiasts, vertex shaders unlock a new world of possibilities—especially when combined with fragment shaders.
 
-A less known (I think) type of shaders for shader tinkerers is Vertex Shaders. Vertex Shaders can let you do cool stuff though, especially if you combine your knowledge of fragment shaders with vertex shaders.
+Take, for example, the 4KiB intro *Delusions of Mediocrity*. Here, most of the magic happens in the vertex shader, which generates vertices using a supershape formula. The fragment shaders handle the colors and post-processing effects.
+![Delusions of Mediocrity](assets/intro.jpg)
 
-The 4KiB intro `Delusions of mediocrity` most of the work is in the vertex shader generating vertices using a supershape formula. The fragment shaders produced the colors and the post-process effect.
-![Delusions of mediocrity](assets/intro.jpg)
+## Getting Started with Vertex Shaders
 
-## Getting started with Vertex Shaders
+Vertex shaders can be a bit trickier to work with than fragment shaders, but I’ll walk through some basics to help you get started.
 
-The drawback with vertex shaders is that they are more complicated to utitlize than fragment shaders but I will make an attempt to explain them a bit.
+For these examples, I’m using [KodeLife by Hexler](https://hexler.net/kodelife). KodeLife is a versatile tool that’s free to use, though it does include a gentle reminder to support the developers.
 
-I like [KodeLife by Hexler](https://hexler.net/kodelife) so I am going to use that for my examples. KodeLife can be used for free but you get a nag-screen asking you to consider buying it.
+When you launch KodeLife, it sets you up with an initial template. Usually, I dive straight into the fragment shader, but this time, let’s explore the vertex shader instead.
 
-When you start KodeLife it gives you an initial setup. Normally I go directly into the fragment shader and start tinkering but for this example let's look at the vertex shader.
-
-I have used code comments to explain what's different from a fragment shader.
+I’ve added code comments to clarify the key differences from fragment shaders.
 ```glsl
 #version 150
 
@@ -83,27 +81,27 @@ void main(void)
 }
 ```
 
-## First step, let's switch it up
+## 🌟First Step: Let’s Switch It Up🌟
 
-What we see in kodelife is actually a 3D model but the reason it looks like a flat surface is that the model is a quad and the projection is orthographic.
+What we see initially in KodeLife is technically a 3D model, but it appears flat because we’re using a quad with an orthographic projection.
 
-Let's switch that. Instead we are going to use a box model (in KodeLife called Primitive) and a projection with perspective.
+Let’s change that. We’ll swap the quad for a box (known as a “Primitive” in KodeLife) and switch to a perspective projection for a true 3D feel.
 
-Switch to the Pass tab and change the Primitive to Box and the Projection to Perspective.
+Go to the **Pass** tab, set **Primitive** to “Box,” and change **Projection** to “Perspective.”
 
 ![Setting up Primitive and Projection in KodeLife](assets/setup_projection.jpg)
 
-The causes the view to change and you should see a single square in the middle of the screen. This actually a box. This is more easily seen if you under Model in KodeLife changes some of the parameters. For example I set Rotate to (1,-1,-1) and it looks like below:
+Now the view changes, showing a square in the center of the screen. That square is actually a box! You’ll see this more clearly by adjusting some parameters under **Model** in KodeLife. For instance, I set **Rotate** to `(1, -1, -1)` to reveal the box’s 3D shape:
 
 ![It looks like a box now](assets/it_is_a_box.jpg)
 
-## Let's shade the cube
+## 🕯️ Let’s Shade the Cube🕯️
 
-As a guy growing up with computers in the 1980s I love rotating cubes, in fact I believe computers are made for rotating cubes.
+Growing up with computers in the 1980s, I’ve always loved rotating cubes; in fact, I believe that’s what computers were made for!
 
-But let's shade the cube a bit more naturally by applying a simple fragment shader to the sides of the cube.
+Now, let’s give the cube a more natural look by shading its sides with a basic fragment shader.
 
-Replace the fragment shader with this code. This applies basic lighting to the sides of the cube. I tried explain what it does in the comments
+Replace the current fragment shader with this code to add simple lighting. I’ve included comments to explain what each part does.
 ```glsl
 #version 150
 
@@ -168,19 +166,22 @@ void main(void) {
 }
 ```
 
-Now you should have a cube with pink sides but when you try to rotate it by changing the view parameters the shading of the cube doesn't change. The reason is that we don't transform the vertex positions and normal using the model transform in the vertex shader.
+Now, you should see a cube with pink sides. However, when you try rotating it by changing the view parameters, the shading remains static. This is because we aren’t applying the model transform to the vertex positions and normals in the vertex shader.
 
-Let's fix that.
+Let’s fix that.
 
-The model view projection transform (MVP) is 3 transforms multiplied together, the model, the view and the projection transform. We need the model transform but unfortunately we can't split the transform into its 3 parts.
+The Model-View-Projection (MVP) transform combines three matrices: model, view, and projection. Here, we need the model transform, but we can’t directly split MVP into these individual components.
 
-However, we can ask KodeLife to add the model transform as a uniform input to our vertex shader.
+Luckily, KodeLife lets us add the model transform as a uniform input to our vertex shader.
 
 ![Import model uniform](assets/model_uniform.jpg)
 
-First ensure you are editing the vertex shader, then click the shader stage. Under parameters click `+` to add a uniform, you find the model transform under `Built-in->Transform->Model`. Then change the name of the Model transform to `model`
+1. Make sure you’re editing the vertex shader.
+2. Click on the shader stage, then under **Parameters**, click `+` to add a uniform.
+3. Find the model transform under **Built-in > Transform > Model** and add it.
+4. Rename the uniform to `model`.
 
-Then in the vertex shader source code add the model uniform under the mvp uniform
+Now, in the vertex shader source code, add this `model` uniform below the `mvp` uniform.
 ```glsl
 // Should already be in the file
 uniform mat4 mvp;
@@ -188,8 +189,7 @@ uniform mat4 mvp;
 uniform mat4 model;
 ```
 
-Finally modify the main method of the vertex shader into this:
-
+Finally modify the main method of the vertex shader:
 ```glsl
 void main(void) {
   gl_Position = mvp * a_position;
@@ -206,15 +206,15 @@ void main(void) {
 }
 ```
 
-The cube lighting should then react to the rotation. In order to make the lighting more pronounced try changing the Primitive from Box to Teapot or Monkey.
+Now, the cube’s lighting should respond to rotation. To make the lighting effect more pronounced, try switching the **Primitive** from “Box” to “Teapot” or “Monkey” and see how the shading adapts.
 
-After you are done playing around with the different models change back to Box as now we will add time to the mix.
+Once you’ve explored the different models, switch back to “Box” so we can add a new element: *time*.
 
-## Making a classic rotating cube
+## 🎁Creating a Classic Rotating Cube🎁
 
-By using rotation matrix that depend on time we can create a classic rotating cube:
+By using a rotation matrix that changes over time, we can achieve that classic rotating cube effect.
 
-Replace the vertex shader with the code below
+Replace the vertex shader with the code below:
 ```glsl
 #version 150
 
@@ -287,20 +287,19 @@ void main(void) {
 }
 ```
 
-Hopefully it looks something like this now:
+By now, your setup should look something like this:
 
 ![Rotating boxes like it's 1989 again](assets/rotating_box.jpg)
 
-You might need to hit the Play button to start the timer.
+If it’s not rotating yet, you may need to hit the **Play** button to start the timer.
 
-## Let's kick it up a notch
+## 🎉Let’s Kick It Up a Notch🎉
 
-So a single rotating cube is cool but what is cooler is more than one cube, preferably a lot more.
+A single rotating cube is cool, but you know what’s cooler? A lot of rotating cubes.
 
-We can do this with instancing which means that we take a single shape (like a cube) and repeats it many times but modifies the output of the vertex shader depending on the instance ID.
+We can achieve this with *instancing*. Instancing allows us to take a single shape (like our cube) and repeat it multiple times, modifying the output in the vertex shader based on each instance’s unique ID.
 
 Replace the vertex shader with the code below:
-
 ```glsl
 #version 150
 
@@ -385,35 +384,36 @@ void main(void) {
 }
 ```
 
-Not much happened but we need to increase the instance count in KodeLife:
+Not seeing a change? Increase the instance count in KodeLife:
 
 ![200 boxes in KodeLife](assets/200_boxes.jpg)
 
-Hopefully you have 200 cubes on the screen that are animated.
+Now you should have 200 animated cubes filling the screen!
 
-If you struggle getting the examples to work you can download the [KodeLife project](200_boxes.klproj)
+If you’re having trouble getting these examples to work, you can download the [KodeLife project here](200_boxes.klproj).
 
-## That's it
+## 🎁That’s a Wrap 🎁
 
-I hope you got a wee introduction on how to tinker with vertex shaders to create cool effects.
+I hope this gave you a quick introduction to tinkering with vertex shaders to create fun effects.
 
-In order to perhaps help you along a bit more I dug around in my library of incomplete and buggy shaders and found some more KodeLife examples of vertex shaders.
+To give you a little extra inspiration, I’ve dug up a few of my incomplete (and possibly buggy) shaders from my personal library. They’re in the same state they were when I last worked on them, so use at your own risk! Here are some additional KodeLife vertex shader examples:
 
-The code is in the state it was when I lost interest in it so it might actually hurt you more than help you. You have been warned.
+1. [mrange & Virgill - *Delusions of Mediocrity* (Windows 4K intro)](delusions.klproj)
+2. [Fractal 2D Tree](2d_tree.klproj)
+3. [Fractal 3D Tree](falling_leaves.klproj)
+4. [Parametric 3D Shapes](parametric3d.klproj)
+5. [Solid Supershape](solid_supershapes.klproj)
+6. [Neonwave Sunset](neonwave.klproj)
+7. ["Star" Scroller](starscroller_variant.klproj)
+8. [Underwater Bubbles](bubble_bobble.klproj)
 
-1. [mrange & Virgill - Delusions of mediocrity (Windows 4k intro)](delusions.klproj)
-1. [A fractal 2D tree](2d_tree.klproj)
-1. [A fractal 3D tree](falling_leaves.klproj)
-1. [Tinkering with parametric 3D shapes](parametric3d.klproj)
-1. [Solid Supershape](solid_supershapes.klproj)
-1. [Neonwave sunset](neonwave.klproj)
-1. ["Star" scroller](starscroller_variant.klproj)
-1. [Underwater bubbles](bubble_bobble.klproj)
+Merry christmas all!
 
-## Licensing information
-
-All code content I created for this blog post including the linked KodeLife sample code is licensed as [CC0](https://creativecommons.org/public-domain/cc0/) (basically public domain). The code I use from others developer is licensed under their original license (obviously).
-
-The blog content itself is licensed as [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) (ie the StackOverflow license).
+🎅 - mrange
 
 
+## ❄️Licensing Information❄️
+
+All code content I created for this blog post, including the linked KodeLife sample code, is licensed under [CC0](https://creativecommons.org/public-domain/cc0/) (effectively public domain). Any code snippets from other developers retain their original licenses.
+
+The text content of this blog is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) (the same license as Stack Overflow).

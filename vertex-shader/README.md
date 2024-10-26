@@ -412,7 +412,7 @@ The code is in the state it was when I lost interest in it so it might actually 
 
 ## Licensing information
 
-All code content I created for this blog post including the linked KodeLife sample code is licensed as CC0 (basically public domain). The code I use from others developer is licensed under their original license (obviously).
+All code content I created for this blog post including the linked KodeLife sample code is licensed as [CC0](https://creativecommons.org/public-domain/cc0/) (basically public domain). The code I use from others developer is licensed under their original license (obviously).
 
 The blog content itself is licensed as [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) (ie the StackOverflow license).
 

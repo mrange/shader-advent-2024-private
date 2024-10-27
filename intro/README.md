@@ -105,30 +105,32 @@ By varying `a`, you’ll generate a vibrant color palette filled with rich blues
 
 Since discovering it, I’ve used this function countless times in my own work, as seen in my shader [here](https://www.shadertoy.com/view/cdKXDV).
 
-## Tip #6: The simplest post-processing
+## Tip #6: The Simplest Post-Processing
 
-One way to kick you shader up a notch is by applying post-processing to it. This can be [a complicated multi-stage process](https://www.shadertoy.com/view/MflfR8) but what I find myself returning to again and again is something really simple.
+One way to kick you shader up a notch your shader is by applying post-processing. While this can be [a complicated multi-stage process](https://www.shadertoy.com/view/MflfR8), I often find myself returning to a really simple technique.
 
-As can be [seen in my shaders I like saturated colors](https://www.shadertoy.com/view/XfyXRV). I don't like the un-intentional global glow that is very easy to end up with. I used to struggle alot with this until I learnt a really simple trick.
+As you can see in my shaders, I prefer saturated colors and dislike the unintentional global glow that can easily creep in. I used to struggle with this until I learned a straightforward trick.
 
-From the shader above the trick happens at line 347:
+In the shader above, the trick occurs at line 347:
+
 ```glsl
-  // Does all of the work but there's an annoying global glow that desaturates
-  //  the colors. I am annoyed!
-  col = render3(rayOrigin, rd);
+// Does all of the work, but there's an annoying global glow that desaturates
+// the colors. I am annoyed!
+col = render3(rayOrigin, rd);
 
-  // Line 347: This simple substraction removes the global global and increases saturation
-  col -= 2E-2*vec3(2.,3.,1.)*(length(p)+0.25);
+// Line 347: This simple subtraction removes the global glow and increases saturation
+col -= 2E-2 * vec3(2., 3., 1.) * (length(p) + 0.25);
 
-  // Maps colors from [0,inf[ to [0,1]
-  col = aces_approx(col);
-  // Approximate linear RGB => sRGB conversion
-  col = sqrt(col);
+// Maps colors from [0, inf[ to [0, 1]
+col = aces_approx(col);
+// Approximate linear RGB => sRGB conversion
+col = sqrt(col);
 ```
 
-What I usually do is that I do as good as I can on creating the effect but then as a final step I will apply post-processing.
+Typically, I’ll start by doing my best to create the desired effect, and then as a final step, I apply post-processing. I usually begin with something as simple as `col -= 0.01` and tweak it from there until it feels right.
 
-I start with something as simple as this `col -= 0.01` and see what I think about it and then I tinker from there.
+
+Wishing you all a merry and bright holiday season filled with colorful coding adventures! 🎄✨
 
 ## ❄️Licensing Information❄️
 

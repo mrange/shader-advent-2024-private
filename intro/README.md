@@ -2,24 +2,27 @@
 
 🎅Ho, ho, ho! Merry Christmas!🎅
 
-I have been following and even contributing to the [F# Advent Calendar](https://sergeytihon.com/fsadvent/) and I got thinking: We should try to do something like that for all us Shader tinkerers as well.
+After following and even pitching in on the [F# Advent Calendar](https://sergeytihon.com/fsadvent/), I thought: why not bring a little shader magic to December? So, welcome to the Shader Advent Calendar, where each day (hopefully) brings a fresh shader gem to tinker with or be inspired by.
 
-I realize creating something out of nothing is challenging and realistically I felt we would probably not be able to fill all days in December and I am therefore deeply grateful to all the contributors that helped me out.
+I realize that creating something out of nothing is challenging, and realistically, we may not be able to fill every day in December. I'm deeply grateful to all the contributors who have helped make this possible.
 
-In order to fill up the schedule you might see more blogs posts from me but I would be happy to trade my slot for anyone else.
+To keep the schedule full, you might see a few extra blog posts from me, but I'd be happy to give up my slot to anyone interested in contributing.
 
-Anyway, I thought I would start of the Shader Advent Calendar share tricks and tips I picked up from my tinkering with shaders.
+Anyway, I thought I’d kick off the Shader Advent Calendar by sharing a few tricks and tips I’ve picked up while tinkering with shaders.
 
-## Tip #1: Don't be afraid to share what you done
+Here's a refined version that smooths out grammar and adds a welcoming tone for beginners:
 
-Something I realized while sharing shaders on [ShaderToy](www.shadertoy.com) is that I can't predict what people will like. I can work for a really long time on something, share it and then just *crickets* in response. Other times I work for 2 hours on a quick hack and it becomes [Shader of the week](https://www.shadertoy.com/view/MfjyWK) and lots of appreciate comments.
+---
 
+## Tip #1: Don't Be Afraid to Share What You've Created
 
-In addition, I never had any bad interaction on ShaderToy over code quality or visual quality meaning I don't have any fear sharing something I realize might not be my best work. And even if the shader makes no splash whatsoever I have gotten comments from that it is their favorite. I don't know why they think so but I am glad they.
+One thing I’ve realized while sharing shaders on [ShaderToy](https://www.shadertoy.com) is that predicting what resonates with people is almost impossible. I can spend hours on something complex, post it, and hear only *crickets*. But then, I might spend just a couple of hours on a quick hack, and suddenly it’s [Shader of the Week](https://www.shadertoy.com/view/MfjyWK) with loads of positive feedback!
 
-So, my tip is that publish what you do on ShaderToy even if you are a beginner. There is room for all kind of content from shaders that are several thousand lines long to simple 2D shaders.
+Also, I’ve never had a negative experience on ShaderToy about code or visual quality—so I don’t feel any fear sharing work that may not be my absolute best. Sometimes, the simplest shaders end up being someone’s favorite, even if they don’t make a big splash.
 
-IQ, Shane, Kali and other produce amazing content but for a beginner (and experienced) shader tinkers they might be so intricate that they teach you nothing because you can't see the forest for all the trees. A simple shader can be what a beginner needs to see to finally understand how Raymarching works.
+So, my tip: share what you create, even if you’re just starting out! There’s room for all kinds of shaders on ShaderToy, from massive, intricate projects to simple 2D effects.
+
+Creators like IQ, Shane, and Kali put out stunning work, but for beginners and even seasoned tinkerers, these complex shaders can be hard to digest. Sometimes, it’s the smaller, simpler shaders that help beginners finally grasp concepts like Raymarching. So don’t hold back—your shader might be exactly what someone needs to see!
 
 ## Tip #2: Fragment shaders are not hard
 
@@ -132,3 +135,8 @@ What I usually do is that I do as good as I can on creating the effect but then 
 
 I start with something as simple as this `col -= 0.01` and see what I think about it and then I tinker from there.
 
+## ❄️Licensing Information❄️
+
+All code content I created for this blog post is licensed under [CC0](https://creativecommons.org/public-domain/cc0/) (effectively public domain). Any code snippets from other developers retain their original licenses.
+
+The text content of this blog is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) (the same license as Stack Overflow).

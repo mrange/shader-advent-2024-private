@@ -10,7 +10,7 @@ To keep the schedule full, you might see a few extra blog posts from me, but I'd
 
 Anyway, I thought I’d kick off the Shader Advent Calendar by sharing a few tricks and tips I’ve picked up while tinkering with shaders.
 
-## Tip #1: Don't Be Afraid to 🎁Share🎁 What You've Created
+## 🎁Tip #1: Don't Be Afraid to Share What You've Created🎁
 
 One thing I’ve realized while sharing shaders on [ShaderToy](https://www.shadertoy.com) is that predicting what resonates with people is almost impossible. I can spend hours on something complex, post it, and hear only 🦗🦗🦗*crickets*🦗🦗🦗. But then, I might spend just a couple of hours on a quick hack, and suddenly it’s [Shader of the Week](https://www.shadertoy.com/view/MfjyWK) with loads of positive feedback!
 

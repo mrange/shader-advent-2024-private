@@ -18,7 +18,7 @@ Also, I’ve never had a negative experience on ShaderToy about code or visual q
 
 So, my tip: share what you create, even if you’re just starting out! There’s room for all kinds of shaders on ShaderToy, from massive, intricate projects to simple 2D effects.
 
-Creators like IQ, Shane, and Kali put out stunning work, but for beginners and even seasoned tinkerers, these complex shaders can be hard to digest. Sometimes, it’s the smaller, simpler shaders that help beginners finally grasp concepts like Raymarching. So don’t hold back—your shader might be exactly what someone needs to see!
+Creators like [IQ](https://www.shadertoy.com/view/4ttSWf), [Shane](https://www.shadertoy.com/view/wtfBDf), and [Kali](https://www.shadertoy.com/view/XcXXzS) put out stunning work, but for beginners and even seasoned tinkerers, these complex shaders can be hard to digest. Sometimes, it’s the smaller, simpler shaders that help beginners finally grasp concepts like Raymarching. So don’t hold back—your shader might be exactly what someone needs to see!
 
 ## 🎉Tip #2: Fragment Shaders Aren't Hard🎉
 
@@ -55,6 +55,8 @@ Given a point in space, this `sphere` function returns the distance from the poi
 Ray tracing, a popular technique among shader creators, uses distance fields to create intricate 3D worlds. Here’s how it works: we define a distance field function—often called `map`—for our world. The ray tracer starts at a position and queries the distance field function to find out how far it is from the nearest surface. It then steps forward in the ray’s direction by that distance. The process repeats until the ray either reaches a surface or moves beyond the scene’s bounds.
 
 Check out a classic example, [Menger Sponge Variation by Shane](https://www.shadertoy.com/view/ldyGWm). In this shader, the `map` function defines the distance field for the world (a Menger sponge, in this case), while the `trace` function handles the ray tracing. The rest is lighting magic by Shane, but the basic ray tracer itself is straightforward. I don’t have hard numbers, but I’d guess that 90% of the shaders on [ShaderToy](https://www.shadertoy.com/results?query=raymarch) use this technique.
+
+![Menger Sponge Variation by Shane](assets/shane--menger-sponge.jpg)
 
 ## ⭐⭐⭐Tip #4: No, Really—Distance Fields Are Amazing⭐⭐⭐
 

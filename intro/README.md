@@ -119,7 +119,9 @@ One way to kick you shader up a notch your shader is by applying post-processing
 
 As you can see in my shaders, I prefer saturated colors and dislike the unintentional global glow that can easily creep in. I used to struggle with this until I learned a straightforward trick.
 
-In the shader above, the trick occurs at line 347:
+![Let's self reflect by mrange](mrange--lets-self-reflect.jpg)
+
+In [the shader](https://www.shadertoy.com/view/XfyXRV) above, the trick occurs at line 347:
 
 ```glsl
 // Does all of the work, but there's an annoying global glow that desaturates

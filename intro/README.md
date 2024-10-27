@@ -1,8 +1,8 @@
-# Welcome to Shader Advent Calendar 2024
+# 🎄⭐🎉Welcome to Shader Advent Calendar 2024🎉⭐🎄
 
 🎅Ho, ho, ho! Merry Christmas!🎅
 
-After following and even pitching in on the [F# Advent Calendar](https://sergeytihon.com/fsadvent/), I thought: why not bring a little shader magic to December? So, welcome to the Shader Advent Calendar, where each day (hopefully) brings a fresh shader gem to tinker with or be inspired by.
+After following and even pitching in on the 🎄[F# Advent Calendar](https://sergeytihon.com/fsadvent/)🎄, I thought: why not bring a little shader magic to December? So, welcome to the Shader Advent Calendar, where each day (hopefully) brings a fresh shader gem 🎁 to tinker with or be inspired by.
 
 I realize that creating something out of nothing is challenging, and realistically, we may not be able to fill every day in December. I'm deeply grateful to all the contributors who have helped make this possible.
 
@@ -10,9 +10,9 @@ To keep the schedule full, you might see a few extra blog posts from me, but I'd
 
 Anyway, I thought I’d kick off the Shader Advent Calendar by sharing a few tricks and tips I’ve picked up while tinkering with shaders.
 
-## Tip #1: Don't Be Afraid to Share What You've Created
+## Tip #1: Don't Be Afraid to 🎁Share🎁 What You've Created
 
-One thing I’ve realized while sharing shaders on [ShaderToy](https://www.shadertoy.com) is that predicting what resonates with people is almost impossible. I can spend hours on something complex, post it, and hear only *crickets*. But then, I might spend just a couple of hours on a quick hack, and suddenly it’s [Shader of the Week](https://www.shadertoy.com/view/MfjyWK) with loads of positive feedback!
+One thing I’ve realized while sharing shaders on [ShaderToy](https://www.shadertoy.com) is that predicting what resonates with people is almost impossible. I can spend hours on something complex, post it, and hear only 🦗🦗🦗*crickets*🦗🦗🦗. But then, I might spend just a couple of hours on a quick hack, and suddenly it’s [Shader of the Week](https://www.shadertoy.com/view/MfjyWK) with loads of positive feedback!
 
 Also, I’ve never had a negative experience on ShaderToy about code or visual quality—so I don’t feel any fear sharing work that may not be my absolute best. Sometimes, the simplest shaders end up being someone’s favorite, even if they don’t make a big splash.
 
@@ -20,7 +20,7 @@ So, my tip: share what you create, even if you’re just starting out! There’s
 
 Creators like IQ, Shane, and Kali put out stunning work, but for beginners and even seasoned tinkerers, these complex shaders can be hard to digest. Sometimes, it’s the smaller, simpler shaders that help beginners finally grasp concepts like Raymarching. So don’t hold back—your shader might be exactly what someone needs to see!
 
-## Tip #2: Fragment Shaders Aren't Hard
+## 🎉Tip #2: Fragment Shaders Aren't Hard🎉
 
 I often hear, "Shaders are dark magic and impossible to understand." But I’d argue that fragment shaders are actually pretty simple!
 
@@ -38,7 +38,7 @@ Now, shaders can be tricky, but usually, it’s not because the fundamentals are
 
 Which brings us to the next tip...
 
-## Tip #3: Distance Fields Are Amazing
+## ⭐Tip #3: Distance Fields Are Amazing⭐
 
 A central technique used by shader creators is the distance field. The idea is simple: distance field functions model 2D or 3D objects, like spheres and boxes, that can then be combined to create more complex shapes.
 
@@ -56,7 +56,7 @@ Ray tracing, a popular technique among shader creators, uses distance fields to 
 
 Check out a classic example, [Menger Sponge Variation by Shane](https://www.shadertoy.com/view/ldyGWm). In this shader, the `map` function defines the distance field for the world (a Menger sponge, in this case), while the `trace` function handles the ray tracing. The rest is lighting magic by Shane, but the basic ray tracer itself is straightforward. I don’t have hard numbers, but I’d guess that 90% of the shaders on [ShaderToy](https://www.shadertoy.com/) use this technique.
 
-## Tip #4: No, Really—Distance Fields Are Amazing
+## ⭐⭐⭐Tip #4: No, Really—Distance Fields Are Amazing⭐⭐⭐
 
 One of the most powerful aspects of distance fields is the ability to combine simple shapes using operations like *union* and *intersection*—a bit like Boolean algebra. Working with traditional shapes like triangles makes this complex, but with distance fields, it’s almost trivial!
 
@@ -91,9 +91,21 @@ float map(vec3 pos) {
 
 It’s really cool how much you can do with just a few functions!
 
-## Tip #5: The Palette Generating Function Loved by Shader Coders
+1. 🎄 (Christmas Tree)
+2. 🎅 (Santa Claus)
+3. 🤶 (Mrs. Claus)
+4. ❄️ (Snowflake)
+5. ⛄ (Snowman)
+6. 🎁 (Wrapped Gift)
+7. ⭐ (Star)
+8. 🎉 (Party Popper)
+9. 🍪 (Cookie)
+10. 🔔 (Bell)
 
-To create visually striking shaders, you need equally striking colors. One of the simplest and most popular ways to achieve this is by using the beloved palette generating function of shader coders:
+
+## 💖Tip #5: The Palette Generating Function Loved by Shader Coders💖
+
+To create visually striking shaders, you need equally striking colors. One of the simplest and most popular ways to achieve this is by using the beloved 💗 palette generating function of shader coders:
 
 ```glsl
 vec3 palette(float a) {
@@ -105,7 +117,7 @@ By varying `a`, you’ll generate a vibrant color palette filled with rich blues
 
 Since discovering it, I’ve used this function countless times in my own work, as seen in my shader [here](https://www.shadertoy.com/view/cdKXDV).
 
-## Tip #6: The Simplest Post-Processing
+## 🎅Tip #6: The Simplest Post-Processing🎅
 
 One way to kick you shader up a notch your shader is by applying post-processing. While this can be [a complicated multi-stage process](https://www.shadertoy.com/view/MflfR8), I often find myself returning to a really simple technique.
 
@@ -130,7 +142,7 @@ col = sqrt(col);
 Typically, I’ll start by doing my best to create the desired effect, and then as a final step, I apply post-processing. I usually begin with something as simple as `col -= 0.01` and tweak it from there until it feels right.
 
 
-Wishing you all a merry and bright holiday season filled with colorful coding adventures! 🎄✨
+✨🎄🎁Wishing you all a merry and bright holiday season filled with colorful coding adventures!🎁🎄✨
 
 ## ❄️Licensing Information❄️
 

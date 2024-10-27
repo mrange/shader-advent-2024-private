@@ -139,8 +139,104 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 
 More interesting already! We can see that distance field inside and outside follows the heart shape.
 
+## Adding a bit of color to it
+
+We can use the distance field to colorize the shapes and I am going to use a very popular palette generating function to do so:
+
+```glsl
+// Given a value produces a color, with varying values of a
+//  produces vibrant colors
+vec3 palette(float a) {
+  return 0.5+0.5*sin(vec3(0,1,2)+a);
+}
+```
+
+I then use this function to set the color:
+```glsl
+  if (d < 0.0) {
+    // If we are inside the circle set the color
+    //  Pass the distance to the palette generating function to
+    //  create a gradient and add a time component to animate it
+    col = palette(10.0*d-iTime);
+  }
+```
+
+Finally, the output color is supposed to be in sRGB and we are in linear RGB I do an approxiamative conversion like so:
+
+```glsl
+  // Approxiamative linear RGB => RGB conversion
+  col = sqrt(clamp(col,0.0,1.0));
+```
+
+The full example looks like this
+```glsl
+// Given a value produces a color, with varying values of a
+//  produces vibrant colors
+vec3 palette(float a) {
+  return 0.5+0.5*sin(vec3(0,1,2)+a);
+}
+
+float dot2(vec2 p) {
+  return dot(p,p);
+}
+
+// A distance field function for a circle
+float circle(vec2 pos, float radius) {
+  return length(pos) - radius;
+}
 
 
+// From IQ's amazing list of 2D distance field functions
+//  https://iquilezles.org/articles/distfunctions2d/
+float sdHeart( in vec2 p )
+{
+    p.x = abs(p.x);
+
+    if( p.y+p.x>1.0 )
+        return sqrt(dot2(p-vec2(0.25,0.75))) - sqrt(2.0)/4.0;
+    return sqrt(min(dot2(p-vec2(0.00,1.00)),
+                    dot2(p-0.5*max(p.x+p.y,0.0)))) * sign(p.x-p.y);
+}
+
+void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+  // This converts the input fragCoord, that is in texture coordinates, into p
+  //  where the center is at (0,0) and top and bot is at -1 and 1.
+  vec2 p = (-iResolution.xy+2.0*fragCoord)/iResolution.yy;
+
+  // Compute the distance from to a centered circle with radius 0.5
+  float dcircle = circle(p, 0.5);
+
+  // Compute the distance to a heart using IQ's function
+  float dheart = sdHeart(p-vec2(0.0,-0.5));
+
+  // Visualize the heart distance field
+  float d = dheart;
+
+  // By default the color is black
+  //  Colors in shaders are RGB where each component goes 0 to 1
+  vec3 col = vec3(0.0,0.0,0.0);
+
+  if (d < 0.0) {
+    // If we are inside the circle set the color
+    //  Pass the distance to the palette generating function to
+    //  create a gradient and add a time component to animate it
+    col = palette(10.0*d-iTime);
+  }
+
+  // d increases with the distance from the circle
+  //  by passing it to sin we get a value that varies between -1 and 1.
+  // Disabled for now, but uncomment below to visualize the distance field
+  // col.x += sin(100.*d);
+
+  // Approxiamative linear RGB => RGB conversion
+  col = sqrt(clamp(col,0.0,1.0));
+
+  // Set the output color with alpha = 1
+  fragColor = vec4(col,1.0);
+}
+```
+
+The interior of the heart should now be a vibrant animated color gradient.
 
 🎅 - mrange
 

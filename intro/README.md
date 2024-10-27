@@ -91,19 +91,19 @@ float map(vec3 pos) {
 
 It’s really cool how much you can do with just a few functions!
 
-## Tip #5: Palette generating function used by all shader size coders
+## Tip #5: The Palette Generating Function Loved by Shader Coders
 
-To make cool looking shaders we need cool looking colors and one of the simplest and shortest way of doing so is to use the favorite palette generating function of all shader sizer coders
+To create visually striking shaders, you need equally striking colors. One of the simplest and most popular ways to achieve this is by using the beloved palette generating function of shader coders:
 
 ```glsl
 vec3 palette(float a) {
-  return 0.5+0.5*sin(vec3(0,1,2)+a);
+  return 0.5 + 0.5 * sin(vec3(0, 1, 2) + a);
 }
 ```
 
-If you vary `a` you get a cool looking color palette with rich blues and intense whites. I was first introduced to this when looking at a [tweet by XorDev](https://twitter.com/XorDev/status/1601060422819680256) (also available on [ShaderToy](https://www.shadertoy.com/view/msjXRK)). Because it is short and  looks great it's [used everywhere](https://www.shadertoy.com/view/mtyGWy).
+By varying `a`, you’ll generate a vibrant color palette filled with rich blues and intense whites. I first came across this gem in a [tweet by XorDev](https://twitter.com/XorDev/status/1601060422819680256) (which you can also find on [ShaderToy](https://www.shadertoy.com/view/msjXRK)). Its simplicity and stunning results make it [ubiquitous](https://www.shadertoy.com/view/mtyGWy) in the shader community.
 
-[I have used it a ton](https://www.shadertoy.com/view/cdKXDV) since I was introduced to it.
+Since discovering it, I’ve used this function countless times in my own work, as seen in my shader [here](https://www.shadertoy.com/view/cdKXDV).
 
 ## Tip #6: The simplest post-processing
 

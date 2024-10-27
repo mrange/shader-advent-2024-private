@@ -10,10 +10,6 @@ To keep the schedule full, you might see a few extra blog posts from me, but I'd
 
 Anyway, I thought I’d kick off the Shader Advent Calendar by sharing a few tricks and tips I’ve picked up while tinkering with shaders.
 
-Here's a refined version that smooths out grammar and adds a welcoming tone for beginners:
-
----
-
 ## Tip #1: Don't Be Afraid to Share What You've Created
 
 One thing I’ve realized while sharing shaders on [ShaderToy](https://www.shadertoy.com) is that predicting what resonates with people is almost impossible. I can spend hours on something complex, post it, and hear only *crickets*. But then, I might spend just a couple of hours on a quick hack, and suddenly it’s [Shader of the Week](https://www.shadertoy.com/view/MfjyWK) with loads of positive feedback!
@@ -24,23 +20,23 @@ So, my tip: share what you create, even if you’re just starting out! There’s
 
 Creators like IQ, Shane, and Kali put out stunning work, but for beginners and even seasoned tinkerers, these complex shaders can be hard to digest. Sometimes, it’s the smaller, simpler shaders that help beginners finally grasp concepts like Raymarching. So don’t hold back—your shader might be exactly what someone needs to see!
 
-## Tip #2: Fragment shaders are not hard
+## Tip #2: Fragment Shaders Aren't Hard
 
-I often hear that "Shaders are dark magic and impossible to understand". However, I would like to argue the Fragment shaders actually quite simple to understand.
+I often hear, "Shaders are dark magic and impossible to understand." But I’d argue that fragment shaders are actually pretty simple!
 
-First, it's written in GLSL which is basically C with all the hard parts removed (that is resource management and recursion). Many developers out there are used to C style languages so I think most will feel very comfortable with the language.
+For one, they're written in GLSL—a language similar to C but without the tough stuff like resource management and recursion. Many developers are already familiar with C-style languages, so most will feel right at home with GLSL.
 
-Second, the fragment shader itself is a function that given a coordinate produces a color. The signature of a [new ShaderToy snippet](https://www.shadertoy.com/new) illustrates that:
+At its core, a fragment shader is just a function that takes a coordinate and returns a color. The basic structure of a [new ShaderToy snippet](https://www.shadertoy.com/new) shows this clearly:
 
 ```glsl
-void mainImage( out vec4 fragColor, in vec2 fragCoord );
+void mainImage(out vec4 fragColor, in vec2 fragCoord);
 ```
 
-Given a coordinate produce a color. That's it.
+Given a coordinate, it produces a color. That’s it.
 
-Now, many shaders can be tricky to understand but I argue not because the fundamentals are tricky but because the patterns shader tinkerers are different from "normal" patterns.
+Now, shaders can be tricky, but usually, it’s not because the fundamentals are complex. The challenge lies in the unique techniques shader creators use—patterns that differ from “normal” programming.
 
-Which leads to the next tip
+Which brings us to the next tip...
 
 ## Tip #3: Distance fields are amazing
 

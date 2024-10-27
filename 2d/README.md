@@ -59,6 +59,8 @@ Hit Alt-Enter or click the ▶️Play button at the bottom of the source editor 
 
 ![A simple circle](assets/circle-2d.jpg)
 
+## Visualizing the distance field
+
 I mentioned it's easy to visualize the distance field in 2D and we can that by adding a red component to the color that depends on the distance.
 
 Insert the following lines just above the comment `Set the output color with alpha = 1`
@@ -70,6 +72,75 @@ col.x += sin(100.*dcircle);
 ```
 
 ![A simple circle with distance field visualized](assets/circle-2d-with-distance.jpg)
+
+We can now see the distance field surrounding the circle but this technique works for any distance field so let's replace it with something more interesting.
+
+Creating a good distance field function that you can use as a building block can be tricky but luckily IQ has created [a list of 2D distance field functions](https://iquilezles.org/articles/distfunctions2d/) (licensed under MIT).
+
+I picked the heart function `sdHeart` and modified the code to visualize its distance field. I don't really understand how `sdHeart` works internally but the "contract" is that it returns the distance to the shape just as the `circle` does it.
+
+```glsl
+float dot2(vec2 p) {
+  return dot(p,p);
+}
+
+// A distance field function for a circle
+float circle(vec2 pos, float radius) {
+  return length(pos) - radius;
+}
+
+
+// From IQ's amazing list of 2D distance field functions
+//  https://iquilezles.org/articles/distfunctions2d/
+float sdHeart( in vec2 p )
+{
+    p.x = abs(p.x);
+
+    if( p.y+p.x>1.0 )
+        return sqrt(dot2(p-vec2(0.25,0.75))) - sqrt(2.0)/4.0;
+    return sqrt(min(dot2(p-vec2(0.00,1.00)),
+                    dot2(p-0.5*max(p.x+p.y,0.0)))) * sign(p.x-p.y);
+}
+
+void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+  // This converts the input fragCoord, that is in texture coordinates, into p
+  //  where the center is at (0,0) and top and bot is at -1 and 1.
+  vec2 p = (-iResolution.xy+2.0*fragCoord)/iResolution.yy;
+
+  // Compute the distance from to a centered circle with radius 0.5
+  float dcircle = circle(p, 0.5);
+
+  // Compute the distance to a heart using IQ's function
+  float dheart = sdHeart(p-vec2(0.0,-0.5));
+
+  // Visualize the heart distance field
+  float d = dheart;
+
+  // By default the color is black
+  //  Colors in shaders are RGB where each component goes 0 to 1
+  vec3 col = vec3(0.0,0.0,0.0);
+
+  if (d < 0.0) {
+    // If we are inside the circle set the color to white
+    col = vec3(1.0,1.0,1.0);
+  }
+
+  // d increases with the distance from the circle
+  //  by passing it to sin we get a value that varies between -1 and 1.
+  col.x += sin(100.*d);
+
+
+  // Set the output color with alpha = 1
+  fragColor = vec4(col,1.0);
+}
+```
+
+![Visualizing the distance field around the heart](assets/heart-2d-with-distance.jpg)
+
+More interesting already! We can see that distance field inside and outside follows the heart shape.
+
+
+
 
 🎅 - mrange
 

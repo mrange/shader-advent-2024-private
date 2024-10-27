@@ -12,7 +12,7 @@ Anyway, I thought I’d kick off the Shader Advent Calendar by sharing a few tri
 
 ## 🎁Tip #1: Don't Be Afraid to Share What You've Created🎁
 
-One thing I’ve realized while sharing shaders on [ShaderToy](https://www.shadertoy.com) is that predicting what resonates with people is almost impossible. I can spend hours on something complex, post it, and hear only 🦗🦗🦗*crickets*🦗🦗🦗. But then, I might spend just a couple of hours on a quick hack, and suddenly it’s [Shader of the Week](https://www.shadertoy.com/view/MfjyWK) with loads of positive feedback!
+One thing I’ve realized while sharing shaders on [ShaderToy](https://www.shadertoy.com) is that predicting what resonates with people is almost impossible. I can spend days on something complex, post it, and hear only 🦗🦗🦗*crickets*🦗🦗🦗. But then, I might spend just a couple of hours on a quick hack, and suddenly it’s [Shader of the Week](https://www.shadertoy.com/view/MfjyWK) with loads of positive feedback!
 
 Also, I’ve never had a negative experience on ShaderToy about code or visual quality—so I don’t feel any fear sharing work that may not be my absolute best. Sometimes, the simplest shaders end up being someone’s favorite, even if they don’t make a big splash.
 

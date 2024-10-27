@@ -74,7 +74,6 @@ col.x += sin(100. * dcircle);
 ```
 
 Now, we can see a visual representation of the distance field around the circle:
-
 ![A simple circle with distance field visualized](assets/circle-2d-with-distance.jpg)
 
 This technique works for any distance field, so let’s try it with a more exciting shape. Creating reusable distance field functions can be tricky, but IQ has a [fantastic collection of 2D distance functions](https://iquilezles.org/articles/distfunctions2d/) (licensed under MIT).
@@ -133,7 +132,6 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 ```
 
 And here’s the result:
-
 ![Visualizing the distance field around the heart](assets/heart-2d-with-distance.jpg)
 
 More interesting already! The distance field now follows the heart shape, showing both inside and outside areas.
@@ -324,6 +322,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 ```
 
 Now you should see the heart with a clean white outline!
+![Heart with an white outline](assets/heart-2d-with-outline.jpg)
 
 ## Combining the Circle and Heart Shape
 
@@ -431,10 +430,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 ```
 
 And voilà—a heart with a cut-out circle!
-
-Here’s a polished wrap-up with some extra clarity and festive cheer:
-
----
+![Heart with a circle cut-out](assets/heart-and-circle-2d)
 
 ## That’s All for Today! 🎉
 

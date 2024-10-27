@@ -54,7 +54,7 @@ Given a point in space, this `sphere` function returns the distance from the poi
 
 Ray tracing, a popular technique among shader creators, uses distance fields to create intricate 3D worlds. Here’s how it works: we define a distance field function—often called `map`—for our world. The ray tracer starts at a position and queries the distance field function to find out how far it is from the nearest surface. It then steps forward in the ray’s direction by that distance. The process repeats until the ray either reaches a surface or moves beyond the scene’s bounds.
 
-Check out a classic example, [Menger Sponge Variation by Shane](https://www.shadertoy.com/view/ldyGWm). In this shader, the `map` function defines the distance field for the world (a Menger sponge, in this case), while the `trace` function handles the ray tracing. The rest is lighting magic by Shane, but the basic ray tracer itself is straightforward. I don’t have hard numbers, but I’d guess that 90% of the shaders on [ShaderToy](https://www.shadertoy.com/) use this technique.
+Check out a classic example, [Menger Sponge Variation by Shane](https://www.shadertoy.com/view/ldyGWm). In this shader, the `map` function defines the distance field for the world (a Menger sponge, in this case), while the `trace` function handles the ray tracing. The rest is lighting magic by Shane, but the basic ray tracer itself is straightforward. I don’t have hard numbers, but I’d guess that 90% of the shaders on [ShaderToy](https://www.shadertoy.com/results?query=raymarch) use this technique.
 
 ## ⭐⭐⭐Tip #4: No, Really—Distance Fields Are Amazing⭐⭐⭐
 
@@ -90,18 +90,6 @@ float map(vec3 pos) {
 ```
 
 It’s really cool how much you can do with just a few functions!
-
-1. 🎄 (Christmas Tree)
-2. 🎅 (Santa Claus)
-3. 🤶 (Mrs. Claus)
-4. ❄️ (Snowflake)
-5. ⛄ (Snowman)
-6. 🎁 (Wrapped Gift)
-7. ⭐ (Star)
-8. 🎉 (Party Popper)
-9. 🍪 (Cookie)
-10. 🔔 (Bell)
-
 
 ## 💖Tip #5: The Palette Generating Function Loved by Shader Coders💖
 

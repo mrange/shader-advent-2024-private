@@ -59,6 +59,18 @@ Hit Alt-Enter or click the ▶️Play button at the bottom of the source editor 
 
 ![A simple circle](assets/circle-2d.jpg)
 
+I mentioned it's easy to visualize the distance field in 2D and we can that by adding a red component to the color that depends on the distance.
+
+Insert the following lines just above the comment `Set the output color with alpha = 1`
+
+```glsl
+// dcircle increases with the distance from the circle
+//  by passing it to sin we get a value that varies between -1 and 1.
+col.x += sin(100.*dcircle);
+```
+
+![A simple circle with distance field visualized](assets/circle-2d-with-distance.jpg)
+
 🎅 - mrange
 
 ## ❄️Licensing Information❄️

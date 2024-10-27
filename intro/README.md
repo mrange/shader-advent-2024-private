@@ -20,6 +20,8 @@ So, my tip: share what you create, even if you’re just starting out! There’s
 
 Creators like [IQ](https://www.shadertoy.com/view/4ttSWf), [Shane](https://www.shadertoy.com/view/wtfBDf), and [Kali](https://www.shadertoy.com/view/XcXXzS) put out stunning work, but for beginners and even seasoned tinkerers, these complex shaders can be hard to digest. Sometimes, it’s the smaller, simpler shaders that help beginners finally grasp concepts like Raymarching. So don’t hold back—your shader might be exactly what someone needs to see!
 
+![Snail by IQ](assets/iq--snail.jpg)
+
 ## 🎉Tip #2: Fragment Shaders Aren't Hard🎉
 
 I often hear, "Shaders are dark magic and impossible to understand." But I’d argue that fragment shaders are actually pretty simple!

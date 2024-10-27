@@ -138,45 +138,47 @@ And here’s the result:
 
 More interesting already! The distance field now follows the heart shape, showing both inside and outside areas.
 
-## Adding a bit of color
+## Adding a Bit of Color
 
-We can use the distance field to colorize the shapes and I am going to use a very popular palette generating function to do so:
+Now, let’s use the distance field to add a vibrant color gradient to our shapes. We’ll use a popular color palette function for this:
 
 ```glsl
-// Given a value produces a color, with varying values of a
-//  produces vibrant colors
+// Produces a vibrant color based on 'a'
+//  As 'a' varies, this generates a shifting color palette
 vec3 palette(float a) {
-  return 0.5+0.5*sin(vec3(0,1,2)+a);
+  return 0.5 + 0.5 * sin(vec3(0, 1, 2) + a);
 }
 ```
 
-I then use this function to set the color:
+Next, we’ll use this function to set the color inside the shape:
+
 ```glsl
   if (d < 0.0) {
-    // If we are inside the circle set the color
-    //  Pass the distance to the palette generating function to
-    //  create a gradient and add a time component to animate it
-    col = palette(10.0*d-iTime);
+    // Inside the shape, use the palette function to set color
+    //  Pass the distance to the palette function for a gradient
+    //  Add iTime to animate the colors
+    col = palette(10.0 * d - iTime);
   }
 ```
 
-Finally, the output color is supposed to be in sRGB and we are in linear RGB I do an approxiamative conversion like so:
+Finally, we need to convert the color to sRGB, as the shader outputs in linear RGB. Here’s an approximate conversion:
 
 ```glsl
-  // Approxiamative linear RGB => RGB conversion
-  col = sqrt(clamp(col,0.0,1.0));
+  // Approximate conversion from linear RGB to sRGB
+  col = sqrt(clamp(col, 0.0, 1.0));
 ```
 
-The full example looks like this
+Here’s the full example:
+
 ```glsl
-// Given a value produces a color, with varying values of a
-//  produces vibrant colors
+// Produces a vibrant color based on 'a'
+//  As 'a' varies, this generates a shifting color palette
 vec3 palette(float a) {
-  return 0.5+0.5*sin(vec3(0,1,2)+a);
+  return 0.5 + 0.5 * sin(vec3(0, 1, 2) + a);
 }
 
 float dot2(vec2 p) {
-  return dot(p,p);
+  return dot(p, p);
 }
 
 // A distance field function for a circle
@@ -184,213 +186,192 @@ float circle(vec2 pos, float radius) {
   return length(pos) - radius;
 }
 
-
 // From IQ's amazing list of 2D distance field functions
 //  https://iquilezles.org/articles/distfunctions2d/
-float sdHeart( in vec2 p )
-{
+float sdHeart(in vec2 p) {
     p.x = abs(p.x);
 
-    if( p.y+p.x>1.0 )
-        return sqrt(dot2(p-vec2(0.25,0.75))) - sqrt(2.0)/4.0;
-    return sqrt(min(dot2(p-vec2(0.00,1.00)),
-                    dot2(p-0.5*max(p.x+p.y,0.0)))) * sign(p.x-p.y);
+    if (p.y + p.x > 1.0)
+        return sqrt(dot2(p - vec2(0.25, 0.75))) - sqrt(2.0) / 4.0;
+    return sqrt(min(dot2(p - vec2(0.00, 1.00)),
+                    dot2(p - 0.5 * max(p.x + p.y, 0.0)))) * sign(p.x - p.y);
 }
 
-void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
-  // This converts the input fragCoord, that is in texture coordinates, into p
-  //  where the center is at (0,0) and top and bot is at -1 and 1.
-  vec2 p = (-iResolution.xy+2.0*fragCoord)/iResolution.yy;
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+  // Convert fragCoord to centered coordinates with -1 to 1 range on y-axis
+  vec2 p = (-iResolution.xy + 2.0 * fragCoord) / iResolution.yy;
 
-  // Compute the distance from to a centered circle with radius 0.5
+  // Distance from a centered circle with radius 0.5
   float dcircle = circle(p, 0.5);
 
-  // Compute the distance to a heart using IQ's function
-  float dheart = sdHeart(p-vec2(0.0,-0.5));
+  // Distance to the heart shape, centered a bit lower
+  float dheart = sdHeart(p - vec2(0.0, -0.5));
 
-  // Visualize the heart distance field
+  // Use the heart distance field for visualization
   float d = dheart;
 
-  // By default the color is black
-  //  Colors in shaders are RGB where each component goes 0 to 1
-  vec3 col = vec3(0.0,0.0,0.0);
+  // Set color to black by default
+  vec3 col = vec3(0.0, 0.0, 0.0);
 
   if (d < 0.0) {
-    // If we are inside the circle set the color
-    //  Pass the distance to the palette generating function to
-    //  create a gradient and add a time component to animate it
-    col = palette(10.0*d-iTime);
+    // Inside the shape, set color using animated palette
+    col = palette(10.0 * d - iTime);
   }
 
-  // d increases with the distance from the circle
-  //  by passing it to sin we get a value that varies between -1 and 1.
-  // Disabled for now, but uncomment below to visualize the distance field
-  // col.x += sin(100.*d);
+  // Uncomment the line below to visualize distance oscillation with sin()
+  // col.x += sin(100. * d);
 
-  // Approxiamative linear RGB => RGB conversion
-  col = sqrt(clamp(col,0.0,1.0));
+  // Approximate conversion from linear RGB to sRGB
+  col = sqrt(clamp(col, 0.0, 1.0));
 
   // Set the output color with alpha = 1
-  fragColor = vec4(col,1.0);
+  fragColor = vec4(col, 1.0);
 }
 ```
 
-The interior of the heart should now be a vibrant animated color gradient.
+The inside of the heart should now display an animated, vibrant color gradient!
 
-## Adding an outline
+## Adding an Outline
 
-Distance fields are powerful as you can create inner glow, outer glow, shadows and outlines trivially.
+One of the great perks of distance fields is how effortlessly we can add effects like inner glows, shadows, or outlines.
 
-For example in order to add a white outline to the heart we create a distance field for the outline based on the distance field for the shape.
+To add a simple white outline around the heart, we can build on our shape’s existing distance field:
 
 ```glsl
-  // Creates an outline by taking the abs of the distance field, the width is 0.025
+  // Creates an outline around the shape by using the absolute distance
+  //  The outline width is set to 0.025
   float doutline = abs(d) - 0.025;
 ```
 
-Then we use this distance field to compute the color:
+Then we use this new distance field to set the color for the outline:
 
 ```glsl
-  // After we set the color of the inside of the shape
+  // After setting the color inside the shape
   if (doutline < 0.0) {
-    // If we are inside the outline set the color to white
-    col = vec3(1.0,1.0,1.0);
+    // Inside the outline, set the color to white
+    col = vec3(1.0, 1.0, 1.0);
   }
 ```
 
-That's it! That's almost too simple to believe!
+And that’s it! Surprisingly simple, right?
 
-The full example:
+Here’s the full example:
+
 ```glsl
-// Given a value produces a color, with varying values of a
-//  produces vibrant colors
+// Generates a vibrant color based on 'a'
 vec3 palette(float a) {
-  return 0.5+0.5*sin(vec3(0,1,2)+a);
+  return 0.5 + 0.5 * sin(vec3(0, 1, 2) + a);
 }
 
 float dot2(vec2 p) {
-  return dot(p,p);
+  return dot(p, p);
 }
 
-// A distance field function for a circle
+// Distance field function for a circle
 float circle(vec2 pos, float radius) {
   return length(pos) - radius;
 }
 
-
-// From IQ's amazing list of 2D distance field functions
+// Distance field function for a heart (from IQ's distance function list)
 //  https://iquilezles.org/articles/distfunctions2d/
-float sdHeart( in vec2 p )
-{
+float sdHeart(in vec2 p) {
     p.x = abs(p.x);
 
-    if( p.y+p.x>1.0 )
-        return sqrt(dot2(p-vec2(0.25,0.75))) - sqrt(2.0)/4.0;
-    return sqrt(min(dot2(p-vec2(0.00,1.00)),
-                    dot2(p-0.5*max(p.x+p.y,0.0)))) * sign(p.x-p.y);
+    if (p.y + p.x > 1.0)
+        return sqrt(dot2(p - vec2(0.25, 0.75))) - sqrt(2.0) / 4.0;
+    return sqrt(min(dot2(p - vec2(0.00, 1.00)),
+                    dot2(p - 0.5 * max(p.x + p.y, 0.0)))) * sign(p.x - p.y);
 }
 
-void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
-  // This converts the input fragCoord, that is in texture coordinates, into p
-  //  where the center is at (0,0) and top and bot is at -1 and 1.
-  vec2 p = (-iResolution.xy+2.0*fragCoord)/iResolution.yy;
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+  // Convert fragCoord to centered coordinates with -1 to 1 range on y-axis
+  vec2 p = (-iResolution.xy + 2.0 * fragCoord) / iResolution.yy;
 
-  // Compute the distance from to a centered circle with radius 0.5
+  // Distance from a centered circle with radius 0.5
   float dcircle = circle(p, 0.5);
 
-  // Compute the distance to a heart using IQ's function
-  float dheart = sdHeart(p-vec2(0.0,-0.5));
+  // Distance to the heart shape, centered a bit lower
+  float dheart = sdHeart(p - vec2(0.0, -0.5));
 
-  // Visualize the heart distance field
+  // Use the heart distance field for visualization
   float d = dheart;
 
-  // Creates an outline by taking the abs of the distance field, the width is 0.025
+  // Create an outline using the absolute distance, setting width to 0.025
   float doutline = abs(d) - 0.025;
 
-  // By default the color is black
-  //  Colors in shaders are RGB where each component goes 0 to 1
-  vec3 col = vec3(0.0,0.0,0.0);
+  // Set default color to black
+  vec3 col = vec3(0.0, 0.0, 0.0);
 
   if (d < 0.0) {
-    // If we are inside the shape set the color
-    //  Pass the distance to the palette generating function to
-    //  create a gradient and add a time component to animate it
-    col = palette(10.0*d-iTime);
+    // Inside the shape, apply animated gradient using palette function
+    col = palette(10.0 * d - iTime);
   }
 
   if (doutline < 0.0) {
-    // If we are inside the outline set the color to white
-    col = vec3(1.0,1.0,1.0);
+    // Inside the outline, set color to white
+    col = vec3(1.0, 1.0, 1.0);
   }
 
-  // d increases with the distance from the circle
-  //  by passing it to sin we get a value that varies between -1 and 1.
-  // Disabled for now, but uncomment below to visualize the distance field
-  // col.x += sin(100.*d);
+  // Uncomment below to visualize the distance field oscillation
+  // col.x += sin(100. * d);
 
-  // Approxiamative linear RGB => RGB conversion
-  col = sqrt(clamp(col,0.0,1.0));
+  // Convert from linear RGB to sRGB (approximate)
+  col = sqrt(clamp(col, 0.0, 1.0));
 
   // Set the output color with alpha = 1
-  fragColor = vec4(col,1.0);
+  fragColor = vec4(col, 1.0);
 }
 ```
 
-How it hopefully looks to you:
-![Heart with outline](assets/heart-2d-with-outline.jpg)
+Now you should see the heart with a clean white outline!
 
+## Combining the Circle and Heart Shape
 
-## Combining the cirle and heart shape
+One of the real joys of distance fields is how effortlessly shapes can be combined.
 
-One of the most amazing things with distance fields is how easy it is to combine them.
+To show both the circle and heart at once, we just need to merge their distance fields into a single one. Here’s how to replace this line:
 
-I want to show the circle and the heart at the same time and in order to do so I need to combine the two distance field into a single one.
-
-I do this by replace the code:
 ```glsl
   float d = dheart;
 ```
 
 with:
+
 ```glsl
-  // Ends up looking a bit like Mickey Mouse
-  float d = min(dheart,dcircle);
+  // This ends up looking a bit like Mickey Mouse
+  float d = min(dheart, dcircle);
 ```
 
-This creates a kind of Mickey Mouse looking shape. Hopefully we won't get sued by Disney!
-
-The `min` function produces the union of two distance fields, the `max` function produces the intersection of two distance fields.
-
+The `min` function here creates a union of the two shapes, while `max` would instead produce their intersection:
 
 ```glsl
-  // Ends up looking a bit like Google Map pin
-  float d = max(dheart,dcircle);
+  // This ends up looking a bit like a Google Map pin
+  float d = max(dheart, dcircle);
 ```
 
-By turning the circle in and out (by negating it) with can create a hole in the heart (presumably where cupid shot its arrow?). Tinkered abit with circle distance field to make it fit better, made the radius 0.25 and moved the circle center to (0.0,0.25).
+If we flip the circle’s distance (using `-dcircle`), we can make it a “hole” inside the heart (perhaps Cupid’s handiwork?). With a few tweaks—making the circle radius 0.25 and shifting its center up a bit—we get:
 
 ```glsl
-  // Compute the distance from to a centered circle with radius 0.5
-  float dcircle = circle(p-vec2(0.0,0.25), 0.25);
+  // Define a smaller circle, centered slightly higher
+  float dcircle = circle(p - vec2(0.0, 0.25), 0.25);
 
-  // Compute the distance to a heart using IQ's function
-  float dheart = sdHeart(p-vec2(0.0,-0.5));
+  // Compute the distance to a heart using IQ’s function
+  float dheart = sdHeart(p - vec2(0.0, -0.5));
 
-  // A hole-y heart
-  float d = max(dheart,-dcircle);
+  // A heart with a hole
+  float d = max(dheart, -dcircle);
 ```
 
-The full example:
+Here’s the complete example:
 
 ```glsl
-// Given a value produces a color, with varying values of a
-//  produces vibrant colors
+// Generates a vibrant color based on 'a'
 vec3 palette(float a) {
-  return 0.5+0.5*sin(vec3(0,1,2)+a);
+  return 0.5 + 0.5 * sin(vec3(0, 1, 2) + a);
 }
 
 float dot2(vec2 p) {
-  return dot(p,p);
+  return dot(p, p);
 }
 
 // A distance field function for a circle
@@ -398,81 +379,72 @@ float circle(vec2 pos, float radius) {
   return length(pos) - radius;
 }
 
-
-// From IQ's amazing list of 2D distance field functions
+// Distance field function for a heart (from IQ’s 2D distance functions)
 //  https://iquilezles.org/articles/distfunctions2d/
-float sdHeart( in vec2 p )
-{
+float sdHeart(in vec2 p) {
     p.x = abs(p.x);
 
-    if( p.y+p.x>1.0 )
-        return sqrt(dot2(p-vec2(0.25,0.75))) - sqrt(2.0)/4.0;
-    return sqrt(min(dot2(p-vec2(0.00,1.00)),
-                    dot2(p-0.5*max(p.x+p.y,0.0)))) * sign(p.x-p.y);
+    if (p.y + p.x > 1.0)
+        return sqrt(dot2(p - vec2(0.25, 0.75))) - sqrt(2.0) / 4.0;
+    return sqrt(min(dot2(p - vec2(0.00, 1.00)),
+                    dot2(p - 0.5 * max(p.x + p.y, 0.0)))) * sign(p.x - p.y);
 }
 
-void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
-  // This converts the input fragCoord, that is in texture coordinates, into p
-  //  where the center is at (0,0) and top and bot is at -1 and 1.
-  vec2 p = (-iResolution.xy+2.0*fragCoord)/iResolution.yy;
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+  // Convert fragCoord to centered coordinates with -1 to 1 range on y-axis
+  vec2 p = (-iResolution.xy + 2.0 * fragCoord) / iResolution.yy;
 
-  // Compute the distance from to a centered circle with radius 0.5
-  float dcircle = circle(p-vec2(0.0,0.25), 0.25);
+  // Define a smaller circle, centered slightly higher
+  float dcircle = circle(p - vec2(0.0, 0.25), 0.25);
 
-  // Compute the distance to a heart using IQ's function
-  float dheart = sdHeart(p-vec2(0.0,-0.5));
+  // Compute the distance to a heart shape
+  float dheart = sdHeart(p - vec2(0.0, -0.5));
 
-  // A hole-y heart
-  float d = max(dheart,-dcircle);
+  // A heart with a hole
+  float d = max(dheart, -dcircle);
 
-  // Creates an outline by taking the abs of the distance field, the width is 0.025
+  // Create an outline by taking the absolute value of the distance field, with a width of 0.025
   float doutline = abs(d) - 0.025;
 
-  // By default the color is black
-  //  Colors in shaders are RGB where each component goes 0 to 1
-  vec3 col = vec3(0.0,0.0,0.0);
+  // Default color is black
+  vec3 col = vec3(0.0, 0.0, 0.0);
 
   if (d < 0.0) {
-    // If we are inside the shape set the color
-    //  Pass the distance to the palette generating function to
-    //  create a gradient and add a time component to animate it
-    col = palette(10.0*d-iTime);
+    // Inside the shape, apply animated gradient using the palette function
+    col = palette(10.0 * d - iTime);
   }
 
   if (doutline < 0.0) {
-    // If we are inside the outline set the color to white
-    col = vec3(1.0,1.0,1.0);
+    // Inside the outline, set color to white
+    col = vec3(1.0, 1.0, 1.0);
   }
 
-  // d increases with the distance from the circle
-  //  by passing it to sin we get a value that varies between -1 and 1.
-  // Disabled for now, but uncomment below to visualize the distance field
-  // col.x += sin(100.*d);
+  // Uncomment below to visualize the distance field oscillation
+  // col.x += sin(100. * d);
 
-  // Approxiamative linear RGB => RGB conversion
-  col = sqrt(clamp(col,0.0,1.0));
+  // Approximate linear RGB to sRGB conversion
+  col = sqrt(clamp(col, 0.0, 1.0));
 
   // Set the output color with alpha = 1
-  fragColor = vec4(col,1.0);
+  fragColor = vec4(col, 1.0);
 }
 ```
 
-And how it should look to you:
-![A heart and a circle distance field combined](assets/heart-and-circle-2d.jpg)
+And voilà—a heart with a cut-out circle!
 
-## That's all I wanted to show today
+Here’s a polished wrap-up with some extra clarity and festive cheer:
 
-Distance fields are a very commmon and powerful pattern used in many shaders in one way or another. I think it's important to develop an inituition for how they work and how you can combine them.
+---
 
-While central for 3D raymarchers I found developing the intiution in 3D difficult and I had greater success on working with 2D graphics and apply the knowledge I got from it to 3D.
+## That’s All for Today! 🎉
 
-You can do cool stuff in 2D by utilizing the distance field to create various effects and in my example I used `min` and `max` to combine shapes but there are other ways to do for example `soft-min` and `soft-max`.
+Distance fields are a versatile and widely-used tool in shader programming, showing up in countless ways across 2D and 3D graphics. Building an intuition for them—especially in 2D—gives you a solid foundation to tackle more complex 3D applications.
 
-To keep my examples conceptually simple I didn't apply any anti-aliasing techniques to make the edges smooth. It's not a difficult one-liner but I thought it is better to leave this for another time.
+In these examples, we explored some basics: combining shapes with `min` and `max`, and using distance fields to play with color, outlines, and even animated gradients. There’s more to experiment with, too, like combining shapes with `soft-min` and `soft-max`. And while we skipped anti-aliasing (for simplicity’s sake), it’s a quick addition that I’ll leave for another post.
 
+Here’s hoping this guide gets you started with 2D shaders and inspires you to experiment with shapes and color effects.
 
-✨🎄🎁A merry and jolly Christmas to you all!🎁🎄✨
-
+✨🎄🎁 Merry Christmas, and happy coding! 🎁🎄✨
 
 🎅 - mrange
 

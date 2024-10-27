@@ -38,11 +38,11 @@ Now, shaders can be tricky, but usually, it’s not because the fundamentals are
 
 Which brings us to the next tip...
 
-## Tip #3: Distance fields are amazing
+## Tip #3: Distance Fields Are Amazing
 
-A central pattern used by shader tinkerers are distance fields. The idea is simple as well. Distance field functions are used to model 2D or 3D objects like spheres and boxes and we can then combine them to together to create more complex shapes.
+A central technique used by shader creators is the distance field. The idea is simple: distance field functions model 2D or 3D objects, like spheres and boxes, that can then be combined to create more complex shapes.
 
-For example a sphere distance field function could look like this:
+For instance, a basic distance field function for a sphere might look like this:
 
 ```glsl
 float sphere(vec3 pos, float radius) {
@@ -50,27 +50,26 @@ float sphere(vec3 pos, float radius) {
 }
 ```
 
-Given a point in space the `sphere` function answers the question how from the sphere the point is. If the result is positive we are outside the sphere, if it's negative we are inside the sphere and if it's 0 we are on the surface.
+Given a point in space, this `sphere` function returns the distance from the point to the sphere’s surface. A positive result means the point is outside the sphere, a negative result places it inside, and if it’s zero, the point lies on the sphere’s surface.
 
-A very common technique among shader tinkerers raytracing to produce cool looking 3D worlds. We create a distance field function (often called `map`) for our world. The raytracer then starts in a position and asks the distance field function how far away it is. We then step that distance in the ray direction. We stop if we travelled or hit the surface otherwise we do another iteration.
+Ray tracing, a popular technique among shader creators, uses distance fields to create intricate 3D worlds. Here’s how it works: we define a distance field function—often called `map`—for our world. The ray tracer starts at a position and queries the distance field function to find out how far it is from the nearest surface. It then steps forward in the ray’s direction by that distance. The process repeats until the ray either reaches a surface or moves beyond the scene’s bounds.
 
-As an example have a look at a classic (IMHO) [Menger Sponge Variation by Shane](https://www.shadertoy.com/view/ldyGWm). The function `map` here is the distance field to the world (a menger sponge in this case) and the function `trace` is the raytracer. The rest is lighting magic by Shane but the basic raytracer is straight forward. I don't have any data but I would say 90% of the shaders on [ShaderToy](https://www.shadertoy.com/) works like this.
+Check out a classic example, [Menger Sponge Variation by Shane](https://www.shadertoy.com/view/ldyGWm). In this shader, the `map` function defines the distance field for the world (a Menger sponge, in this case), while the `trace` function handles the ray tracing. The rest is lighting magic by Shane, but the basic ray tracer itself is straightforward. I don’t have hard numbers, but I’d guess that 90% of the shaders on [ShaderToy](https://www.shadertoy.com/) use this technique.
 
-## Tip #4: No really, distance fields are amazing
+## Tip #4: No, Really—Distance Fields Are Amazing
 
-A powerful way to create new shapes is combining simple ones using a union operation or an intersect operation, a bit like boolean algebra. When you work with triangles implementing this is hard work but when you work distance fields it's trivial.
+One of the most powerful aspects of distance fields is the ability to combine simple shapes using operations like *union* and *intersection*—a bit like Boolean algebra. Working with traditional shapes like triangles makes this complex, but with distance fields, it’s almost trivial!
 
-The union operation is the `min` function, the intersect operation is `max` function. When I first read that I couldn't believe it was that simple and was a big reason I got interested in shaders.
+The union operation uses the `min` function, and the intersection operation uses `max`. When I first learned this, I couldn’t believe it was that simple—and it’s one of the reasons I got hooked on shaders.
 
-So using that info we can create a "hole-y" box by combining two distance fields.
+Using these operations, let’s create a "hole-y" box by combining two distance fields:
 
 ```glsl
-
 // Returns the distance to a box
-//  From the amazing site: https://iquilezles.org/articles/distfunctions/
+// Adapted from: https://iquilezles.org/articles/distfunctions/
 float box(vec3 p, vec3 b) {
   vec3 q = abs(p) - b;
-  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+  return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
 }
 
 // Returns the distance to a sphere
@@ -79,18 +78,18 @@ float sphere(vec3 pos, float radius) {
 }
 
 float map(vec3 pos) {
-  // dbox is distance to a cube with side 2
-  float dbox = box(pos,vec3(1.));
-  // dcircle is distance to spehre with radius 1.1
+  // dbox is the distance to a cube with side length 2
+  float dbox = box(pos, vec3(1.0));
+  // dcircle is the distance to a sphere with radius 1.1
   float dcircle = sphere(pos, 1.1);
 
-  // Return the intersection between of the box and the circle turned inside out
-  //  This creates a hole-y box
-  return max(dbox,-dcircle);
+  // Return the intersection of the box and the inverted sphere
+  // This creates a hole-y box
+  return max(dbox, -dcircle);
 }
 ```
 
-Really cool!
+It’s really cool how much you can do with just a few functions!
 
 ## Tip #5: Palette generating function used by all shader size coders
 

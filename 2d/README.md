@@ -430,7 +430,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 ```
 
 And voilà—a heart with a cut-out circle!
-![Heart with a circle cut-out](assets/heart-and-circle-2d)
+![Heart with a circle cut-out](assets/heart-and-circle-2d.jpg)
 
 ## 🎉 That’s All for Today! 🎉
 

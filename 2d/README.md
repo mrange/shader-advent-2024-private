@@ -1,18 +1,16 @@
-# 🎄⭐🎉Introduction to 2D shaders🎉⭐🎄
+# 🎄⭐🎉 Introduction to 2D Shaders 🎉⭐🎄
 
-🎅Ho, ho, ho! Merry Christmas!🎅
+🎅 Ho, ho, ho! Merry Christmas! 🎅
 
 ## Introduction
 
-While most examples on [ShaderToy](https://www.shadertoy.com/) are 3D raymarchers you can do cool shaders with 2D. In addition, doing 2D it's easy to visualize distance fields which is a very common pattern in shader coding.
+Most examples on [ShaderToy](https://www.shadertoy.com/) use complex 3D raymarching, but creating cool shaders in 2D is just as fun! Working in 2D lets us easily visualize distance fields—a common pattern in shader coding. While 3D raytracing with distance fields can be complex, understanding them in 2D can help build skills for 3D later on.
 
-Distance fields are often used in shader raytracers but it's tricky to visualize the distance field in 3D. We can learn alot about how distance fields works by studying them in 2D and then apply our kwowledge to 3D.
+## Drawing a 2D Circle Using Shaders
 
-## Drawing a 2D circle
+[ShaderToy](https://www.shadertoy.com/) shaders are fragment shaders. A fragment shader is just a function that takes a coordinate and returns a color. A distance field function, on the other hand, returns the distance from any given point to a shape.
 
-As mentioned in the introductory post for [Shader Advent 2024](../intro/README.md) a fragment shader is just a function that takes a coordinate and returns a color and a distance field function when given a point returns the distance from the point to the surface.
-
-A simple circle distance field function can look like this
+Here’s an example of a circle distance field:
 
 ```glsl
 float circle(vec2 pos, float radius) {
@@ -20,11 +18,16 @@ float circle(vec2 pos, float radius) {
 }
 ```
 
-Each point further from origo than `radius` will result in a positive value, each point inside `radius` will result in a negative value and all points at `radius` will result in 0.
+In this function:
+- Any point farther from the origin (`pos`) than `radius` gives a positive value.
+- Points within `radius` give a negative value.
+- Points exactly at `radius` give zero.
 
-In order to draw a circle we will pass the coordinate to the circle distance field function and for each point that is inside, that is results in a negative value we wil set the color to white, otherwise it's black.
+To draw a circle, we pass each coordinate to this function. If the result is negative (inside the circle), we color it white; otherwise, it’s black.
 
-Now [create a shader in ShaderToy](https://www.shadertoy.com/new) and replace the code with:
+## Let’s Code It!
+
+Head over to [ShaderToy](https://www.shadertoy.com/new) and replace the default code with this:
 
 ```glsl
 // A distance field function for a circle

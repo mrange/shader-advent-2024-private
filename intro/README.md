@@ -107,7 +107,9 @@ vec3 palette(float a) {
 
 By varying `a`, you’ll generate a vibrant color palette filled with rich blues and intense whites. I first came across this gem in a [tweet by XorDev](https://twitter.com/XorDev/status/1601060422819680256) (which you can also find on [ShaderToy](https://www.shadertoy.com/view/msjXRK)). Its simplicity and stunning results make it [ubiquitous](https://www.shadertoy.com/view/mtyGWy) in the shader community.
 
-![Cosmic by XorDev](assets/xordev--cosmic.jpg)
+<p align="center">
+  <img src="assets/xordev--cosmic.jpg" alt="Cosmic by XorDev" style="width: 50%;" />
+</p>
 
 Since discovering it, I’ve used this function countless times in my own work, as seen in my shader [here](https://www.shadertoy.com/view/cdKXDV).
 

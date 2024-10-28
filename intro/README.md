@@ -4,9 +4,7 @@
 
 After following and even pitching in on the 🎄[F# Advent Calendar](https://sergeytihon.com/fsadvent/)🎄, I thought: why not bring a little shader magic to December? So, welcome to the Shader Advent Calendar, where each day (hopefully) brings a fresh shader gem 🎁 to tinker with or be inspired by.
 
-I realize that creating something out of nothing is challenging, and realistically, we may not be able to fill every day in December. I'm deeply grateful to all the contributors who have helped make this possible.
-
-To keep the schedule full, you might see a few extra blog posts from me, but I'd be happy to give up my slot to anyone interested in contributing.
+I realize that creating something out of nothing is challenging, and realistically, we may not fill every day in December. To pad the schedule, you might see a few extra posts from me, but I’d happily give up a slot to anyone who wants to contribute.
 
 Anyway, I thought I’d kick off the Shader Advent Calendar by sharing a few tricks and tips I’ve picked up while tinkering with shaders.
 
@@ -36,7 +34,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord);
 
 Given a coordinate, it produces a color. That’s it.
 
-Now, shaders can be tricky, but usually, it’s not because the fundamentals are complex. The challenge lies in the unique techniques shader creators use—patterns that differ from “normal” programming.
+Now, shaders can be tricky to decipher but it’s not because the fundamentals are complex. The challenge lies in the unique techniques shader creators use—patterns that differ from “normal” programming.
 
 Which brings us to the next tip...
 
@@ -62,7 +60,7 @@ Check out a classic example, [Menger Sponge Variation by Shane](https://www.shad
 
 ## ⭐⭐⭐Tip #4: No, Really—Distance Fields Are Amazing⭐⭐⭐
 
-One of the most powerful aspects of distance fields is the ability to combine simple shapes using operations like *union* and *intersection*—a bit like Boolean algebra. Working with traditional shapes like triangles makes this complex, but with distance fields, it’s almost trivial!
+One of the cool things about distance fields is how easily you can combine simple shapes with operations like union and intersection—much like Boolean algebra. With traditional triangle-based meshes, these operations are complex, but with distance fields, they’re almost trivial!
 
 The union operation uses the `min` function, and the intersection operation uses `max`. When I first learned this, I couldn’t believe it was that simple—and it’s one of the reasons I got hooked on shaders.
 
@@ -93,7 +91,7 @@ float map(vec3 pos) {
 }
 ```
 
-It’s really cool how much you can do with just a few functions!
+It’s really cool how much you can do with just a few simple operations!
 
 ## 💖Tip #5: The Palette Generating Function Loved by Shader Coders💖
 
@@ -105,19 +103,19 @@ vec3 palette(float a) {
 }
 ```
 
-By varying `a`, you’ll generate a vibrant color palette filled with rich blues and intense whites. I first came across this gem in a [tweet by XorDev](https://twitter.com/XorDev/status/1601060422819680256) (which you can also find on [ShaderToy](https://www.shadertoy.com/view/msjXRK)). Its simplicity and stunning results make it [ubiquitous](https://www.shadertoy.com/view/mtyGWy) in the shader community.
+By varying `a`, you’ll generate a vibrant color palette filled with rich blues and intense whites. I first came across this gem in a [tweet by XorDev](https://twitter.com/XorDev/status/1601060422819680256) (which you can also find on [ShaderToy](https://www.shadertoy.com/view/msjXRK)). Its simplicity and stunning results make it [an evergreen](https://www.shadertoy.com/view/mtyGWy) in the shader community.
 
 <p align="center">
   <img src="assets/xordev--cosmic.jpg" alt="Cosmic by XorDev" style="width: 50%;" />
 </p>
 
-Since discovering it, I’ve used this function countless times in my own work, as seen in my shader [here](https://www.shadertoy.com/view/cdKXDV).
+Since discovering it, I’ve used this function countless times in my own [work](https://www.shadertoy.com/view/cdKXDV).
 
 ## 🎅Tip #6: The Simplest Post-Processing🎅
 
-One way to kick you shader up a notch your shader is by applying post-processing. While this can be [a complicated multi-stage process](https://www.shadertoy.com/view/MflfR8), I often find myself returning to a really simple technique.
+One way to kick you shader up a notch is by applying post-processing. While this can be [a complicated multi-stage process](https://www.shadertoy.com/view/MflfR8), I often find myself returning to a really simple technique.
 
-As you can see in my shaders, I prefer saturated colors and dislike the unintentional global glow that can easily creep in. I used to struggle with this until I learned a straightforward trick.
+As you can see in my shaders, I like saturated colors and dislike the unintentional global glow that can easily creep in. I used to struggle with this until I learned a simple trick.
 
 ![Let's self reflect by mrange](assets/mrange--lets-self-reflect.jpg)
 
@@ -137,10 +135,12 @@ col = aces_approx(col);
 col = sqrt(col);
 ```
 
-Typically, I’ll start by doing my best to create the desired effect, and then as a final step, I apply post-processing. I usually begin with something as simple as `col -= 0.01` and tweak it from there until it feels right.
+Typically, I’ll start by doing my best to create the desired effect, and then as a final step, I apply post-processing. I usually begin with something as simple as `col -= 0.01;` and tweak it from there until it feels right.
 
 
-✨🎄🎁Wishing you all a merry and bright holiday season filled with colorful coding adventures!🎁🎄✨
+And with that, this is a 🎁 wrap. Wishing you all...
+
+✨🎄🎁 A merry and bright holiday season filled with colorful coding adventures! 🎁🎄✨
 
 🎅 - mrange
 

@@ -76,7 +76,7 @@ col.x += sin(100. * dcircle);
 Now, we can see a visual representation of the distance field around the circle:
 ![A simple circle with distance field visualized](assets/circle-2d-with-distance.jpg)
 
-This technique works for any distance field, so let’s try it with a more exciting shape. Creating reusable distance field functions can be tricky, but IQ has a [fantastic collection of 2D distance functions](https://iquilezles.org/articles/distfunctions2d/) (licensed under MIT).
+This technique works for any distance field, so let’s try it with a more exciting shape. Creating reusable distance field functions can be tricky, but [IQ](https://www.shadertoy.com/user/iq) has a [fantastic collection of 2D distance functions](https://iquilezles.org/articles/distfunctions2d/) (licensed under MIT).
 
 One example is a ❤️ heart shape, `sdHeart`, which I’ve added to the code. I’m not entirely sure how `sdHeart` works under the hood, but like our `circle` function, it returns the distance to the shape’s edge.
 
@@ -328,7 +328,7 @@ Now you should see the heart with a clean white outline!
 
 One of the real joys of distance fields is how effortlessly shapes can be combined.
 
-To show both the ⭕ circle and ❤️ heart at once, we just need to merge their distance fields into a single one. Here’s how to replace this line:
+To show both the ⭕ circle and ❤️ heart at once, we just need to merge their distance fields into a single one. Replace this line:
 
 ```glsl
   float d = dheart;
@@ -432,13 +432,14 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 And voilà—a heart with a cut-out circle!
 ![Heart with a circle cut-out](assets/heart-and-circle-2d.jpg)
 
+
 ## 🎉 That’s All for Today! 🎉
 
-Distance fields are a versatile and widely-used tool in shader programming, showing up in countless ways across 2D and 3D graphics. Building an intuition for them—especially in 2D—gives you a solid foundation to tackle more complex 3D applications.
+Distance fields are a handy tool in shader programming, showing up in all sorts of ways in 2D and 3D graphics. Getting a feel for them—especially in 2D—gives you a great foundation for tackling more complex 3D projects.
 
-In these examples, we explored some basics: combining shapes with `min` and `max`, and using distance fields to play with color, outlines, and even animated gradients. There’s more to experiment with, too, like combining shapes with `soft-min` and `soft-max`. And while we skipped anti-aliasing (for simplicity’s sake), it’s a quick addition that I’ll leave for another post.
+In this post, we covered some basics: combining shapes with `min` and `max`, and using distance fields to play with colors, outlines, and even animated gradients. There’s still plenty to explore, like using `soft-min` and `soft-max` to combine shapes. We skipped anti-aliasing for now, but it's an easy one-liner I can cover in a future post.
 
-Here’s hoping this guide gets you started with 2D shaders and inspires you to experiment with shapes and color effects.
+I hope this guide helps you dive into 2D shaders and sparks some fun experiments with shapes and color effects!
 
 ✨🎄🎁 Merry Christmas, and happy coding! 🎁🎄✨
 

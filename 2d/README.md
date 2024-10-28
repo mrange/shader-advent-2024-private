@@ -2,13 +2,13 @@
 
 🎅 Ho, ho, ho! Merry Christmas! 🎅
 
-## 🎄Introduction🎄
+## 🎄 2D Shaders are Cool Too! 🎄
 
-Most examples on [ShaderToy](https://www.shadertoy.com/) use ray marching in 3D, but creating cool shaders in 2D is just as fun! Working in 2D lets us easily visualize distance fields—a common pattern in shader coding—and we can then apply what we learn in 2D to 3D.
+Most examples on ShaderToy use ray marching in 3D, but creating cool shaders in 2D is just as fun! Working in 2D allows us to easily visualize distance fields—a common pattern in shader coding—and we can apply what we learn in 2D to 3D.
 
 ## Drawing a ⭕ 2D Circle Using Shaders
 
-[ShaderToy](https://www.shadertoy.com/) shaders are written as fragment shaders, which are functions that take a screen coordinate and return a color. In contrast, a distance field function returns the distance from a given point to a shape, making it a powerful tool for defining shapes within fragment shaders.
+Shaders on [ShaderToy](https://www.shadertoy.com/) are fragment shaders, which are functions that take screen coordinates as input and return a color. In our fragment shader, we’ll model shapes using distance field functions that calculate the distance from a given point to the edge of the shape.
 
 Here’s an example of a ⭕ circle distance field:
 

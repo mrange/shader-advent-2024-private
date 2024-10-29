@@ -22,37 +22,49 @@ To trace a ray through our scene, we need two things: a **ray origin** and a **r
 - **Ray Direction**: Here, we’ve got options, but one simple way to get the direction vector is the following:
 
 ```glsl
-  // p is the coordinate with (0,0) in the center of the screen
-  // (0,1) is top of screen and (0,-1) is the bottom
-  // Thus when p is (0,0) it points in (0,0,1).
-  // We normalize as a direction vector should have length=1
-  vec3 rayDirection = normalize(vec3(p,1));
+    // Create the ray direction vector pointing from camera through each pixel
+    // p.x and p.y determine the screen position, 1.0 sets the forward direction
+    // normalize() ensures the ray direction has length 1
+    vec3 rayDirection = normalize(vec3(p, 1.0));
 ```
 
 Here's the complete example:
 
 ```glsl
 void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
-  // Takes fragCoord and transform it into where p (0,0) is in the center of the screen
-  // and (0,1) is top of screen and (0,-1) is the bottom.
-  vec2 p = (-iResolution.xy+2.0*fragCoord)/iResolution.yy;
+    // STEP 1: Screen coordinate normalization
+    // Convert pixel coordinates (fragCoord) to normalized device coordinates (NDC)
+    // Result: p.x and p.y will range from -1 to 1, with (0,0) at screen center
+    // We divide by iResolution.y for both x and y to maintain aspect ratio
+    vec2 p = (-iResolution.xy + 2.0 * fragCoord) / iResolution.yy;
 
-  // Setup a ray origin
-  vec3 rayOrigin = vec3(0.0,0.0,-10.0);
-  // The ray direction
-  vec3 rayDirection = normalize(vec3(p,1.0));
+    // STEP 2: Ray setup
+    // Place the camera/eye position 10 units back from the origin
+    vec3 rayOrigin = vec3(0.0, 0.0, -10.0);
 
-  vec3 col = vec3(0.0);
-  // Use rayDirection to setup a basic background
-  if (rayDirection.y > 0.0) {
-    // The sky
-    col += vec3(0.2,0.5,0.5+0.5*rayDirection.y);
-  } else {
-    // The ground
-    col += -vec3(1.0,0.8,0.6)*rayDirection.y;
-  }
+    // Create the ray direction vector pointing from camera through each pixel
+    // p.x and p.y determine the screen position, 1.0 sets the forward direction
+    // normalize() ensures the ray direction has length 1
+    vec3 rayDirection = normalize(vec3(p, 1.0));
 
-  fragColor = vec4(col,1.0);
+    // STEP 3: Background color calculation
+    vec3 col = vec3(0.0);  // Start with black
+
+    if (rayDirection.y > 0.0) {
+        // Sky color: varies based on ray's vertical direction
+        // - Base sky color is a light blue-green (0.2, 0.5, 0.5)
+        // - Add more blue (up to 0.5) as we look higher up
+        col += vec3(0.2, 0.5, 0.5 + 0.5 * rayDirection.y);
+    } else {
+        // Ground color: gets darker as we look further down
+        // - Base color is a warm tan/brown (1.0, 0.8, 0.6)
+        // - Multiply by negative y direction for darker ground at steeper angles
+        col += -vec3(1.0, 0.8, 0.6) * rayDirection.y;
+    }
+
+    // STEP 4: Output
+    // Set the final color with full opacity (alpha = 1.0)
+    fragColor = vec4(col, 1.0);
 }
 ```
 
@@ -61,10 +73,15 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 Now, let’s take a big step forward and define a **distance field** for the object we want to ray trace. There are plenty of ways to do this, but why not borrow the brilliant `sdBox` function from [IQ’s amazing collection of distance field functions](https://iquilezles.org/articles/distfunctions/)? After all, sharing is caring!
 
 ```glsl
-// Copied from: https://iquilezles.org/articles/distfunctions/
-float sdBox( vec3 p, vec3 b ) {
-  vec3 q = abs(p) - b;
-  return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
+// Signed Distance Function (SDF) for a box
+// Source: https://iquilezles.org/articles/distfunctions/
+// Parameters:
+//   p: point in 3D space to evaluate
+//   b: box dimensions (half-lengths in x, y, z)
+// Returns: negative inside box, 0 on surface, positive outside
+float sdBox(vec3 p, vec3 b) {
+    vec3 q = abs(p) - b;
+    return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
 }
 ```
 
@@ -75,72 +92,92 @@ With this distance field in hand, we can finally create our ray marcher! The pro
 Here is the full example:
 
 ```glsl
-// The maximum distance the ray can travel
+// Maximum distance a ray can travel before we consider it a "miss"
 const float MaxDistance = 20.0;
 
-// Copied from: https://iquilezles.org/articles/distfunctions/
-float sdBox( vec3 p, vec3 b ) {
-  vec3 q = abs(p) - b;
-  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+// Signed Distance Function (SDF) for a box
+// Source: https://iquilezles.org/articles/distfunctions/
+// Parameters:
+//   p: point in 3D space to evaluate
+//   b: box dimensions (half-lengths in x, y, z)
+// Returns: negative inside box, 0 on surface, positive outside
+float sdBox(vec3 p, vec3 b) {
+    vec3 q = abs(p) - b;
+    return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
 }
 
-// This function returns the distance field to our object
-//  or objects. Can be a very simple like this or more
-//  complicated like a fractal
-//  On ShaderToy many shaders call this function "map".
+// Distance Field Function
+// This defines the "scene" by returning the distance from any point
+// to the nearest surface. Can be made more complex by combining multiple SDFs
 float map(vec3 p) {
-  return sdBox(p, vec3(3.0));
+    // Create a box centered at origin with half-lengths of 3.0
+    return sdBox(p, vec3(3.0));
 }
 
+// Ray Marching Function
+// Moves along the ray in steps until hitting an object or reaching max distance
+// Parameters:
+//   rayOrigin: starting point of the ray
+//   rayDirection: normalized direction of the ray
+// Returns: distance traveled (MaxDistance if no hit)
 float rayMarch(vec3 rayOrigin, vec3 rayDirection) {
-  float distanceTravelled = 0.0;
-  for (int i = 0; i < 80; ++i) {
-    // Compute our current position
-    vec3 pos = rayOrigin+rayDirection*distanceTravelled;
-    // Test how far we are from the object.
-    float distanceToObject = map(pos);
-    // We are done if we are really close to the object (we hit it)
-    //  or we travelled too far
-    if (distanceToObject < 1E-3 || distanceTravelled >= MaxDistance) {
-      return distanceTravelled;
+    // Keep track of total distance traveled along the ray
+    float distanceTravelled = 0.0;
+
+    // Maximum number of steps to prevent infinite loops
+    for (int i = 0; i < 80; ++i) {
+        // STEP 1: Calculate current position along the ray
+        vec3 pos = rayOrigin + rayDirection * distanceTravelled;
+
+        // STEP 2: Get distance to nearest surface at current position
+        float distanceToObject = map(pos);
+
+        // STEP 3: Check termination conditions
+        // We've hit something (very close to surface) OR
+        // We've gone too far (missed everything)
+        if (distanceToObject < 1E-3 || distanceTravelled >= MaxDistance) {
+            return distanceTravelled;
+        }
+
+        // STEP 4: March forward
+        // We can safely move forward by the distance to the nearest surface
+        // (because no surface can be closer than this distance)
+        distanceTravelled += distanceToObject;
     }
 
-    // Otherwise are adding the distance to the object to the
-    //  distance travelled
-    distanceTravelled += distanceToObject;
-  }
-
-  // If we hit max number of iterations we return max distance to indicate a miss
-  return MaxDistance;
+    // If we exceed maximum steps, assume we missed everything
+    return MaxDistance;
 }
 
-void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
-  // Takes fragCoord and transform it into where p (0,0) is in the center of the screen
-  // and (0,1) is top of screen and (0,-1) is the bottom.
-  vec2 p = (-iResolution.xy+2.0*fragCoord)/iResolution.yy;
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+    // STEP 1: Screen coordinate normalization (same as previous example)
+    vec2 p = (-iResolution.xy + 2.0 * fragCoord) / iResolution.yy;
 
-  // Setup a ray origin
-  vec3 rayOrigin = vec3(0.0,0.0,-10.0);
-  // The ray direction
-  vec3 rayDirection = normalize(vec3(p,1.0));
+    // STEP 2: Ray setup (same as previous example)
+    vec3 rayOrigin = vec3(0.0, 0.0, -10.0);
+    vec3 rayDirection = normalize(vec3(p, 1.0));
 
-  vec3 col = vec3(0.0);
-  // Use rayDirection to setup a basic background
-  if (rayDirection.y > 0.0) {
-    // The sky
-    col += vec3(0.2,0.5,0.5+0.5*rayDirection.y);
-  } else {
-    // The ground
-    col += -vec3(1.0,0.8,0.6)*rayDirection.y;
-  }
+    // STEP 3: Initialize with background color
+    vec3 col = vec3(0.0);
+    if (rayDirection.y > 0.0) {
+        // Sky gradient
+        col += vec3(0.2, 0.5, 0.5 + 0.5 * rayDirection.y);
+    } else {
+        // Ground gradient
+        col += -vec3(1.0, 0.8, 0.6) * rayDirection.y;
+    }
 
-  float rayDistance = rayMarch(rayOrigin, rayDirection);
-  // If rayDistance is less than MaxDistance we count that as a hit
-  if (rayDistance < MaxDistance) {
-    col = vec3(1.0);
-  }
+    // STEP 4: Perform ray marching
+    float rayDistance = rayMarch(rayOrigin, rayDirection);
 
-  fragColor = vec4(col,1.0);
+    // STEP 5: Color the pixel
+    // If we hit something (rayDistance < MaxDistance),
+    // color it white, otherwise keep the background color
+    if (rayDistance < MaxDistance) {
+        col = vec3(1.0);  // White for any hit
+    }
+
+    fragColor = vec4(col, 1.0);
 }
 ```
 
@@ -151,25 +188,33 @@ Right now, all we see is a white square against a sky-blue background, but trust
 We can achieve this using a handy helper function that rotates our 2D coordinates. Here’s the magic:
 
 ```glsl
-// Rotates the 2D coord p using angle a
+// 2D Rotation Function
+// Rotates a 2D point 'p' by angle 'a' (in radians) around origin
+// Parameters:
+//   p: point to rotate (modified in-place using inout)
+//   a: angle in radians
 void rot(inout vec2 p, float a) {
-  float c = cos(a);
-  float s = sin(a);
-  // A thing I memorized; at some point I understood it
-  // but now I've forgotten!
-  p = vec2(c * p.x + s * p.y, -s * p.x + c * p.y);
+    // Standard 2D rotation matrix multiplication:
+    // [cos(a) -sin(a)] [x]
+    // [sin(a)  cos(a)] [y]
+    float c = cos(a);
+    float s = sin(a);
+    p = vec2(c * p.x + s * p.y, -s * p.x + c * p.y);
 }
 ```
 
 Now that we've got our rotation function, let's tweak the `map` function to introduce some time-based rotation. This will give our cube a dynamic feel:
 
 ```glsl
+// Distance Field Function with rotation
+// Now includes rotation in XY and XZ planes for animated movement
 float map(vec3 p) {
-  // Rotate around z-axis
-  rot(p.xy, iTime);
-  // Rotate around y-axis
-  rot(p.xz, iTime * 0.707);
-  return sdBox(p, vec3(3.0));
+    // Rotate in XY plane using current time
+    rot(p.xy, iTime);
+    // Rotate in XZ plane at different speed (0.707 ≈ 1/√2 for variety)
+    rot(p.xz, iTime * 0.707);
+    // Return distance to a box of size 3.0
+    return sdBox(p, vec3(3.0));
 }
 ```
 
@@ -182,13 +227,25 @@ If all goes well, you should be seeing a white cube spinning around. Cool, but l
 Now, here’s the tricky part: understanding the `normal` function might seem daunting. But don’t worry! You don’t have to master it; just know that almost all shaders use a version like this:
 
 ```glsl
+// Calculate Surface Normal
+// Uses central differences method to approximate the gradient of the distance field
+// Parameters:
+//   pos: point on the surface where we want to calculate the normal
+// Returns: normalized vector perpendicular to the surface
 vec3 normal(vec3 pos) {
-  vec2 eps = vec2(1E-2, 0.0);
-  return normalize(vec3(
-      map(pos + eps.xyy) - map(pos - eps.xyy),
-      map(pos + eps.yxy) - map(pos - eps.yxy),
-      map(pos + eps.yyx) - map(pos - eps.yyx)
-  ));
+    // Small offset for numerical differentiation
+    vec2 eps = vec2(1E-2, 0.0);  // x = epsilon, y = 0
+
+    // Calculate the gradient using central differences
+    // For each axis, we:
+    // 1. Sample the distance field slightly ahead (pos + eps)
+    // 2. Sample the distance field slightly behind (pos - eps)
+    // 3. Take the difference to approximate the derivative
+    return normalize(vec3(
+        map(pos + eps.xyy) - map(pos - eps.xyy),  // x-axis gradient
+        map(pos + eps.yxy) - map(pos - eps.yxy),  // y-axis gradient
+        map(pos + eps.yyx) - map(pos - eps.yyx)   // z-axis gradient
+    ));
 }
 ```
 
@@ -211,111 +268,121 @@ With these additions, our cube will not only rotate but also have a lovely shade
 The complete example:
 
 ```glsl
-// The maximum distance the ray can travel
+// Maximum ray travel distance before considering it a "miss"
 const float MaxDistance = 20.0;
 
-// The direction to the light
-const vec3 LightDirection = normalize(vec3(1.0,1.0,-2.0));
+// Directional light coming from upper-right and slightly behind viewer
+// Normalized to ensure consistent lighting intensity
+const vec3 LightDirection = normalize(vec3(1.0, 1.0, -2.0));
 
-// Rotates the 2D coord p using angle a
+// 2D Rotation Function
+// Rotates a 2D point 'p' by angle 'a' (in radians) around origin
+// Parameters:
+//   p: point to rotate (modified in-place using inout)
+//   a: angle in radians
 void rot(inout vec2 p, float a) {
-  float c=cos(a);
-  float s=sin(a);
-  // A thing I memorized, at some point I understood it
-  //  but now I forgot
-  p = vec2(c*p.x+s*p.y,-s*p.x+c*p.y);
+    // Standard 2D rotation matrix multiplication:
+    // [cos(a) -sin(a)] [x]
+    // [sin(a)  cos(a)] [y]
+    float c = cos(a);
+    float s = sin(a);
+    p = vec2(c * p.x + s * p.y, -s * p.x + c * p.y);
 }
 
-// Copied from: https://iquilezles.org/articles/distfunctions/
-float sdBox( vec3 p, vec3 b ) {
-  vec3 q = abs(p) - b;
-  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+// Signed Distance Function (SDF) for a box (unchanged from previous example)
+float sdBox(vec3 p, vec3 b) {
+    vec3 q = abs(p) - b;
+    return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
 }
 
-// This function returns the distance field to our object
-//  or objects. Can be a very simple like this or more
-//  complicated like a fractal
-//  On ShaderToy many shaders call this function "map".
+// Distance Field Function with rotation
+// Now includes rotation in XY and XZ planes for animated movement
 float map(vec3 p) {
-  rot(p.xy, iTime);
-  rot(p.xz, iTime*0.707);
-  return sdBox(p, vec3(3.0));
+    // Rotate in XY plane using current time
+    rot(p.xy, iTime);
+    // Rotate in XZ plane at different speed (0.707 ≈ 1/√2 for variety)
+    rot(p.xz, iTime * 0.707);
+    // Return distance to a box of size 3.0
+    return sdBox(p, vec3(3.0));
 }
 
+// Ray Marching Function (unchanged from previous example)
 float rayMarch(vec3 rayOrigin, vec3 rayDirection) {
-  float distanceTravelled = 0.0;
-  for (int i = 0; i < 80; ++i) {
-    // Compute our current position
-    vec3 pos = rayOrigin+rayDirection*distanceTravelled;
-    // Test how far we are from the object.
-    float distanceToObject = map(pos);
-    // We are done if we are really close to the object (we hit it)
-    //  or we travelled too far
-    if (distanceToObject < 1E-3 || distanceTravelled >= MaxDistance) {
-      return distanceTravelled;
+    float distanceTravelled = 0.0;
+    for (int i = 0; i < 80; ++i) {
+        vec3 pos = rayOrigin + rayDirection * distanceTravelled;
+        float distanceToObject = map(pos);
+        if (distanceToObject < 1E-3 || distanceTravelled >= MaxDistance) {
+            return distanceTravelled;
+        }
+        distanceTravelled += distanceToObject;
+    }
+    return MaxDistance;
+}
+
+// Calculate Surface Normal
+// Uses central differences method to approximate the gradient of the distance field
+// Parameters:
+//   pos: point on the surface where we want to calculate the normal
+// Returns: normalized vector perpendicular to the surface
+vec3 normal(vec3 pos) {
+    // Small offset for numerical differentiation
+    vec2 eps = vec2(1E-2, 0.0);  // x = epsilon, y = 0
+
+    // Calculate the gradient using central differences
+    // For each axis, we:
+    // 1. Sample the distance field slightly ahead (pos + eps)
+    // 2. Sample the distance field slightly behind (pos - eps)
+    // 3. Take the difference to approximate the derivative
+    return normalize(vec3(
+        map(pos + eps.xyy) - map(pos - eps.xyy),  // x-axis gradient
+        map(pos + eps.yxy) - map(pos - eps.yxy),  // y-axis gradient
+        map(pos + eps.yyx) - map(pos - eps.yyx)   // z-axis gradient
+    ));
+}
+
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+    // STEP 1: Screen coordinate normalization (unchanged)
+    vec2 p = (-iResolution.xy + 2.0 * fragCoord) / iResolution.yy;
+
+    // STEP 2: Ray setup (unchanged)
+    vec3 rayOrigin = vec3(0.0, 0.0, -10.0);
+    vec3 rayDirection = normalize(vec3(p, 1.0));
+
+    // STEP 3: Initialize with background color (unchanged)
+    vec3 col = vec3(0.0);
+    if (rayDirection.y > 0.0) {
+        col += vec3(0.2, 0.5, 0.5 + 0.5 * rayDirection.y);
+    } else {
+        col += -vec3(1.0, 0.8, 0.6) * rayDirection.y;
     }
 
-    // Otherwise are adding the distance to the object to the
-    //  distance travelled
-    distanceTravelled += distanceToObject;
-  }
+    // STEP 4: Perform ray marching
+    float rayDistance = rayMarch(rayOrigin, rayDirection);
 
-  // If we hit max number of iterations we return max distance to indicate a miss
-  return MaxDistance;
-}
+    // STEP 5: If we hit something, calculate lighting
+    if (rayDistance < MaxDistance) {
+        // Calculate the point of intersection
+        vec3 pos = rayOrigin + rayDistance * rayDirection;
 
+        // Reset color for surface shading
+        col = vec3(0.0);
 
-vec3 normal(vec3 pos) {
-  vec2 eps = vec2(1E-2, 0.0);
-  return normalize(vec3(
-      map(pos+eps.xyy)-map(pos-eps.xyy)
-    , map(pos+eps.yxy)-map(pos-eps.yxy)
-    , map(pos+eps.yyx)-map(pos-eps.yyx))
-    );
-}
+        // Calculate surface normal at intersection point
+        vec3 n = normal(pos);
 
-void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
-  // Takes fragCoord and transform it into where p (0,0) is in the center of the screen
-  // and (0,1) is top of screen and (0,-1) is the bottom.
-  vec2 p = (-iResolution.xy+2.0*fragCoord)/iResolution.yy;
+        // LIGHTING CALCULATION:
+        // 1. Diffuse lighting: dot product between normal and light direction
+        //    max() ensures we don't get negative lighting
+        col += max(dot(n, LightDirection), 0.0);
 
-  // Setup a ray origin
-  vec3 rayOrigin = vec3(0.0,0.0,-10.0);
-  // The ray direction
-  vec3 rayDirection = normalize(vec3(p,1.));
+        // 2. Ambient lighting: small constant to prevent completely black shadows
+        col += 0.05;
+    }
 
-  vec3 col = vec3(0.0);
-  // Use rayDirection to setup a basic background
-  if (rayDirection.y > 0.0) {
-    // The sky
-    col += vec3(0.2,0.5,0.5+0.5*rayDirection.y);
-  } else {
-    // The ground
-    col += -vec3(1.0,0.8,0.6)*rayDirection.y;
-  }
-
-
-  float rayDistance = rayMarch(rayOrigin, rayDirection);
-  // If rayDistance is less than MaxDistance we count that as a hit
-  if (rayDistance < MaxDistance) {
-    // Compute the pos of the point on the surface
-    vec3 pos = rayOrigin+rayDistance*rayDirection;
-    col = vec3(0.0);
-    // Compute the normal at pos
-    vec3 n = normal(pos);
-    // Then compute the diffuse lighting using the dot product of normal and
-    // light direction
-    col += max(dot(n, LightDirection),0.0);
-    // Ambient light
-    col += 0.05;
-  }
-
-  fragColor = vec4(col,1.0);
+    fragColor = vec4(col, 1.0);
 }
 ```
-
-
-Here’s the next section, keeping that engaging style:
 
 ## 🧊🌐 Making Complex Shapes from Simple Ones 🌐🧊
 
@@ -324,25 +391,34 @@ Awesome! We’ve got a basic rotating cube with some nifty shading. But wait—w
 Using **union** and **intersection** operations with `min` and `max`, we can mix and match shapes. For example, let’s combine our box with a box frame using the `sdBoxFrame` function:
 
 ```glsl
-// Copied from: https://iquilezles.org/articles/distfunctions/
+// SDF for hollow box frame
+// Parameters:
+//   p: point to evaluate
+//   b: outer dimensions of frame
+//   e: thickness of frame edges
 float sdBoxFrame(vec3 p, vec3 b, float e) {
     p = abs(p) - b;
     vec3 q = abs(p + e) - e;
+
     return min(min(
         length(max(vec3(p.x, q.y, q.z), 0.0)) + min(max(p.x, max(q.y, q.z)), 0.0),
         length(max(vec3(q.x, p.y, q.z), 0.0)) + min(max(q.x, max(p.y, q.z)), 0.0)),
         length(max(vec3(q.x, q.y, p.z), 0.0)) + min(max(q.x, max(q.y, p.z)), 0.0));
 }
 
+// Distance Field Function combining multiple shapes
+// - union (min): combines shapes by taking minimum distance
 float map(vec3 p) {
+    // Apply rotation animation
     rot(p.xy, iTime);
     rot(p.xz, iTime * 0.707);
 
-    // The box distance field
-    float dbox = sdBox(p, vec3(3.0));
-    // The box frame distance field
-    float dboxFrame = sdBoxFrame(p, vec3(3.5), 0.2);
-    // Combine the two using min
+    // STEP 1: Create basic shapes
+    float dbox = sdBox(p, vec3(3.0));           // Solid inner box
+    float dboxFrame = sdBoxFrame(p, vec3(3.5), 0.2);  // Hollow outer frame
+
+    // STEP 2: Combine shapes
+    // First, union of both boxes (min combines them)
     float d = min(dbox, dboxFrame);
 
     return d;
@@ -362,25 +438,24 @@ float sdSphere(vec3 p, float r) {
 Now we’ll modify our `map` function to include the sphere:
 
 ```glsl
-// This function returns the distance field to our object
-// or objects. It can be very simple like this or more
-// complicated, like a fractal. On ShaderToy, many shaders
-// call this function "map".
+// Distance Field Function combining multiple shapes
+// - union (min): combines shapes by taking minimum distance
+// - subtraction (max): subtracts one shape from another by negating distance
 float map(vec3 p) {
+    // Apply rotation animation
     rot(p.xy, iTime);
     rot(p.xz, iTime * 0.707);
 
-    // The box distance field
-    float dbox = sdBox(p, vec3(3.0));
-    // The box frame distance field
-    float dboxFrame = sdBoxFrame(p, vec3(3.5), 0.2);
-    // The inner sphere
-    float dsphere = sdSphere(p, 3.4);
+    // STEP 1: Create basic shapes
+    float dbox = sdBox(p, vec3(3.0));           // Solid inner box
+    float dboxFrame = sdBoxFrame(p, vec3(3.5), 0.2);  // Hollow outer frame
+    float dsphere = sdSphere(p, 3.4);           // Sphere for creating a hole
 
-    // Combine the two boxes using min
+    // STEP 2: Combine shapes
+    // First, union of both boxes (min combines them)
     float d = min(dbox, dboxFrame);
 
-    // Subtract the sphere from d using max
+    // Then subtract sphere from result (max with negative distance creates hole)
     d = max(d, -dsphere);
 
     return d;
@@ -414,150 +489,138 @@ if (rayLightDistance >= MaxDistance) {
 With this code, our scene will now have some lovely shadows, adding depth and realism to our rotating cube. Shadows can make a huge difference in how we perceive shapes, and now our cube is looking even more dynamic!
 
 ```glsl
-// The maximum distance the ray can travel
+// Maximum ray travel distance before considering it a "miss"
 const float MaxDistance = 20.0;
 
-// The direction to the light
-const vec3 LightDirection = normalize(vec3(1.0,1.0,-2.0));
+// Directional light coming from upper-right and slightly behind viewer
+const vec3 LightDirection = normalize(vec3(1.0, 1.0, -2.0));
 
-// Rotates the 2D coord p using angle a
+// 2D Rotation Function (unchanged from previous example)
 void rot(inout vec2 p, float a) {
-  float c=cos(a);
-  float s=sin(a);
-  // A thing I memorized, at some point I understood it
-  //  but now I forgot
-  p = vec2(c*p.x+s*p.y,-s*p.x+c*p.y);
+    float c = cos(a);
+    float s = sin(a);
+    p = vec2(c * p.x + s * p.y, -s * p.x + c * p.y);
 }
 
+// === SIGNED DISTANCE FUNCTIONS (SDFs) ===
 
-// Copied from: https://iquilezles.org/articles/distfunctions/
-float sdBox( vec3 p, vec3 b ) {
-  vec3 q = abs(p) - b;
-  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+// SDF for solid box
+float sdBox(vec3 p, vec3 b) {
+    vec3 q = abs(p) - b;
+    return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
 }
 
-// Copied from: https://iquilezles.org/articles/distfunctions/
-float sdBoxFrame( vec3 p, vec3 b, float e )
-{
-       p = abs(p  )-b;
-  vec3 q = abs(p+e)-e;
-  return min(min(
-      length(max(vec3(p.x,q.y,q.z),0.0))+min(max(p.x,max(q.y,q.z)),0.0),
-      length(max(vec3(q.x,p.y,q.z),0.0))+min(max(q.x,max(p.y,q.z)),0.0)),
-      length(max(vec3(q.x,q.y,p.z),0.0))+min(max(q.x,max(q.y,p.z)),0.0));
+// SDF for hollow box frame
+// Parameters:
+//   p: point to evaluate
+//   b: outer dimensions of frame
+//   e: thickness of frame edges
+float sdBoxFrame(vec3 p, vec3 b, float e) {
+    p = abs(p) - b;
+    vec3 q = abs(p + e) - e;
+
+    return min(min(
+        length(max(vec3(p.x, q.y, q.z), 0.0)) + min(max(p.x, max(q.y, q.z)), 0.0),
+        length(max(vec3(q.x, p.y, q.z), 0.0)) + min(max(q.x, max(p.y, q.z)), 0.0)),
+        length(max(vec3(q.x, q.y, p.z), 0.0)) + min(max(q.x, max(q.y, p.z)), 0.0));
 }
 
-
+// SDF for sphere
 float sdSphere(vec3 p, float r) {
-  return length(p) - r;
+    return length(p) - r;
 }
 
-// This function returns the distance field to our object
-//  or objects. Can be a very simple like this or more
-//  complicated like a fractal
-//  On ShaderToy many shaders call this function "map".
+// Distance Field Function combining multiple shapes
+// - union (min): combines shapes by taking minimum distance
+// - subtraction (max): subtracts one shape from another by negating distance
 float map(vec3 p) {
-  rot(p.xy, iTime);
-  rot(p.xz, iTime*0.707);
+    // Apply rotation animation
+    rot(p.xy, iTime);
+    rot(p.xz, iTime * 0.707);
 
-  // The box distance field
-  float dbox = sdBox(p, vec3(3.0));
-  // The box frame distance field
-  float dboxFrame = sdBoxFrame(p, vec3(3.5),0.2);
-  // The inner sphere
-  float dsphere = sdSphere(p, 3.4);
+    // STEP 1: Create basic shapes
+    float dbox = sdBox(p, vec3(3.0));           // Solid inner box
+    float dboxFrame = sdBoxFrame(p, vec3(3.5), 0.2);  // Hollow outer frame
+    float dsphere = sdSphere(p, 3.4);           // Sphere for creating a hole
 
-  // Combine the two boxes using min
-  float d = min(dbox,dboxFrame);
+    // STEP 2: Combine shapes
+    // First, union of both boxes (min combines them)
+    float d = min(dbox, dboxFrame);
 
-  // Subtract the sphere from d using max
-  d = max(d,-dsphere);
+    // Then subtract sphere from result (max with negative distance creates hole)
+    d = max(d, -dsphere);
 
-  return d;
+    return d;
 }
 
+// Ray Marching Function (unchanged from previous example)
 float rayMarch(vec3 rayOrigin, vec3 rayDirection) {
-  float distanceTravelled = 0.0;
-  for (int i = 0; i < 80; ++i) {
-    // Compute our current position
-    vec3 pos = rayOrigin+rayDirection*distanceTravelled;
-    // Test how far we are from the object.
-    float distanceToObject = map(pos);
-    // We are done if we are really close to the object (we hit it)
-    //  or we travelled too far
-    if (distanceToObject < 1E-3 || distanceTravelled >= MaxDistance) {
-      return distanceTravelled;
+    float distanceTravelled = 0.0;
+    for (int i = 0; i < 80; ++i) {
+        vec3 pos = rayOrigin + rayDirection * distanceTravelled;
+        float distanceToObject = map(pos);
+        if (distanceToObject < 1E-3 || distanceTravelled >= MaxDistance) {
+            return distanceTravelled;
+        }
+        distanceTravelled += distanceToObject;
     }
-
-    // Otherwise are adding the distance to the object to the
-    //  distance travelled
-    distanceTravelled += distanceToObject;
-  }
-
-  // If we hit max number of iterations we return max distance to indicate a miss
-  return MaxDistance;
+    return MaxDistance;
 }
 
-
+// Normal calculation (unchanged from previous example)
 vec3 normal(vec3 pos) {
-  vec2 eps = vec2(1E-2, 0.0);
-  return normalize(vec3(
-      map(pos+eps.xyy)-map(pos-eps.xyy)
-    , map(pos+eps.yxy)-map(pos-eps.yxy)
-    , map(pos+eps.yyx)-map(pos-eps.yyx))
-    );
+    vec2 eps = vec2(1E-2, 0.0);
+    return normalize(vec3(
+        map(pos + eps.xyy) - map(pos - eps.xyy),
+        map(pos + eps.yxy) - map(pos - eps.yxy),
+        map(pos + eps.yyx) - map(pos - eps.yyx)
+    ));
 }
 
-void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
-  // Takes fragCoord and transform it into where p (0,0) is in the center of the screen
-  // and (0,1) is top of screen and (0,-1) is the bottom.
-  vec2 p = (-iResolution.xy+2.0*fragCoord)/iResolution.yy;
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+    // STEPS 1-2: Ray setup (unchanged)
+    vec2 p = (-iResolution.xy + 2.0 * fragCoord) / iResolution.yy;
+    vec3 rayOrigin = vec3(0.0, 0.0, -10.0);
+    vec3 rayDirection = normalize(vec3(p, 1.0));
 
-  // Setup a ray origin
-  vec3 rayOrigin = vec3(0.0,0.0,-10.0);
-  // The ray direction
-  vec3 rayDirection = normalize(vec3(p,1.));
-
-  vec3 col = vec3(0.0);
-  // Use rayDirection to setup a basic background
-  if (rayDirection.y > 0.0) {
-    // The sky
-    col += vec3(0.2,0.5,0.5+0.5*rayDirection.y);
-  } else {
-    // The ground
-    col += -vec3(1.0,0.8,0.6)*rayDirection.y;
-  }
-
-
-  float rayDistance = rayMarch(rayOrigin, rayDirection);
-  // If rayDistance is less than MaxDistance we count that as a hit
-  if (rayDistance < MaxDistance) {
-    // Compute the pos of the point on the surface
-    vec3 pos = rayOrigin+rayDistance*rayDirection;
-    col = vec3(0.0);
-
-    // Ambient light
-    col += 0.05;
-
-    // Compute the normal at pos
-    vec3 n = normal(pos);
-
-    // In order to detect we ray trace toward the light
-    //  As we are very close to the surface it means the ray trace will
-    //  terminate at once. Therefore we start a bit away from the surface by
-    //  adding 1E-2 in the normal direction
-    float rayLightDistance = rayMarch(pos+1E-2*n, LightDirection);
-
-    // If the rayLightDistance indicate a miss it means we missed the surface
-    //  while travelling towards the light
-    if (rayLightDistance >= MaxDistance) {
-      // Then compute the diffuse lighting using the dot product of normal and
-      // light direction
-      col += max(dot(n, LightDirection),0.0);
+    // STEP 3: Background color (unchanged)
+    vec3 col = vec3(0.0);
+    if (rayDirection.y > 0.0) {
+        col += vec3(0.2, 0.5, 0.5 + 0.5 * rayDirection.y);
+    } else {
+        col += -vec3(1.0, 0.8, 0.6) * rayDirection.y;
     }
-  }
 
-  fragColor = vec4(col,1.0);
+    // STEP 4: Ray march to find surface
+    float rayDistance = rayMarch(rayOrigin, rayDirection);
+
+    // STEP 5: If we hit surface, calculate lighting with shadows
+    if (rayDistance < MaxDistance) {
+        // Find hit position and reset color
+        vec3 pos = rayOrigin + rayDistance * rayDirection;
+        col = vec3(0.0);
+
+        // Add ambient light (constant base illumination)
+        col += 0.05;
+
+        // Calculate surface normal
+        vec3 n = normal(pos);
+
+        // SHADOW CALCULATION:
+        // 1. Start slightly above surface (to avoid self-intersection)
+        // 2. Ray march towards light to check for obstacles
+        float rayLightDistance = rayMarch(pos + 1E-2 * n, LightDirection);
+
+        // If ray reaches MaxDistance, no obstacles were found
+        // Therefore the point is lit (not in shadow)
+        if (rayLightDistance >= MaxDistance) {
+            // Add diffuse lighting
+            col += max(dot(n, LightDirection), 0.0);
+        }
+        // If ray hits something, point is in shadow (only ambient light remains)
+    }
+
+    fragColor = vec4(col, 1.0);
 }
 ```
 

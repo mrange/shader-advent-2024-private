@@ -10,7 +10,7 @@ So why add one more? Well, if you’ve ever browsed [ShaderToy](https://www.shad
 
 ### So, what *is* Ray Marching?
 
-Put simply, a ray marcher is a type of ray tracer, but it uses distance fields to define and render 3D objects. This gives it a unique, powerful way to create depth and shapes in 3D spaces. Imagine tracing a line through a scene, but instead of traditional rendering, we’re checking distances to objects, step by step, until we hit something (or not).
+A ray marcher is a type of ray tracer, but it uses distance fields to define and render 3D objects. Imagine tracing a line through a scene, but instead of traditional rendering, we’re checking distances to objects, step by step, until we hit something (or not).
 
 Let’s jump in and build one together. If you're ready, create a [new shader on ShaderToy](https://www.shadertoy.com/new) so we can start from scratch!
 
@@ -30,6 +30,7 @@ To trace a ray through our scene, we need two things: a **ray origin** and a **r
 ```
 
 Here's the complete example:
+
 ```glsl
 void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
   // Takes fragCoord and transform it into where p (0,0) is in the center of the screen
@@ -55,21 +56,21 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 }
 ```
 
-## ✂️ Learning to copy and paste from IQ's site 📋
+## ✂️ Learning to Copy and Paste from IQ's Site 📋
 
-The next step for us is to define a distance field for the object we wish to ray trace. There are many ways but let's copy the `sdBox` from the [amazing collection of distance field functions](https://iquilezles.org/articles/distfunctions/) by IQ.
+Now, let’s take a big step forward and define a **distance field** for the object we want to ray trace. There are plenty of ways to do this, but why not borrow the brilliant `sdBox` function from [IQ’s amazing collection of distance field functions](https://iquilezles.org/articles/distfunctions/)? After all, sharing is caring!
 
 ```glsl
 // Copied from: https://iquilezles.org/articles/distfunctions/
 float sdBox( vec3 p, vec3 b ) {
   vec3 q = abs(p) - b;
-  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+  return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
 }
 ```
 
-A distance field function works like this, for a given point in space it computes the distance to the object. If the result is positive we are outside the object, if it's negative we are inside the object and if it's 0 we are on the surface of the object.
+So, how does this distance field function work? Essentially, for any given point in space, it calculates the distance to the object. If the result is positive, we’re outside the object; if it’s negative, we’re inside; and if it’s zero, we’re right on the surface. Simple enough, right?
 
-Using this distance field we can create ray marcher. The ray marcher starts in the ray origin and then checks the distance to the object using the distance field function. If we hit the object (that is the distance is "close enough") we stop, if we iterated too many times we stop or if we travelled a maximum distance we stop. Otherwise we travel the distance in the ray direction and repeat the process.
+With this distance field in hand, we can finally create our ray marcher! The process is pretty straightforward: we start at the ray origin and use our distance field function to check the distance to the object. If we’re “close enough” to hit the object, we stop. If we’ve iterated too many times or traveled beyond a set maximum distance, we stop there as well. Otherwise, we continue moving in the ray direction based on the distance we calculated, repeating this process until we find our target!
 
 Here is the full example:
 
@@ -143,65 +144,69 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 }
 ```
 
-## 🧊 Computers are made for rotating cubes 🧊
+## 🧊 Computers Are Made for Rotating Cubes 🧊
 
-What we see is a white square with a sky background but trust me this is 3D box.
+Right now, all we see is a white square against a sky-blue background, but trust me—this is supposed to be a 3D box! To make our box stand out as a true cube, we need to rotate it a bit.
 
-We don't see that the box is a square so in order to demonstrate we rotate the box.
-
-We do this with a commonly used helper function:
+We can achieve this using a handy helper function that rotates our 2D coordinates. Here’s the magic:
 
 ```glsl
 // Rotates the 2D coord p using angle a
 void rot(inout vec2 p, float a) {
-  float c=cos(a);
-  float s=sin(a);
-  // A thing I memorized, at some point I understood it
-  //  but now I forgot
-  p = vec2(c*p.x+s*p.y,-s*p.x+c*p.y);
+  float c = cos(a);
+  float s = sin(a);
+  // A thing I memorized; at some point I understood it
+  // but now I've forgotten!
+  p = vec2(c * p.x + s * p.y, -s * p.x + c * p.y);
 }
 ```
 
-Then we change the `map` function to add a bit of time-based rotation:
+Now that we've got our rotation function, let's tweak the `map` function to introduce some time-based rotation. This will give our cube a dynamic feel:
 
 ```glsl
 float map(vec3 p) {
   // Rotate around z-axis
   rot(p.xy, iTime);
   // Rotate around y-axis
-  rot(p.xz, iTime*0.707);
+  rot(p.xz, iTime * 0.707);
   return sdBox(p, vec3(3.0));
 }
 ```
 
-## ⬅️Shading cubes is only normal➡️
+With these changes, our cube will now spin and reveal its true 3D form. After all, computers are made to rotate cubes!
 
-With some luck you should see a white cube rotating. While cool we like to add some shading to the cube. In order to do so we need to compute the normal of the surface. A normal is perpendicular to the surface and it absolutely essential in almost all kinds of shadings.
+## ⬅️ Shading Cubes Is Only Normal ➡️
 
-The bad news is that understanding the `normal` function might be a bit tricky, the good news is that you don't have to and that almost all shaders use some version of this:
+If all goes well, you should be seeing a white cube spinning around. Cool, but let’s kick it up a notch with some shading! To make our cube truly pop, we need to compute the **normal** of its surface. A normal is a vector that’s perpendicular to the surface, and it’s absolutely essential for most shading techniques.
+
+Now, here’s the tricky part: understanding the `normal` function might seem daunting. But don’t worry! You don’t have to master it; just know that almost all shaders use a version like this:
 
 ```glsl
 vec3 normal(vec3 pos) {
   vec2 eps = vec2(1E-2, 0.0);
   return normalize(vec3(
-      map(pos+eps.xyy)-map(pos-eps.xyy)
-    , map(pos+eps.yxy)-map(pos-eps.yxy)
-    , map(pos+eps.yyx)-map(pos-eps.yyx))
-    );
+      map(pos + eps.xyy) - map(pos - eps.xyy),
+      map(pos + eps.yxy) - map(pos - eps.yxy),
+      map(pos + eps.yyx) - map(pos - eps.yyx)
+  ));
 }
 ```
 
-Using the normal we can then compute the diffuse light by taking the `dot` product of the normal and the direction to the light like so:
+This function calculates the normal by checking how the distance changes around the point `pos`. It’s like poking around the surface to see which way is “up”!
+
+With our normal calculated, we can then compute the diffuse lighting. This is done by taking the **dot product** of the normal and the direction to the light source. Here’s how we do it:
 
 ```glsl
-  // Compute the normal at pos
-  vec3 n = normal(pos);
-  // Then compute the diffuse lighting using the dot product of normal and
-  // light direction
-  col += max(dot(n, lightDirection),0.0);
-  // Ambient light
-  col += 0.05;
+// Compute the normal at pos
+vec3 n = normal(pos);
+// Then compute the diffuse lighting using the dot product of normal and
+// light direction
+col += max(dot(n, lightDirection), 0.0);
+// Ambient light
+col += 0.05;
 ```
+
+With these additions, our cube will not only rotate but also have a lovely shaded effect that makes it look more three-dimensional. Let’s bring our cube to life!
 
 The complete example:
 
@@ -309,96 +314,104 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 }
 ```
 
-## 🧊🌐 Making complex shapes from simple ones 🌐🧊
 
-Cool! We have a basic rotating cube with basic shading.
+Here’s the next section, keeping that engaging style:
 
+## 🧊🌐 Making Complex Shapes from Simple Ones 🌐🧊
 
-What's even cooler is that any distance field works and we can combine them simple using union `min` and intersection `max` operations.
+Awesome! We’ve got a basic rotating cube with some nifty shading. But wait—what’s even cooler is that we can create complex shapes by combining simple distance fields!
 
-We can for exampel combine our box with box frame function `sdBoxFrame`:
+Using **union** and **intersection** operations with `min` and `max`, we can mix and match shapes. For example, let’s combine our box with a box frame using the `sdBoxFrame` function:
 
 ```glsl
-
 // Copied from: https://iquilezles.org/articles/distfunctions/
-float sdBoxFrame( vec3 p, vec3 b, float e )
-{
-       p = abs(p  )-b;
-  vec3 q = abs(p+e)-e;
-  return min(min(
-      length(max(vec3(p.x,q.y,q.z),0.0))+min(max(p.x,max(q.y,q.z)),0.0),
-      length(max(vec3(q.x,p.y,q.z),0.0))+min(max(q.x,max(p.y,q.z)),0.0)),
-      length(max(vec3(q.x,q.y,p.z),0.0))+min(max(q.x,max(q.y,p.z)),0.0));
+float sdBoxFrame(vec3 p, vec3 b, float e) {
+    p = abs(p) - b;
+    vec3 q = abs(p + e) - e;
+    return min(min(
+        length(max(vec3(p.x, q.y, q.z), 0.0)) + min(max(p.x, max(q.y, q.z)), 0.0),
+        length(max(vec3(q.x, p.y, q.z), 0.0)) + min(max(q.x, max(p.y, q.z)), 0.0)),
+        length(max(vec3(q.x, q.y, p.z), 0.0)) + min(max(q.x, max(q.y, p.z)), 0.0));
 }
 
 float map(vec3 p) {
-  rot(p.xy, iTime);
-  rot(p.xz, iTime*0.707);
+    rot(p.xy, iTime);
+    rot(p.xz, iTime * 0.707);
 
-  // The box distance field
-  float dbox = sdBox(p, vec3(3.0));
-  // The box frame distance field
-  float dboxFrame = sdBoxFrame(p, vec3(3.5),0.2);
-  // Combine the two using min
-  float d = min(dbox,dboxFrame);
+    // The box distance field
+    float dbox = sdBox(p, vec3(3.0));
+    // The box frame distance field
+    float dboxFrame = sdBoxFrame(p, vec3(3.5), 0.2);
+    // Combine the two using min
+    float d = min(dbox, dboxFrame);
 
-  return d;
+    return d;
 }
 ```
 
-This create a box with a surrounding box frame. We can take it a bit further and substract a sphere from it using the `max` function.
+With this setup, we create a box with a surrounding frame, giving it a more layered look! But why stop there? Let’s take it a step further and subtract a sphere from our shape using the `max` function.
+
+First, we’ll define our sphere with a simple function:
 
 ```glsl
 float sdSphere(vec3 p, float r) {
-  return length(p) - r;
-}
-
-// This function returns the distance field to our object
-//  or objects. Can be a very simple like this or more
-//  complicated like a fractal
-//  On ShaderToy many shaders call this function "map".
-float map(vec3 p) {
-  rot(p.xy, iTime);
-  rot(p.xz, iTime*0.707);
-
-  // The box distance field
-  float dbox = sdBox(p, vec3(3.0));
-  // The box frame distance field
-  float dboxFrame = sdBoxFrame(p, vec3(3.5),0.2);
-  // The inner sphere
-  float dsphere = sdSphere(p, 3.4);
-
-  // Combine the two boxes using min
-  float d = min(dbox,dboxFrame);
-
-  // Subtract the sphere from d using max
-  d = max(d,-dsphere);
-
-  return d;
+    return length(p) - r;
 }
 ```
 
-## 🌘 Time to throw down some shade! 🌘
-
-Finally let's add some shadows. In order to know if a point on the surface is in shade we resue the `rayMarch` function to step towards the light. If the result indicate we hit the surface it means we are in shade. Otherwise the surface point is in the light. In order to not get stuck because we start the ray trace from a point on the surface we start a bit away from the surface in the normal direction.
+Now we’ll modify our `map` function to include the sphere:
 
 ```glsl
-    // In order to detect we ray trace toward the light
-    //  As we are very close to the surface it means the ray trace will
-    //  terminate at once. Therefore we start a bit away from the surface by
-    //  adding 1E-2 in the normal direction
-    float rayLightDistance = rayMarch(pos+1E-2*n, LightDirection);
+// This function returns the distance field to our object
+// or objects. It can be very simple like this or more
+// complicated, like a fractal. On ShaderToy, many shaders
+// call this function "map".
+float map(vec3 p) {
+    rot(p.xy, iTime);
+    rot(p.xz, iTime * 0.707);
 
-    // If the rayLightDistance indicate a miss it means we missed the surface
-    //  while travelling towards the light
-    if (rayLightDistance >= MaxDistance) {
-      // Then compute the diffuse lighting using the dot product of normal and
-      // light direction
-      col += max(dot(n, LightDirection),0.0);
-    }
+    // The box distance field
+    float dbox = sdBox(p, vec3(3.0));
+    // The box frame distance field
+    float dboxFrame = sdBoxFrame(p, vec3(3.5), 0.2);
+    // The inner sphere
+    float dsphere = sdSphere(p, 3.4);
+
+    // Combine the two boxes using min
+    float d = min(dbox, dboxFrame);
+
+    // Subtract the sphere from d using max
+    d = max(d, -dsphere);
+
+    return d;
+}
 ```
 
-The complete example looks like this:
+With these changes, we’ve taken our simple shapes and created something much more complex and visually interesting! This approach opens up a world of possibilities—so let your creativity run wild and experiment with different combinations!
+
+## 🌘 Time to Throw Down Some Shade! 🌘
+
+Alright, it’s time to add some shadows to our scene! To determine if a point on the surface is in shade, we can reuse our `rayMarch` function to step toward the light source. If the ray hits the surface before it reaches the light, we know that point is in shade. If it makes it to the light without hitting anything, then it’s basking in the glow!
+
+To avoid getting stuck, we start the ray trace a tiny bit away from the surface in the direction of the normal. Here’s how we do it:
+
+```glsl
+// To detect shadows, we ray trace toward the light
+// Since we’re very close to the surface, the ray trace will
+// terminate almost immediately. So, we start a bit away
+// from the surface by adding 1E-2 in the normal direction.
+float rayLightDistance = rayMarch(pos + 1E-2 * n, LightDirection);
+
+// If rayLightDistance indicates a miss, it means we didn't hit the surface
+// while traveling toward the light
+if (rayLightDistance >= MaxDistance) {
+    // Then compute the diffuse lighting using the dot product of normal and
+    // light direction
+    col += max(dot(n, LightDirection), 0.0);
+}
+```
+
+With this code, our scene will now have some lovely shadows, adding depth and realism to our rotating cube. Shadows can make a huge difference in how we perceive shapes, and now our cube is looking even more dynamic!
 
 ```glsl
 // The maximum distance the ray can travel
@@ -548,13 +561,15 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 }
 ```
 
-## 🎁 Wrapping up! 🎁
+## 🎁 Wrapping Up! 🎁
 
-If you are interested in understanding shaders on [ShaderToy](https://www.shadertoy.com/) most of them uses some version of ray marching so understanding the basic of how a ray marcher works is useful.
+Congratulations on making it this far! If you’re keen on understanding shaders on [ShaderToy](https://www.shadertoy.com/), you’ll find that many of them use some version of ray marching. So, grasping the basics of how a ray marcher works is super useful!
 
-Reoccuring patterns in all ray marchers is the distance field function (often called `map`), the ray tracer function and the compute `normal` function and you can do really cool shaders with just these basic steps.
+The recurring themes in all ray marchers include the distance field function (often called `map`), the ray tracer function, and the compute `normal` function. With just these building blocks, you can create some truly amazing shaders!
 
-There are many, many ways to variate on these basic themes but I think having a bit of understanding of how a ray marcher works will help you decipher most shaders on [ShaderToy](https://www.shadertoy.com/).
+Remember, there are countless ways to vary these basic concepts, and experimenting is part of the fun! Don’t hesitate to tinker around with different shapes and effects. Understanding ray marching will not only help you decipher most shaders on [ShaderToy](https://www.shadertoy.com/), but it’ll also inspire your own creativity.
+
+So grab your favorite snacks, fire up ShaderToy, and let your imagination run wild! Happy coding, and may your shaders shine bright this holiday season! 🎄✨
 
 ✨🎄🎁 Merry Christmas, and happy coding! 🎁🎄✨
 

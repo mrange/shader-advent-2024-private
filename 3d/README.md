@@ -254,12 +254,12 @@ This function calculates the normal by checking how the distance changes around 
 With our normal calculated, we can then compute the diffuse lighting. This is done by taking the **dot product** of the normal and the direction to the light source. Here’s how we do it:
 
 ```glsl
-// Compute the normal at pos
-vec3 n = normal(pos);
-// Then compute the diffuse lighting using the dot product of normal and
-// light direction
-col += max(dot(n, lightDirection), 0.0);
-// Ambient light
+// LIGHTING CALCULATION:
+// 1. Diffuse lighting: dot product between normal and light direction
+//    max() ensures we don't get negative lighting
+col += max(dot(n, LightDirection), 0.0);
+
+// 2. Ambient lighting: small constant to prevent completely black shadows
 col += 0.05;
 ```
 

@@ -8,6 +8,8 @@ Yes, yes, I know—there are plenty of blog posts on ray marching out there. It'
 
 So why add one more? Well, if you’ve ever browsed [ShaderToy](https://www.shadertoy.com/) and found yourself dazzled (or mystified) by those mind-bending shaders, understanding ray marching is like having the recipe. Once you get it, everything starts to click because so many ShaderToy examples are built around it.
 
+![One of the best shaders IMHO](assets/one-of-the-best.jpg)
+
 ### So, what *is* Ray Marching?
 
 A ray marcher is a type of ray tracer, but it uses distance fields to define and render 3D objects. Imagine tracing a line through a scene, but instead of traditional rendering, we’re checking distances to objects, step by step, until we hit something (or not).
@@ -67,6 +69,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
     fragColor = vec4(col, 1.0);
 }
 ```
+
+![Just a sky](assets/just-a-sky.jpg)
 
 ## ✂️ Learning to Copy and Paste from IQ's Site 📋
 
@@ -180,6 +184,8 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     fragColor = vec4(col, 1.0);
 }
 ```
+
+![A cube cosplaying as a white square](assets/a-white-square.jpg)
 
 ## 🧊 Computers Are Made for Rotating Cubes 🧊
 
@@ -383,6 +389,8 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     fragColor = vec4(col, 1.0);
 }
 ```
+
+![Yes! A rotating cube!](assets/yes-a-rotating-cube.jpg)
 
 ## 🧊🌐 Making Complex Shapes from Simple Ones 🌐🧊
 
@@ -622,6 +630,8 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     fragColor = vec4(col, 1.0);
 }
 ```
+
+![Throwing down some shade](assets/throwing-shade.jpg)
 
 ## 🎁 Wrapping Up! 🎁
 

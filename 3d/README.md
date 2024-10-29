@@ -641,7 +641,7 @@ The recurring themes in all ray marchers include the distance field function (of
 
 Remember, there are countless ways to vary these basic concepts, and experimenting is part of the fun! Don’t hesitate to tinker around with different shapes and effects. Understanding ray marching will not only help you decipher most shaders on [ShaderToy](https://www.shadertoy.com/), but it’ll also inspire your own creativity.
 
-[!Glowing hot shader](assets/rhodium.jpg)
+![Glowing hot shader](assets/rhodium.jpg)
 
 So grab your favorite snacks, fire up ShaderToy, and let your imagination run wild! Happy coding, and may your shaders shine bright this holiday season! 🎄✨
 

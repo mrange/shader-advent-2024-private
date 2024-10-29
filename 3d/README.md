@@ -12,7 +12,7 @@ A ray marcher is a ray tracer that uses distance fields to model the 3D objects.
 
 Let's start by creating a [new shader on ShaderToy](https://www.shadertoy.com/new).
 
-# Setting up the ray
+## 🌠 Setting up the ray 🌠
 
 In our to do ray tracing we need a ray origin and a ray direction vector. Ray origin is easy, we can use `(0,0,-10)`. Ray direction is a bit more difficult and can be done in multiple ways, one simple approach is this:
 
@@ -50,7 +50,9 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 }
 ```
 
-A basic sky + ground shader. The next step for us is to define a distance field for the object we wish to ray trace. There are many ways but let's copy the `sdBox` from the [amazing collection of distance field functions](https://iquilezles.org/articles/distfunctions/) by IQ.
+## ✂️ Learning to copy and paste from IQ's site 📋
+
+The next step for us is to define a distance field for the object we wish to ray trace. There are many ways but let's copy the `sdBox` from the [amazing collection of distance field functions](https://iquilezles.org/articles/distfunctions/) by IQ.
 
 ```glsl
 // Copied from: https://iquilezles.org/articles/distfunctions/
@@ -136,6 +138,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 }
 ```
 
+## 🧊 Computers are made for rotating cubes 🧊
+
 What we see is a white square with a sky background but trust me this is 3D box.
 
 We don't see that the box is a square so in order to demonstrate we rotate the box.
@@ -164,6 +168,8 @@ float map(vec3 p) {
   return sdBox(p, vec3(3.0));
 }
 ```
+
+## ⬅️Shading cubes is only normal➡️
 
 With some luck you should see a white cube rotating. While cool we like to add some shading to the cube. In order to do so we need to compute the normal of the surface. A normal is perpendicular to the surface and it absolutely essential in almost all kinds of shadings.
 
@@ -298,7 +304,10 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 }
 ```
 
+## 🧊🌐 Making complex shapes from simple ones 🌐🧊
+
 Cool! We have a basic rotating cube with basic shading.
+
 
 What's even cooler is that any distance field works and we can combine them simple using union `min` and intersection `max` operations.
 
@@ -363,6 +372,8 @@ float map(vec3 p) {
   return d;
 }
 ```
+
+## 🌘 Time to throw down some shade! 🌘
 
 Finally let's add some shadows. In order to know if a point on the surface is in shade we resue the `rayMarch` function to step towards the light. If the result indicate we hit the surface it means we are in shade. Otherwise the surface point is in the light. In order to not get stuck because we start the ray trace from a point on the surface we start a bit away from the surface in the normal direction.
 
@@ -532,7 +543,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 }
 ```
 
-## Wrapping up!
+## 🎁 Wrapping up! 🎁
 
 If you are interested in understanding shaders on [ShaderToy](https://www.shadertoy.com/) most of them uses some version of ray marching so understanding the basic of how a ray marcher works is useful.
 

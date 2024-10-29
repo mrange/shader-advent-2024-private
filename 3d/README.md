@@ -1,20 +1,25 @@
-# 🎄⭐🎉 Introduction to Ray marching 🎉⭐🎄
+# 🎄⭐🎉 Introduction to Ray Marching 🎉⭐🎄
 
-🎅 Ho, ho, ho! Merry Christmas! 🎅
+🎅 Ho, ho, ho! Merry Shader-mas! 🎅
 
-## 🎄 Another raymarcher blog post!?! 🎄
+## 🎄 Wait... *Another* Ray Marching Blog Post? 🎄
 
-Yes, lots of blog posts have been written about shader ray marching, it's a bit like that there are tons of posts on Monads. Everyone that figures it out want to share their spin on it!
+Yes, yes, I know—there are plenty of blog posts on ray marching out there. It's a bit like the programming equivalent of a Christmas fruitcake: everyone who gets a taste of it has to make their own version!
 
-My motivation for writing this is that I think understanding ray marching really helps understanding the examples on [ShaderToy](https://www.shadertoy.com/) as so many of them are based around ray marching.
+So why add one more? Well, if you’ve ever browsed [ShaderToy](https://www.shadertoy.com/) and found yourself dazzled (or mystified) by those mind-bending shaders, understanding ray marching is like having the recipe. Once you get it, everything starts to click because so many ShaderToy examples are built around it.
 
-A ray marcher is a ray tracer that uses distance fields to model the 3D objects.
+### So, what *is* Ray Marching?
 
-Let's start by creating a [new shader on ShaderToy](https://www.shadertoy.com/new).
+Put simply, a ray marcher is a type of ray tracer, but it uses distance fields to define and render 3D objects. This gives it a unique, powerful way to create depth and shapes in 3D spaces. Imagine tracing a line through a scene, but instead of traditional rendering, we’re checking distances to objects, step by step, until we hit something (or not).
 
-## 🌠 Setting up the ray 🌠
+Let’s jump in and build one together. If you're ready, create a [new shader on ShaderToy](https://www.shadertoy.com/new) so we can start from scratch!
 
-In our to do ray tracing we need a ray origin and a ray direction vector. Ray origin is easy, we can use `(0,0,-10)`. Ray direction is a bit more difficult and can be done in multiple ways, one simple approach is this:
+## 🌠 Setting Up the Ray 🌠
+
+To trace a ray through our scene, we need two things: a **ray origin** and a **ray direction vector**.
+
+- **Ray Origin**: This one’s easy—we’ll start from `(0, 0, -10)`, a good spot to visualize things.
+- **Ray Direction**: Here, we’ve got options, but one simple way to get the direction vector is the following:
 
 ```glsl
   // p is the coordinate with (0,0) in the center of the screen

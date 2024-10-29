@@ -461,6 +461,9 @@ To give you a little extra inspiration, I’ve dug up a few of my incomplete (an
 7. ["Star" Scroller](starscroller_variant.klproj)
 8. [Underwater Bubbles](bubble_bobble.klproj)
 
+![Falling leaves](assets/falling_leaves.jpg)
+
+
 Merry christmas all!
 
 🎅 - mrange

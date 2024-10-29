@@ -22,10 +22,10 @@ To trace a ray through our scene, we need two things: a **ray origin** and a **r
 - **Ray Direction**: Here, we’ve got options, but one simple way to get the direction vector is the following:
 
 ```glsl
-    // Create the ray direction vector pointing from camera through each pixel
-    // p.x and p.y determine the screen position, 1.0 sets the forward direction
-    // normalize() ensures the ray direction has length 1
-    vec3 rayDirection = normalize(vec3(p, 1.0));
+// Create the ray direction vector pointing from camera through each pixel
+// p.x and p.y determine the screen position, 1.0 sets the forward direction
+// normalize() ensures the ray direction has length 1
+vec3 rayDirection = normalize(vec3(p, 1.0));
 ```
 
 Here's the complete example:
@@ -471,19 +471,18 @@ Alright, it’s time to add some shadows to our scene! To determine if a point o
 To avoid getting stuck, we start the ray trace a tiny bit away from the surface in the direction of the normal. Here’s how we do it:
 
 ```glsl
-// To detect shadows, we ray trace toward the light
-// Since we’re very close to the surface, the ray trace will
-// terminate almost immediately. So, we start a bit away
-// from the surface by adding 1E-2 in the normal direction.
+// SHADOW CALCULATION:
+// 1. Start slightly above surface (to avoid self-intersection)
+// 2. Ray march towards light to check for obstacles
 float rayLightDistance = rayMarch(pos + 1E-2 * n, LightDirection);
 
-// If rayLightDistance indicates a miss, it means we didn't hit the surface
-// while traveling toward the light
+// If ray reaches MaxDistance, no obstacles were found
+// Therefore the point is lit (not in shadow)
 if (rayLightDistance >= MaxDistance) {
-    // Then compute the diffuse lighting using the dot product of normal and
-    // light direction
+    // Add diffuse lighting
     col += max(dot(n, LightDirection), 0.0);
 }
+// If ray hits something, point is in shadow (only ambient light remains)
 ```
 
 With this code, our scene will now have some lovely shadows, adding depth and realism to our rotating cube. Shadows can make a huge difference in how we perceive shapes, and now our cube is looking even more dynamic!

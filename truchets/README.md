@@ -141,11 +141,9 @@ One of the joys of shaders? You can often repeat an object endlessly at almost n
 
 ```glsl
 vec2 tp = p;
-// A neat trick to repeat the unit square
-//  The unit square (that is the truchet tile in our example)
-//  is repeated in x and y direction infinitely
-vec2 np = round(tp);
-vec2 cp = tp - np;
+// Repeat the unit square infinitely in x and y directions
+vec2 np = round(tp);   // Nearest integer coordinates
+vec2 cp = tp - np;     // Coordinates within the unit square
 
 float dtile = smithTile(cp);
 ```
@@ -153,9 +151,10 @@ float dtile = smithTile(cp);
 Applying simple domain repetition to the Smith tile creates a wavy, hypnotic pattern. It’s nice, but we can spice it up by adding a dash of pseudo-randomness! To do that, we’ll introduce a `hash` function that randomizes the rotation of each tile, creating a much richer and more dynamic pattern.
 
 ```glsl
-// Produces a pseudo-random from a 2D point
+// Produces a pseudo-random value based on a 2D coordinate
+// - co: input coordinate for generating randomness
 float hash(vec2 co) {
-  return fract(sin(dot(co.xy ,vec2(12.9898,58.233))) * 13758.5453);
+    return fract(sin(dot(co.xy, vec2(12.9898, 58.233))) * 13758.5453);
 }
 ```
 
@@ -164,9 +163,11 @@ We then use `hash` to flip half of the tiles.
 ```glsl
 vec2 cp = tp - np;
 
+// np gives a unique "id" for each square in the grid
+// Generate a pseudo-random value based on this unique id
 if (hash(np) > 0.5) {
-  //  for 50% of the cells we flip the shape
-  cp.x *= -1.0;
+    // Flip the shape horizontally for 50% of the tiles
+    cp.x *= -1.0;
 }
 
 float dtile = smithTile(cp);
@@ -177,18 +178,17 @@ This randomization kicks things up a notch, but we’re only seeing a small sect
 To explore more (or less!) of the pattern, let’s add a zoom feature that lets us scale in and out, revealing different levels of detail across the tiled plane.
 
 ```glsl
-  // Zoom level 50%
-  const float tz = 0.5;
+// Set zoom level (e.g., 50%)
+const float tz = 0.5;
 
-  // In order to zoom divide by zoom level
-  vec2 tp = p/tz;
+// Adjust position for zooming by dividing by zoom level
+vec2 tp = p / tz;
 
-  // ... the rest of the code from the sample
+// ... the rest of the code from the sample
 
-  // Multiply the distance field value by tz because we divided
-  //  the pos by tz earlier.
-  //  Otherwise the anti-aliasing don't work properly
-  float dtile = tz*smithTile(cp);
+// Multiply the distance field value by the zoom level tz
+// This ensures anti-aliasing works correctly
+float dtile = tz * smithTile(cp);
 ```
 
 You can now change `tz` to zoom in and out.

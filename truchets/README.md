@@ -1,4 +1,4 @@
-# 🎄⭐🎉 Truchet Shaders: A Festive Dive into Patterns 🎉⭐🎄
+# 🎄⭐🎉 Truchet Shaders: A Festive Dive into Truchet Patterns 🎉⭐🎄
 
 🎅 *Merry Code-mas, shader fans!* 🎅
 
@@ -26,7 +26,7 @@ For some retro flair, there’s even the classic C64 trick that randomly fills t
 Try this on a C64 emulator for instant retro vibes!
 ![C64 truchet](assets/c64-truchet.png)
 
-## So, How Do We Make a Shader Out of This?
+## ❓❓ So, How Do We Make a Shader Out of This? ❓❓
 
 Step one: [create a new ShaderToy shader](https://www.shadertoy.com/new).
 
@@ -118,7 +118,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 
 To smooth out those sharp pixel edges, I use a little trick with `smoothstep` to blend the foreground and background colors nicely. By estimating the pixel size as `float aa = sqrt(2.)/iResolution.y;`, we can set up `smoothstep(aa, -aa, dtile)` to gradually shift from one color to another as the distance field `dtile` moves from inside (negative) to outside (positive) the tile. This keeps the borders smooth and anti-aliased—a handy technique I come back to again and again.
 
-## Infinite Tiles, Minimal Effort 🎄
+## ♾️ Infinite Tiles, Minimal Effort ♾️
 
 One of the joys of shaders? You can often repeat an object endlessly at almost no extra cost! This concept, called domain repetition, lets us create a seamless, infinite grid of Truchet tiles with just a few lines of code. One simple way of repeating the unit square is this simple code:
 
@@ -273,7 +273,7 @@ float smithTile(vec2 p) {
 }
 ```
 
-## That’s it for today!
+## 🎉🎁🎉 That’s it for today! 🎉🎁🎉
 
 Truchet patterns are a fantastic way to create intriguing designs, and there are endless possibilities—even multi-layered Truchet patterns! If you’re up for some holiday shader fun, why not tinker with them yourself?
 

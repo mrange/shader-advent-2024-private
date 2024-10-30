@@ -32,8 +32,8 @@ Step one: [create a new ShaderToy shader](https://www.shadertoy.com/new).
 
 Let’s start simple by making a Smith tile in GLSL. Think of each tile as a square (side = 1), with two circles centered in opposite corners, each with a radius of 0.5. Throw in a border square, and voilà: you’ve got your base tile!
 
-We start by defining the helper functions the box and circle:
-```glsl
+Let's begin by defining the helper functions for the box and circle:
+``glsl
 // Found here: https://iquilezles.org/articles/distfunctions2d/
 // Distance function for a 2D box centered at the origin
 // - p: point to measure distance from
@@ -56,7 +56,6 @@ float sdCircle(vec2 p, float r, float w) {
 ```
 
 Using these functions we can now define the smith tile:
-
 ```glsl
 // Creates a Smith Truchet tile with two quarter-circle arcs and a box outline
 // - p: point to measure distance from

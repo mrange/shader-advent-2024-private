@@ -1,4 +1,4 @@
-# 🎄⭐🎉 Truchet Shaders: A Festive Dive into Truchet Patterns 🎉⭐🎄
+# 🎄⭐🎉 Festive Truchet Tiling to You All 🎉⭐🎄
 
 🎅 *Merry Code-mas, shader fans!* 🎅
 
@@ -298,7 +298,7 @@ For inspiration, check out these awesome Truchet shaders by [Shane](https://www.
 
 ![A Truchet by byt3_m3chanic on ShaderToy](assets/bytemechanic-truchet.jpg)
 
-Of course, these examples are more complex than today’s, but they build on the same core ideas—just taken to new heights.
+Of course, these examples are more complex than what I shown above, but they build on the same core ideas—just taken to new heights.
 
 Wishing you all…
 

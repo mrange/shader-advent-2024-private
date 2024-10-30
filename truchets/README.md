@@ -35,82 +35,99 @@ Let’s start simple by making a Smith tile in GLSL. Think of each tile as a squ
 We start by defining the helper functions the box and circle:
 ```glsl
 // Found here: https://iquilezles.org/articles/distfunctions2d/
-float sdBox( in vec2 p, in vec2 b ) {
-    vec2 d = abs(p)-b;
-    return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+// Distance function for a 2D box centered at the origin
+// - p: point to measure distance from
+// - b: half-width of the box
+float sdBox(in vec2 p, in vec2 b) {
+    vec2 d = abs(p) - b;
+    return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
 }
 
-// Returns distance field of circle outline with radius r and width w
-//
+// Returns distance field for a circle outline with radius r and width w
+// - p: point to measure distance from
+// - r: radius of the circle
+// - w: width of the circle outline
 float sdCircle(vec2 p, float r, float w) {
-  // Distance for circle of radius r
-  float d = length(p) - r;
-  // Create outline
-  d = abs(d);
-  // Give outline the width w
-  d -= w;
-  return d;
+    float d = length(p) - r;  // Distance from circle of radius r
+    d = abs(d);               // Convert to an outline (absolute distance)
+    d -= w;                   // Make outline have thickness w
+    return d;
 }
 ```
 
 Using these functions we can now define the smith tile:
 
 ```glsl
+// Creates a Smith Truchet tile with two quarter-circle arcs and a box outline
+// - p: point to measure distance from
 float smithTile(vec2 p) {
-  float dcircle0 = sdCircle(p-0.5, 0.5, 0.05);
-  float dcircle1 = sdCircle(p+0.5, 0.5, 0.05);
-  float dbox     = abs(sdBox(p,vec2(0.5)))-0.01;
+    // Calculate distance to each circle arc
+    float dcircle0 = sdCircle(p - 0.5, 0.5, 0.05);
+    float dcircle1 = sdCircle(p + 0.5, 0.5, 0.05);
+    // Calculate distance to the surrounding box
+    float dbox = abs(sdBox(p, vec2(0.5))) - 0.01;
 
-  // Combines the distance fields using the union operation (min)
-  float d = min(dcircle0, dcircle1);
-  d = min(d, dbox);
-  return d;
+    // Combine distances: take the minimum of arcs and box to form the shape
+    float d = min(dcircle0, dcircle1);
+    d = min(d, dbox);
+    return d;
 }
-
 ```
 
 Here is the complete example:
 ```glsl
 // Found here: https://iquilezles.org/articles/distfunctions2d/
-float sdBox( in vec2 p, in vec2 b ) {
-    vec2 d = abs(p)-b;
-    return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+// Distance function for a 2D box centered at the origin
+// - p: point to measure distance from
+// - b: half-width of the box
+float sdBox(in vec2 p, in vec2 b) {
+    vec2 d = abs(p) - b;
+    return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
 }
 
-// Returns distance field of circle outline with radius r and width w
-//
+// Returns distance field for a circle outline with radius r and width w
+// - p: point to measure distance from
+// - r: radius of the circle
+// - w: width of the circle outline
 float sdCircle(vec2 p, float r, float w) {
-  // Distance for circle of radius r
-  float d = length(p) - r;
-  // Create outline
-  d = abs(d);
-  // Give outline the width w
-  d -= w;
-  return d;
+    float d = length(p) - r;  // Distance from circle of radius r
+    d = abs(d);               // Convert to an outline (absolute distance)
+    d -= w;                   // Make outline have thickness w
+    return d;
 }
 
+// Creates a Smith Truchet tile with two quarter-circle arcs and a box outline
+// - p: point to measure distance from
 float smithTile(vec2 p) {
-  float dcircle0 = sdCircle(p-0.5, 0.5, 0.05);
-  float dcircle1 = sdCircle(p+0.5, 0.5, 0.05);
-  float dbox     = abs(sdBox(p,vec2(0.5)))-0.01;
+    // Calculate distance to each circle arc
+    float dcircle0 = sdCircle(p - 0.5, 0.5, 0.05);
+    float dcircle1 = sdCircle(p + 0.5, 0.5, 0.05);
+    // Calculate distance to the surrounding box
+    float dbox = abs(sdBox(p, vec2(0.5))) - 0.01;
 
-  float d = min(dcircle0, dcircle1);
-  d = min(d, dbox);
-  return d;
+    // Combine distances: take the minimum of arcs and box to form the shape
+    float d = min(dcircle0, dcircle1);
+    d = min(d, dbox);
+    return d;
 }
 
-void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
-  vec2 p = (-iResolution.xy+2.0*fragCoord)/iResolution.yy;
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+    // Normalize fragment coordinates to range [-aspect, aspect] for x, [-1, 1] for y
+    vec2 p = (-iResolution.xy + 2.0 * fragCoord) / iResolution.yy;
 
-  float aa = sqrt(2.)/iResolution.y;
+    // Estimate pixel size for anti-aliasing (smooths tile edges)
+    float aa = sqrt(2.0) / iResolution.y;
 
-  vec3 col = vec3(0.0);
+    // Set initial background color
+    vec3 col = vec3(0.0);
 
-  float dtile = smithTile(p);
+    // Compute the Smith tile distance field at point p
+    float dtile = smithTile(p);
 
-  col = mix(col, vec3(0.8), smoothstep(aa, -aa, dtile));
+    // Mix background and tile color, applying anti-aliasing with smoothstep
+    col = mix(col, vec3(0.8), smoothstep(aa, -aa, dtile));
 
-  fragColor = vec4(col,1.0);
+    fragColor = vec4(col, 1.0);  // Output final color
 }
 ```
 
@@ -180,86 +197,87 @@ You can see the entire example below:
 
 ```glsl
 // Found here: https://iquilezles.org/articles/distfunctions2d/
-float sdBox( in vec2 p, in vec2 b ) {
-    vec2 d = abs(p)-b;
-    return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+// Distance function for a 2D box centered at the origin
+// - p: point to measure distance from
+// - b: half-width of the box
+float sdBox(in vec2 p, in vec2 b) {
+    vec2 d = abs(p) - b;  // Calculate distance to box edges
+    return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
 }
 
-// Returns distance field of circle outline with radius r and width w
-//
+// Returns distance field for a circle outline with radius r and width w
+// - p: point to measure distance from
+// - r: radius of the circle
+// - w: width of the circle outline
 float sdCircle(vec2 p, float r, float w) {
-  // Distance for circle of radius r
-  float d = length(p) - r;
-  // Create outline
-  d = abs(d);
-  // Give outline the width w
-  d -= w;
-  return d;
+    float d = length(p) - r;  // Distance from circle of radius r
+    d = abs(d);               // Convert to an outline (absolute distance)
+    d -= w;                   // Make outline have thickness w
+    return d;
 }
 
+// Creates a Smith Truchet tile with two quarter-circle arcs and a box outline
+// - p: point to measure distance from
 float smithTile(vec2 p) {
-  float dcircle0 = sdCircle(p-0.5, 0.5, 0.05);
-  float dcircle1 = sdCircle(p+0.5, 0.5, 0.05);
-  float dbox     = abs(sdBox(p,vec2(0.5)))-0.01;
+    // Calculate distance to each circle arc
+    float dcircle0 = sdCircle(p - 0.5, 0.5, 0.05);
+    float dcircle1 = sdCircle(p + 0.5, 0.5, 0.05);
+    // Calculate distance to the surrounding box
+    float dbox = abs(sdBox(p, vec2(0.5))) - 0.01;
 
-  float d = min(dcircle0, dcircle1);
-  d = min(d, dbox);
-  return d;
+    // Combine distances: take the minimum of arcs and box to form the shape
+    float d = min(dcircle0, dcircle1);
+    d = min(d, dbox);
+    return d;
 }
 
-
-// Produces a pseudo-random from a 2D point
+// Produces a pseudo-random value based on a 2D coordinate
+// - co: input coordinate for generating randomness
 float hash(vec2 co) {
-  return fract(sin(dot(co.xy ,vec2(12.9898,58.233))) * 13758.5453);
+    return fract(sin(dot(co.xy, vec2(12.9898, 58.233))) * 13758.5453);
 }
 
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+    // Normalize fragment coordinates to range [-aspect, aspect] for x, [-1, 1] for y
+    vec2 p = (-iResolution.xy + 2.0 * fragCoord) / iResolution.yy;
 
-void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
-  vec2 p = (-iResolution.xy+2.0*fragCoord)/iResolution.yy;
+    // Estimate pixel size for anti-aliasing (smooths tile edges)
+    float aa = sqrt(2.0) / iResolution.y;
 
-  float aa = sqrt(2.)/iResolution.y;
+    // Set initial background color
+    vec3 col = vec3(0.0);
 
-  vec3 col = vec3(0.0);
+    // Set zoom level (e.g., 50%)
+    const float tz = 0.5;
 
-  // Zoom level 50%
-  const float tz = 0.5;
+    // Adjust position for zooming by dividing by zoom level
+    vec2 tp = p / tz;
 
-  // In order to zoom divide by zoom level
-  vec2 tp = p/tz;
+    // Repeat the unit square infinitely in x and y directions
+    vec2 np = round(tp);   // Nearest integer coordinates
+    vec2 cp = tp - np;     // Coordinates within the unit square
 
+    // np gives a unique "id" for each square in the grid
+    // Generate a pseudo-random value based on this unique id
+    if (hash(np) > 0.5) {
+        // Flip the shape horizontally for 50% of the tiles
+        cp.x *= -1.0;
+    }
 
-  // A neat trick to repeat the unit square
-  //  The unit square (that is the truchet tile in our example)
-  //  is repeated in x and y direction infinitely
-  vec2 np = round(tp);
-  vec2 cp = tp - np;
+    // Multiply the distance field value by the zoom level tz
+    // This ensures anti-aliasing works correctly
+    float dtile = tz * smithTile(cp);
 
-  // np is (0,0) for the unit square in the middle, (-1,0) when stepping to left
-  //  (1,0) when stepping to right.
-  //  Each square has it's own unique "id"
-  //  We pass this to hash function which given a 2D coordinate produces a
-  //  pseudo-random value
-  if (hash(np) > 0.5) {
-    //  for 50% of the cells we flip the shape
-    cp.x *= -1.0;
-  }
+    // Blend the background color and tile color using smoothstep for anti-aliasing
+    col = mix(col, vec3(0.8), smoothstep(aa, -aa, dtile));
 
-  // Multiply the distance field value by tz because we divided
-  //  the pos by tz earlier.
-  //  Otherwise the anti-aliasing don't work properly
-  float dtile = tz*smithTile(cp);
-
-
-  col = mix(col, vec3(0.8), smoothstep(aa, -aa, dtile));
-
-  fragColor = vec4(col,1.0);
+    // Output the final color
+    fragColor = vec4(col, 1.0);
 }
 ```
 
 ![Smith tiles shader](assets/smith-tiles-shader.jpg)
 
-
-Here’s a polished version:
 
 With the box shape we added, the Truchet tiles are easy to spot. But if we remove the box, the pattern becomes more subtle, making the effect a bit harder to decipher.
 

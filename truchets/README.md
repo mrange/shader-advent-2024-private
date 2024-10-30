@@ -6,6 +6,8 @@
 
 Truchet patterns or [Truchet tiles](https://en.wikipedia.org/wiki/Truchet_tiles) can produce cool and surprising patterns.
 
+![A truchet by Shane at ShaderToy](assets/shane-truchet.jpg)
+
 The basic idea is simple. We create a tile where regardless of rotation fit together with copies of the tile. For example the classic Smith tile:
 <p align="center">
   <img src="assets/smith.png" alt="The classic Smith tile" style="width: 25%;" />
@@ -282,10 +284,12 @@ Truchet patterns are a cool way to create interesting shapes and there are many 
 
 [Shane](https://www.shadertoy.com/user/Shane) has published many cool truchet shaders like [a quadtree truchet](https://www.shadertoy.com/view/4t3BW4) or my favorite [the Hyperbolic Poincare Weave](https://www.shadertoy.com/view/tljyRR). [byt3_m3chanic](https://www.shadertoy.com/user/byt3_m3chanic) has made many cool truchet shaders, often in 3D, like [this one](https://www.shadertoy.com/view/lcySzz).
 
+![A truchet by byt3_m3chanic at ShaderToy](assets/bytemechanic-truchet.jpg)
+
 Obviously these examples are a "bit" more complex than my example here but it builds and expands on the same ideas.
 
 
-Wishing you all...
+And with I am wishing you all...
 
 ✨🎄🎁 A merry and bright holiday season and christmas presents containing new GPUs! 🎁🎄✨
 

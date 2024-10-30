@@ -12,7 +12,6 @@ The basic idea is simple. We create a tile where regardless of rotation fit toge
   <img src="assets/smith.jpg" alt="The classic smith tile" style="width: 50%;" />
 </p>
 
-
 Then we fill a plane with these tiles randomly rotated:
 
 The patterns that arise from this simple approach are to me surprising and interesting.
@@ -72,7 +71,7 @@ float smithTile(vec2 p) {
 ```
 
 Here is the complete example:
-```
+```glsl
 // Found here: https://iquilezles.org/articles/distfunctions2d/
 float sdBox( in vec2 p, in vec2 b ) {
     vec2 d = abs(p)-b;

@@ -9,10 +9,12 @@ Truchet patterns or [Truchet tiles](https://en.wikipedia.org/wiki/Truchet_tiles)
 The basic idea is simple. We create a tile where regardless of rotation fit together with copies of the tile. For example the classic Smith tile:
 
 <p align="center">
-  <img src="assets/smith.png" alt="The classic smith tile" style="width: 50%;" />
+  <img src="assets/smith.png" alt="The classic Smith tile" style="width: 25%;" />
 </p>
 
-Then we fill a plane with these tiles randomly rotated:
+Then we fill a 2D plane with these tiles randomly rotated:
+
+![A 2D plane full of Smith tiles](assets/smith-plane.png)
 
 The patterns that arise from this simple approach are to me surprising and interesting.
 

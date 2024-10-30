@@ -7,13 +7,11 @@
 Truchet patterns or [Truchet tiles](https://en.wikipedia.org/wiki/Truchet_tiles) can produce cool and surprising patterns.
 
 The basic idea is simple. We create a tile where regardless of rotation fit together with copies of the tile. For example the classic Smith tile:
-
 <p align="center">
   <img src="assets/smith.png" alt="The classic Smith tile" style="width: 25%;" />
 </p>
 
 Then we fill a 2D plane with these tiles randomly rotated:
-
 ![A 2D plane full of Smith tiles](assets/smith-plane.png)
 
 The patterns that arise from this simple approach are to me surprising and interesting.
@@ -25,7 +23,9 @@ Another classic is the C64 program that fills screen with either `\` or `/` but 
 20 GOTO 10
 ```
 
-You can try this is in an online C64 emulator.
+You can try this is in an online C64 emulator:
+![C64 truchet](assets/c64-truchet.png)
+
 
 ## This is cool but how can we make a shader of it.
 

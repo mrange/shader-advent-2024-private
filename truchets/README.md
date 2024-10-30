@@ -1,12 +1,16 @@
 # 🎄⭐🎉 Introduction to Truchet Shaders 🎉⭐🎄
 
-🎅 Ho, ho, ho! Merry Shader-mas! 🎅
+🎅 Ho, ho, ho! Merry X-mas! 🎅
 
 ## 🎄 Truchet Patterns are Cool 🎄
 
 Truchet patterns or [Truchet tiles](https://en.wikipedia.org/wiki/Truchet_tiles) can produce cool and surprising patterns.
 
 The basic idea is simple. We create a tile where regardless of rotation fit together with copies of the tile. For example the classic Smith tile:
+
+<p align="center">
+  <img src="assets/smith.jpg" alt="The classic smith tile" style="width: 50%;" />
+</p>
 
 
 Then we fill a plane with these tiles randomly rotated:
@@ -274,6 +278,11 @@ Truchet patterns are a cool way to create interesting shapes and there are many 
 
 Obviously these examples are a "bit" more complex than my example here but it builds and expands on the same ideas.
 
-Truchet tiles are
+
+Wishing you all...
+
+✨🎄🎁 A merry and bright holiday season and christmas presents containing new GPUs! 🎁🎄✨
+
+🎅 - mrange
 
 

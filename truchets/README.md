@@ -4,6 +4,8 @@
 
 ## 🎄 Why Truchet Patterns Are So Cool 🎄
 
+![A Truchet by Shane on ShaderToy](assets/shane-truchet.jpg)
+
 Truchet patterns—or [Truchet tiles](https://en.wikipedia.org/wiki/Truchet_tiles)—are a gift that keeps on giving! With just a single tile, arranged randomly, you can create intricate, surprising designs.
 
 Take the classic *Smith tile*, for example:

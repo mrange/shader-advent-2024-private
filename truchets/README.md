@@ -117,6 +117,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 }
 ```
 
+[!A Smith tile shader](assets/a-smith-tile-shader.jpg)
+
 One thing I can mention here is that I use smoothstep of to mix the background color with the foreground color. The purpose is to reduce pixelated borders of the distance fields. `float aa = sqrt(2.)/iResolution.y;` is an estimate of how big a pixel is in the units of `p`. `smoothstep(aa, -aa, dtile)` then smoothly goes from 1 to 0 when `dtile` transitions from a negative value (inside) to positive value (outside). This is a pattern I reuse all the time.
 
 ## Let's repeat the the tile

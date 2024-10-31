@@ -119,7 +119,7 @@ As you can see in my shaders, I like saturated colors and want to avoid the wash
 
 ![Let's self reflect by mrange](assets/mrange--lets-self-reflect.jpg)
 
-In [the shader](https://www.shadertoy.com/view/XfyXRV) above, the trick occurs at line 347 in the shader:
+In [the shader](https://www.shadertoy.com/view/XfyXRV) above, the trick occurs at line 347:
 
 ```glsl
 // Does all of the work, but there's an annoying washed-out fog that desaturates

@@ -115,14 +115,14 @@ Since discovering it, I’ve used this function countless times in my own [work]
 
 One way to kick you shader up a notch is by applying post-processing. While this can be [a complicated multi-stage process](https://www.shadertoy.com/view/MflfR8), I often find myself returning to a really simple technique.
 
-As you can see in my shaders, I like saturated colors and dislike the unintentional global glow that can easily creep in. I used to struggle with this until I learned a simple trick.
+As you can see in my shaders, I like saturated colors and want to avoid the washed-out fog effect that can easily creep in. I used to struggle with this until I learned a simple trick.
 
 ![Let's self reflect by mrange](assets/mrange--lets-self-reflect.jpg)
 
-In [the shader](https://www.shadertoy.com/view/XfyXRV) above, the trick occurs at line 347:
+In [the shader](https://www.shadertoy.com/view/XfyXRV) above, the trick occurs at line 347 in the shader:
 
 ```glsl
-// Does all of the work, but there's an annoying global glow that desaturates
+// Does all of the work, but there's an annoying washed-out fog that desaturates
 // the colors. I am annoyed!
 col = render3(rayOrigin, rd);
 
@@ -131,7 +131,7 @@ col -= 2E-2 * vec3(2., 3., 1.) * (length(p) + 0.25);
 
 // Maps colors from [0, inf[ to [0, 1]
 col = aces_approx(col);
-// Approximate linear RGB => sRGB conversion
+// Approximate RGB => sRGB conversion
 col = sqrt(col);
 ```
 

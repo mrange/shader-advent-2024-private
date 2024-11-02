@@ -42,8 +42,9 @@ Here is the entire example:
 #define SCA(a)     vec2(sin(a),cos(a))
 
 const float
-    pi = acos(-1.)
+    pi  = acos(-1.)
   , tau = 2.*pi
+  , lw  = 0.04
   ;
 
 // Basic functions
@@ -102,8 +103,8 @@ float circleWave(vec2 p, float tb, float ra) {
 const vec4 cell0Cons = vec4(0.);
 float cell0(vec2 p) {
   float d0 = circle(p, 0.15+0.06);
-  d0 = abs(d0) - 0.04;
-  d0 = abs(d0) - 0.02;
+  d0 = abs(d0) - lw;
+  d0 = abs(d0) - lw*0.5;
   return d0;
 }
 
@@ -111,7 +112,7 @@ float cell0(vec2 p) {
 const vec4 cell1Cons = vec4(1.,0.,0.,0.);
 float cell1(vec2 p) {
   float d0 = circle(p, 0.15);
-  float d1 = segmentx(p,0.04);
+  float d1 = segmentx(p,lw);
   float d = min(d0,d1);
   return d;
 }
@@ -120,14 +121,14 @@ float cell1(vec2 p) {
 const vec4 cell2cCons = vec4(1.,0.,0.,1.);
 float cell2c(vec2 p) {
   vec2 p0 = p;
-  float d = abs(circle(p0+0.5,0.5))-0.04;
+  float d = abs(circle(p0+0.5,0.5))-lw;
   return d;
 }
 
 // Distance field and connections for cell with 2 connections. This forms straight line
 const vec4 cell2tCons = vec4(1.,0.,1.,0.);
 float cell2t(vec2 p) {
-  float d = abs(p.y)-0.04;
+  float d = abs(p.y)-lw;
   return d;
 }
 
@@ -138,8 +139,8 @@ float cell3(vec2 p) {
   p0.y -= -0.25;
   vec2 p2 = p.yx;
 
-  float d0 = circleWave(p0, 0.5, 0.25)-0.04;
-  float d2 = segmentx(p2,0.04);
+  float d0 = circleWave(p0, 0.5, 0.25)-lw;
+  float d2 = segmentx(p2, lw);
   float d3 = circle(p2,0.15);
   float d = d0;
   d = min(d, d2);
@@ -156,7 +157,7 @@ float cell4(vec2 p) {
   ref(p, ref45);
   p.x -= -0.3;
   float d0 = circle(p, 0.15);
-  float d1 = segmentx(p,0.04);
+  float d1 = segmentx(p, lw);
   float d = min(d0,d1);
   return d;
 }

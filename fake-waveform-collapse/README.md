@@ -1,53 +1,48 @@
-# 🎄⭐🎉 Faking wave function collapse in shaders 🎉⭐🎄
+# 🎄⭐🎉 Faking Wave Function Collapse in Shaders 🎉⭐🎄
 
-🎅 *Merry Code-mas, shadertoy fans!* 🎅
+🎅 *Merry Code-mas, ShaderToy enthusiasts!* 🎅
 
-## 🌊 Wave Function Collapse? 🌊
+## 🌊 What’s This Wave Function Collapse? 🌊
 
-A few years ago I watched [Coding Challenge 171: Wave Function Collapse](https://www.youtube.com/watch?v=rI_y2GAlQFM) and I thought:
+A few years back, I stumbled upon [Coding Challenge 171: Wave Function Collapse](https://www.youtube.com/watch?v=rI_y2GAlQFM) and had a couple of thoughts:
 
-1. This is a stupid name for a simple algorithm
-2. This is cool I want to try it as a Shader
+1. **That's a stupid name for a straightforward algorithm!**
+2. **This looks awesome—I’ve got to try it in a shader!**
 
-The problem with the name is that if you google it you get ofc lot of ads but below all the ads you get links to things that has to with Quantum Physics.
+Now, if you search for it online, you’ll wade through ads before landing until you land on articles on quantum physics because the name is misleading. In our world, Wave Function Collapse is a nifty little algorithm for generating randomized patterns. Think of it as truchet tiling on steroids! I highly recommend checking out the [YouTube clip](https://www.youtube.com/watch?v=rI_y2GAlQFM); it’s both educational and entertaining.
 
-In this context the Wave Function Collapse is a simple and powerful algorithm to generate randomized patterns, a bit like truchet tiling but more flexible. I recommend checking out the [Youtube clip]((https://www.youtube.com/watch?v=rI_y2GAlQFM)) as it was informative and entertaining.
+## Bringing It to Life in a Shader
 
-## Adopting the algorithm to a Shader
+While the algorithm is simple, translating it into a fragment shader isn’t straightforward. You could use a persistent texture to maintain state, but that sounds a bit too challenging for me.
 
-While a simple algorithm it's not overly simple to translate into in a fragment shader. I think you could by using a persistent texture as the state but that seems to hard for me.
+A few years ago, I gave it a shot by tweaking the algorithm, resulting in a somewhat lackluster shader.
 
-I heavily tweaked the algorithm and created [a lack-lustre shader](https://www.shadertoy.com/view/fsyfWV) around it.
+While the shader isn't particularly impressive, I still believe the underlying idea is interesting. I’d like to share how it works while making some upgrades to the shader. My hope is to inspire Truchet giants like Shane and byt3_m3chanic to create something truly amazing with it.
 
-While the shader isn't very cool I still think the underlying idea is cool so I thought I share how it works while upgrading the shader a bit. My hope is to inspire Truchet giants like [Shane](https://www.shadertoy.com/user/Shane) and [byt3_m3chanic](https://www.shadertoy.com/user/byt3_m3chanic) to do something really cool with it.
+## 🏗️ Crafting Some Shapes 🏗️
 
-## 🏗️ Constructing some shapes 🏗️
+The goal? Create something that resembles a circuit board. While truchet tiles can do the trick, we want to mix things up with multiple shapes that don’t necessarily align.
 
-The idea is to create something that looks like a circuit board. While we can do this with truchet tiles the thought here is to have multiple tiles which doesn't line up which eachother.
-
-I define 5 shapes, one with 0 connections to the neighbours, one with 1 connections and so on.
-
-There are two variants needed for a 2 connection shape, one corner shape and one line shape.
-
-They ended up looking like these:
+I defined five shapes, from none to multiple connections with neighbors. For the two-connection shape, I crafted both a corner shape and a line shape. Here’s what they look like:
 
 ![All possible cell shapes](assets/all-shapes.jpg)
 
-## 🔲 Placing the shapes 🔳
+## 🔲 Arranging the Shapes 🔳
 
-If I place two of these shape next to each to eachother I need to rotate them so that the connections lines up.
+When placing these shapes side by side, I need to rotate them so their connections line up.
 
-Some problems then arise. I want a pattern that is controlled by pseudo randomness but since the shapes can conflict with eachother they impose restrictions on eachother. The Wave function collapse algorithm solves this by pick a cell to resolve (or collapse) depending on its degrees of freedom and a randomness. While this is easy to implement in most language this is not a good fit for shader code. As mentioned above one could likely solve it using a persistent texture but that seems complicated to me.
+This is where things get a bit tricky. I want a pattern driven by pseudo-randomness, but since the shapes can clash, it create restrictions on the shape and the rotation. The Wave Function Collapse algorithm solves by selecting a cell to resolve (or collapse) based on its degrees of freedom and a sprinkle of randomness. While that’s a breeze in most programming languages, shader code isn’t quite as forgiving.
 
-Instead, if you imagine the plane as a chessboard I randomize the shape and rotation for all white cells. As the cells only touch on the corners they can't create a connection conflict. The black cellso on the chessboard I pick a shape and rotation that match the neighbouring white cells.
+Instead, picture a chessboard: I randomize the shape and rotation for all the white cells. Since they only touch at the corners, they won't create any connection conflicts. For the black cells, I choose a shape and rotation that matches their neighboring white cells.
 
 ![A chessboard shader](assets/chessboard.jpg)
 
-Sounds easy but can be a bit tricky to implement.
+It sounds straightforward, but getting it all to work can be a bit of a puzzle!
 
-## 🔌 Setting up the "circuit" board 🔌
+## 🔌 Setting Up the "Circuit" Board 🔌
 
-A simple way to split the plane into cells with side 1 is this:
+One straightforward method to divide the plane into cells of size 1 is as follows:
+
 ```glsl
 // Computes cell id
 vec2 np = round(tp);
@@ -55,7 +50,7 @@ vec2 np = round(tp);
 vec2 cp = tp - np;
 ```
 
-Then we like to generate just the "white" cells in a chessboard:
+Next, we’ll focus on generating only the "white" cells of a chessboard:
 
 ```glsl
   float d0 = 1E3;
@@ -64,11 +59,11 @@ Then we like to generate just the "white" cells in a chessboard:
   }
 ```
 
-## 🔲 Randomizing the "white" cells 🔲
+## 🔲 Randomizing the "White" Cells 🔲
 
-This is easy and is very much similar to how we normally do truchet tiling. Generate pseudo-random from the cell id and from that pick the shape and rotation.
+This step is straightforward and closely resembles our usual approach to truchet tiling. We generate pseudo-random values based on the cell ID and use those to select the shape and rotation.
 
-The distance field for the randomized cell looks like this:
+The distance field for the randomized cell appears as follows:
 
 ```glsl
 // Generate two pseudo-random values from a cell identifier:
@@ -114,14 +109,15 @@ float randomCell(vec2 np, vec2 cp) {
 }
 ```
 
-This would give something that looks like this:
+This results in a pattern that looks like this:
+
 ![Show only the randomized cells](assets/half-and-half.jpg)
 
-Which is kind of cool in itself but it will be even better once we pick a matching shape and rotation for the "black cells".
+While this is pretty cool on its own, it will look even better once we choose a matching shape and rotation for the "black" cells.
 
-## ⬛ Lining up the fixed cells ⬛
+## ⬛ Lining Up the Fixed Cells ⬛
 
-For the other cells it needs to peek at the neighbor cells which will be pseudo-randomized cells, this pseudo-randomization is controlled by the cell id which we can compute from the current cell id for the fixed cell.
+For the other cells, we need to consider their neighboring cells, which will be pseudo-randomized. This pseudo-randomization is determined by the cell ID, which we can compute based on the current ID of the fixed cell.
 
 ```glsl
 // Generate two pseudo-random values from a cell identifier:
@@ -238,14 +234,15 @@ float fixedCell(vec2 np, vec2 cp) {
 }
 ```
 
-If we done it correctly the result would look something like this:
+If done correctly, the result will look something like this:
+
 ![A pseudo-random circuit board](assets/full.jpg)
 
-## 🛠️ Things to tinker with 🛠️
+## 🛠️ Things to Tinker With 🛠️
 
-I have put [the entire shader on ShaderToy](https://www.shadertoy.com/view/XfcyWH) for you to tinker with.
+I’ve uploaded [the entire shader on ShaderToy](https://www.shadertoy.com/view/XfcyWH) for you to explore.
 
-In order to make it easier for you to deconstruct the shader I left a few defines in the shader that let you control it's functionality:
+To make it easier to deconstruct the shader, I’ve included a few defines that allow you to control its functionality:
 
 ```glsl
 // Undefine to draw the basic cells building up the board
@@ -261,9 +258,9 @@ In order to make it easier for you to deconstruct the shader I left a few define
 // #define NOROT
 ```
 
-## 🎁 Wrapping it all up 🎁
+## 🎁 Wrapping It All Up 🎁
 
-Finally here is the entire example:
+Finally, here is the complete example:
 ```glsl
 
 // Undefine to draw the basic cells building up the board
@@ -274,7 +271,6 @@ Finally here is the entire example:
 
 // Undefine to show debug graphcs
 // #define DEBUG
-
 // Undefine to skip rotation of shapes
 // #define NOROT
 
@@ -708,11 +704,11 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord ) {
 }
 ```
 
-And that's all for today, I hope this inspire some of you to tinker with fake Waveform Function Collapse or why not implement the entire Waveform Function Collapse in a shader or your favorite stateful langeu.
+And that’s a wrap for today! I hope this inspires some of you to experiment with fake Wave Function Collapse or even implement the full algorithm in a shader or your favorite stateful language.
 
 Wishing you all…
 
-✨🎄🎁 An amazing christmas filled with pseudo-random goodness under the christmas tree 🎁🎄✨
+✨🎄🎁 An amazing Christmas filled with pseudo-random goodness under the tree! 🎁🎄✨
 
 🎅 - mrange
 

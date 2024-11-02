@@ -9,15 +9,15 @@ A few years back, I stumbled upon [Coding Challenge 171: Wave Function Collapse]
 1. **That's a stupid name for a straightforward algorithm!**
 2. **This looks awesome—I’ve got to try it in a shader!**
 
-Now, if you search for it online, you’ll wade through ads before landing until you land on articles on quantum physics because the name is misleading. In our world, Wave Function Collapse is a nifty little algorithm for generating randomized patterns. Think of it as truchet tiling on steroids! I highly recommend checking out the [YouTube clip](https://www.youtube.com/watch?v=rI_y2GAlQFM); it’s both educational and entertaining.
+Now, if you search for it online, you’ll wade through ads before landing on articles on quantum physics because the name is misleading. In our world, Wave Function Collapse is a nifty little algorithm for generating randomized patterns. Think of it as truchet tiling on steroids! I highly recommend checking out the [YouTube clip](https://www.youtube.com/watch?v=rI_y2GAlQFM); it’s both educational and entertaining.
 
 ## Bringing It to Life in a Shader
 
 While the algorithm is simple, translating it into a fragment shader isn’t straightforward. You could use a persistent texture to maintain state, but that sounds a bit too challenging for me.
 
-A few years ago, I gave it a shot by tweaking the algorithm, resulting in a somewhat lackluster shader.
+A few years ago, I gave it a shot by tweaking the algorithm, resulting in [a somewhat lackluster shader](https://www.shadertoy.com/view/fsyfWV).
 
-While the shader isn't particularly impressive, I still believe the underlying idea is interesting. I’d like to share how it works while making some upgrades to the shader. My hope is to inspire Truchet giants like Shane and byt3_m3chanic to create something truly amazing with it.
+While the shader isn't particularly impressive, I still believe the underlying idea is interesting. I’d like to share how it works while making some upgrades to the shader. My hope is to inspire Truchet giants like [Shane](https://www.shadertoy.com/user/Shane) and [byt3_m3chanic](https://www.shadertoy.com/user/byt3_m3chanic) to create something truly amazing with it.
 
 ## 🏗️ Crafting Some Shapes 🏗️
 

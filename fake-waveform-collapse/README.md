@@ -23,7 +23,7 @@ While the shader isn't particularly impressive, I still believe the underlying i
 
 The goal? Create something that resembles a circuit board. While truchet tiles can do the trick, we want to mix things up with multiple shapes that don’t necessarily align.
 
-I defined five shapes, from none to multiple connections with neighbors. For the two-connection shape, I crafted both a corner shape and a line shape. Here’s what they look like:
+I defined five shapes, from none to 4 connections with neighbors. For the two-connection shape, I crafted both a corner shape and a line shape. Here’s what they look like:
 
 ![All possible cell shapes](assets/all-shapes.jpg)
 
@@ -31,7 +31,7 @@ I defined five shapes, from none to multiple connections with neighbors. For the
 
 When placing these shapes side by side, I need to rotate them so their connections line up.
 
-This is where things get a bit tricky. I want a pattern driven by pseudo-randomness, but since the shapes can clash, it create restrictions on the shape and the rotation. The Wave Function Collapse algorithm solves by selecting a cell to resolve (or collapse) based on its degrees of freedom and a sprinkle of randomness. While that’s a breeze in most programming languages, shader code isn’t quite as forgiving.
+This is where things get a bit tricky. I want a pattern driven by pseudo-randomness, but since the shapes can clash, it creates restrictions on both the shape and rotation. The Wave Function Collapse algorithm solves this by selecting a cell to resolve (or collapse) based on its degrees of freedom and a sprinkle of randomness. While that’s a breeze in most programming languages, shader code isn’t quite as forgiving.
 
 Instead, picture a chessboard: I randomize the shape and rotation for all the white cells. Since they only touch at the corners, they won't create any connection conflicts. For the black cells, I choose a shape and rotation that matches their neighboring white cells.
 

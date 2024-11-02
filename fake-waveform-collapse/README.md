@@ -31,7 +31,7 @@ There are two variants needed for a 2 connection shape, one corner shape and one
 
 They ended up looking like these:
 
-**TODO**
+![All possible cell shapes](assets/all-shapes.jpg)
 
 ## 🔲 Placing the shapes 🔳
 
@@ -41,7 +41,7 @@ Some problems then arise. I want a pattern that is controlled by pseudo randomne
 
 Instead, if you imagine the plane as a chessboard I randomize the shape and rotation for all white cells. As the cells only touch on the corners they can't create a connection conflict. The black cellso on the chessboard I pick a shape and rotation that match the neighbouring white cells.
 
-**TODO chessboard**
+![A chessboard shader](assets/chessboard.jpg)
 
 Sounds easy but can be a bit tricky to implement.
 
@@ -115,7 +115,7 @@ float randomCell(vec2 np, vec2 cp) {
 ```
 
 This would give something that looks like this:
-**TODO**
+![Show only the randomized cells](assets/half-and-half.jpg)
 
 Which is kind of cool in itself but it will be even better once we pick a matching shape and rotation for the "black cells".
 
@@ -239,7 +239,7 @@ float fixedCell(vec2 np, vec2 cp) {
 ```
 
 If we done it correctly the result would look something like this:
-**TODO**
+![A pseudo-random circuit board](assets/full.jpg)
 
 ## 🛠️ Things to tinker with 🛠️
 

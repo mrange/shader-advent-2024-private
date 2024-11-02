@@ -243,6 +243,8 @@ If we done it correctly the result would look something like this:
 
 ## 🛠️ Things to tinker with 🛠️
 
+I have put [the entire shader on ShaderToy](https://www.shadertoy.com/view/XfcyWH) for you to tinker with.
+
 In order to make it easier for you to deconstruct the shader I left a few defines in the shader that let you control it's functionality:
 
 ```glsl
@@ -260,6 +262,7 @@ In order to make it easier for you to deconstruct the shader I left a few define
 ```
 
 ## 🎁 Wrapping it all up 🎁
+
 Finally here is the entire example:
 ```glsl
 

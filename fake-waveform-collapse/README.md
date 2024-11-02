@@ -21,8 +21,246 @@ I heavily tweaked the algorithm and created [a lack-lustre shader](https://www.s
 
 While the shader isn't very cool I still think the underlying idea is cool so I thought I share how it works while upgrading the shader a bit. My hope is to inspire Truchet giants like [Shane](https://www.shadertoy.com/user/Shane) and [byt3_m3chanic](https://www.shadertoy.com/user/byt3_m3chanic) to do something really cool with it.
 
+## Defining some shapes
 
-Here is the entire example:
+The idea is to create something that looks like a circuit board. While we can do this with truchet tiles the thought here is to have multiple tiles which doesn't line up which eachother.
+
+I define 5 shapes, one with 0 connections to the neighbours, one with 1 connections and so on.
+
+There are two variants needed for a 2 connection shape, one corner shape and one line shape.
+
+They ended up looking like these:
+
+**TODO**
+
+## Placing the shapes
+
+If I place two of these shape next to each to eachother I need to rotate them so that the connections lines up.
+
+Some problems then arise. I want a pattern that is controlled by pseudo randomness but since the shapes can conflict with eachother they impose restrictions on eachother. The Wave function collapse algorithm solves this by pick a cell to resolve (or collapse) depending on its degrees of freedom and a randomness. While this is easy to implement in most language this is not a good fit for shader code. As mentioned above one could likely solve it using a persistent texture but that seems complicated to me.
+
+Instead, if you imagine the plane as a chessboard I randomize the shape and rotation for all white cells. As the cells only touch on the corners they can't create a connection conflict. The black cellso on the chessboard I pick a shape and rotation that match the neighbouring white cells.
+
+**TODO chessboard**
+
+Sounds easy but can be a bit tricky to implement.
+
+## Setting up the "circuit" board
+
+A simple way to split the plane into cells with side 1 is this:
+```glsl
+// Computes cell id
+vec2 np = round(tp);
+// Computes cell coordinate from (-0.5,-0.5 to (0.5,0.5)
+vec2 cp = tp - np;
+```
+
+Then we like to generate just the "white" cells in a chessboard:
+
+```glsl
+  float d0 = 1E3;
+  if (fract((np.x + np.y)*0.5) > 0.25) {
+    d0 = randomCell(np, cp);
+  }
+```
+
+## Randomizing help of the cells
+
+This is easy and is very much similar to how we normally do truchet tiling. Generate pseudo-random from the cell id and from that pick the shape and rotation.
+
+The distance field for the randomized cell looks like this:
+
+```glsl
+// Generate two pseudo-random values from a cell identifier:
+// - v.x determines the cell type
+// - v.y determines the cell rotation
+vec2 selection(vec2 np) {
+  float h0 = hash(np+123.4);
+  float h1 = fract(h0*8667.0);
+  return vec2(h0,h1);
+}
+
+// For a given cell identifier, return a random cell's distance field
+float randomCell(vec2 np, vec2 cp) {
+  float d0 = 1E3;
+  vec2 sel = selection(np);
+#ifndef NOROT
+  // ROTATION_DISTRIBUTION_MUST_MATCH: This distribution needs to be kept in snc
+  if (sel.y > 0.75) {
+    cp = vec2(cp.y, -cp.x);
+  } else if (sel.y > 0.5) {
+    cp = -cp;
+  } else if (sel.y > 0.25) {
+    cp = vec2(-cp.y, cp.x);
+  } else {
+  }
+#endif
+
+  // CELL_DISTRIBUTION_MUST_MATCH: This distribution needs to be kept in sync
+  if (sel.x > 0.95) {
+    d0 = cell4(cp);
+  } else if (sel.x > 0.7) {
+    d0 = cell3(cp);
+  } else if (sel.x > 0.5) {
+    d0 = cell2c(cp);
+  } else if (sel.x > 0.3) {
+    d0 = cell2t(cp);
+  } else if (sel.x > 0.05) {
+    d0 = cell1(cp);
+  } else {
+    d0 = cell0(cp);
+  }
+  return d0;
+}
+```
+
+This would give something that looks like this:
+**TODO**
+
+Which is kind of cool in itself but it will be even better once we pick a matching shape and rotation for the "black cells".
+
+## Lining up the fixed cells
+
+For the other cells it needs to peek at the neighbor cells which will be pseudo-randomized cells, this pseudo-randomization is controlled by the cell id which we can compute from the current cell id for the fixed cell.
+
+```glsl
+// Generate two pseudo-random values from a cell identifier:
+// - v.x determines the cell type
+// - v.y determines the cell rotation
+vec2 selection(vec2 np) {
+  float h0 = hash(np+123.4);
+  float h1 = fract(h0*8667.0);
+  return vec2(h0,h1);
+}
+
+// For a given cell identifier, return a random cell's connections, accounting for rotation
+vec4 connections(vec2 np) {
+  vec2 sel = selection(np);
+
+  vec4 c = cell0Cons;
+
+  // CELL_DISTRIBUTION_MUST_MATCH: This distribution needs to be kept in sync
+  if (sel.x > 0.95) {
+    c = cell4Cons;
+  } else if (sel.x > 0.7) {
+    c = cell3Cons;
+  } else if (sel.x > 0.5) {
+    c = cell2cCons;
+  } else if (sel.x > 0.3) {
+    c = cell2tCons;
+  } else if (sel.x > 0.05) {
+    c = cell1Cons;
+  } else {
+  }
+
+#ifndef NOROT
+  // ROTATION_DISTRIBUTION_MUST_MATCH: This distribution needs to be kept in sync
+  if (sel.y > 0.75) {
+    c = c.yzwx;
+  } else if (sel.y > 0.5) {
+    c = c.zwxy;
+  } else if (sel.y > 0.25) {
+    c = c.wxyz;
+  } else {
+  }
+#endif
+
+  return c;
+}
+
+// Distance field for a fixed cell, which samples neighboring cells to
+//  determine its shape and rotation
+float fixedCell(vec2 np, vec2 cp) {
+  vec4 cons;
+  // Peek at neighboring random cells by passing in their cell IDs.
+  // Each neighboring cell is pseudo-randomly generated from its ID.
+  // Our cell mirrors the connections of neighboring cells.
+  cons.x = connections(np-vec2( 1., 0.)).z;
+  cons.y = connections(np-vec2( 0.,-1.)).w;
+  cons.z = connections(np-vec2(-1., 0.)).x;
+  cons.w = connections(np-vec2( 0., 1.)).y;
+
+  // How many connections do we need?
+  float c = dot(vec4(1.), cons);
+  vec4 tcons;
+  // Pick a cell type that match the connections needed
+  // SELECTION_DISTRIBUTION_MUST_MATCH: This distribution needs to be kept in sync
+  if (c == 0.) {
+    tcons = cell0Cons;
+  } else if (c == 1.) {
+    tcons = cell1Cons;
+  // Two shapes have two connections each,
+  //  so we need to check the connections to identify the correct shape.
+  } else if (c == 2. && cons.x == cons.z) {
+    tcons = cell2tCons;
+  } else if (c == 2.) {
+    tcons = cell2cCons;
+  } else if (c == 3.) {
+    tcons = cell3Cons;
+  } else {
+    tcons = cell4Cons;
+  }
+
+  // The selected cell may have incorrect orientation, so we rotate its connections
+  //  until they align correctly.
+  //  Simultaneously, we apply the same rotation to the cell's coordinates.
+  for (int i = 0; i < 4; ++i) {
+    // Do we have a match?
+    if (tcons == cons) {
+      break;
+    }
+    // Rotate connections
+    tcons = tcons.wxyz;
+    // Rotate cell coordinates
+    cp = vec2(-cp.y, cp.x);
+  }
+
+  float d = 1E3;
+
+  // SELECTION_DISTRIBUTION_MUST_MATCH: This distribution needs to be kept in sync
+  if (c == 0.) {
+    d = cell0(cp);
+  } else if (c == 1.) {
+    d = cell1(cp);
+  // Two shapes have two connections each,
+  //  so we need to check the connections to identify the correct shape.
+  } else if (c == 2. && cons.x == cons.z) {
+    d = cell2t(cp);
+  } else if (c == 2.) {
+    d = cell2c(cp);
+  } else if (c == 3.) {
+    d = cell3(cp);
+  } else {
+    d = cell4(cp);
+  }
+
+  return d;
+}
+```
+
+If we done it correctly the result would look something like this:
+**TODO**
+
+## Things to tweak with
+
+In order to make it easier for you to deconstruct the shader I left a few defines in the shader that let you control it's functionality:
+
+```glsl
+// Undefine to draw the basic cells building up the board
+// #define DRAW_ALL_CELLS
+
+// Undefine to just show the cells that are generated randomly
+// #define ONLY_RANDOM_CELLS
+
+// Undefine to show debug graphcs
+// #define DEBUG
+
+// Undefine to skip rotation of shapes
+// #define NOROT
+```
+
+## 🎁 Wrapping it all up 🎁
+Finally here is the entire example:
 ```glsl
 
 // Undefine to draw the basic cells building up the board
@@ -467,12 +705,11 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord ) {
 }
 ```
 
-
-
+And that's all for today, I hope this inspire some of you to tinker with fake Waveform Function Collapse or why not implement the entire Waveform Function Collapse in a shader or your favorite stateful langeu.
 
 Wishing you all…
 
-✨🎄🎁 A festive season filled with shader magic and perhaps even a new GPU under the tree! 🎁🎄✨
+✨🎄🎁 An amazing christmas filled with pseudo-random goodness under the christmas tree 🎁🎄✨
 
 🎅 - mrange
 

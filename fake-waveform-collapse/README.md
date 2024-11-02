@@ -2,7 +2,7 @@
 
 🎅 *Merry Code-mas, shadertoy fans!* 🎅
 
-## 🎄 Wave Function Collapse? 🎄
+## 🌊 Wave Function Collapse? 🌊
 
 A few years ago I watched [Coding Challenge 171: Wave Function Collapse](https://www.youtube.com/watch?v=rI_y2GAlQFM) and I thought:
 
@@ -21,7 +21,7 @@ I heavily tweaked the algorithm and created [a lack-lustre shader](https://www.s
 
 While the shader isn't very cool I still think the underlying idea is cool so I thought I share how it works while upgrading the shader a bit. My hope is to inspire Truchet giants like [Shane](https://www.shadertoy.com/user/Shane) and [byt3_m3chanic](https://www.shadertoy.com/user/byt3_m3chanic) to do something really cool with it.
 
-## Defining some shapes
+## 🏗️ Constructing some shapes 🏗️
 
 The idea is to create something that looks like a circuit board. While we can do this with truchet tiles the thought here is to have multiple tiles which doesn't line up which eachother.
 
@@ -33,7 +33,7 @@ They ended up looking like these:
 
 **TODO**
 
-## Placing the shapes
+## 🔲 Placing the shapes 🔳
 
 If I place two of these shape next to each to eachother I need to rotate them so that the connections lines up.
 
@@ -45,7 +45,7 @@ Instead, if you imagine the plane as a chessboard I randomize the shape and rota
 
 Sounds easy but can be a bit tricky to implement.
 
-## Setting up the "circuit" board
+## 🔌 Setting up the "circuit" board 🔌
 
 A simple way to split the plane into cells with side 1 is this:
 ```glsl
@@ -64,7 +64,7 @@ Then we like to generate just the "white" cells in a chessboard:
   }
 ```
 
-## Randomizing help of the cells
+## 🔲 Randomizing the "white" cells 🔲
 
 This is easy and is very much similar to how we normally do truchet tiling. Generate pseudo-random from the cell id and from that pick the shape and rotation.
 
@@ -119,7 +119,7 @@ This would give something that looks like this:
 
 Which is kind of cool in itself but it will be even better once we pick a matching shape and rotation for the "black cells".
 
-## Lining up the fixed cells
+## ⬛ Lining up the fixed cells ⬛
 
 For the other cells it needs to peek at the neighbor cells which will be pseudo-randomized cells, this pseudo-randomization is controlled by the cell id which we can compute from the current cell id for the fixed cell.
 
@@ -241,7 +241,7 @@ float fixedCell(vec2 np, vec2 cp) {
 If we done it correctly the result would look something like this:
 **TODO**
 
-## Things to tweak with
+## 🛠️ Things to tinker with 🛠️
 
 In order to make it easier for you to deconstruct the shader I left a few defines in the shader that let you control it's functionality:
 

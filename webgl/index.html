@@ -3,67 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WEBGL</title>
-    <style>
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #e0e0e0;
-            font-family: 'Arial', sans-serif;
-        }
-
-        .canvas-container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1),
-                        0 1px 3px rgba(0, 0, 0, 0.08);
-            transition: transform 0.2s ease;
-        }
-
-        canvas {
-            display: block;
-            border-radius: 4px;
-            border: 1px solid #eee;
-        }
-
-        .caption {
-            margin-top: 15px;
-            text-align: center;
-            color: #333;
-            position: relative;
-            padding: 10px;
-        }
-
-        .caption h2 {
-            margin: 0;
-            font-size: 1.2em;
-            color: #2d3748;
-        }
-
-        .caption p {
-            margin: 5px 0 0;
-            font-size: 0.9em;
-            color: #718096;
-        }
-
-    </style>
+    <link rel="stylesheet" href="styles.css">
+    <title>How to Render ShaderToy Shaders with HTML and WebGL</title>
 </head>
 <body>
     <div class="canvas-container">
       <canvas id="webGLCanvas" width="800" height="600"></canvas>
       <div class="caption">
-          <h2>WebGL Animation</h2>
-          <p>A beautiful demonstration of real-time graphics</p>
+        <h2>Shader by the talented <a target="_blank" href="https://www.shadertoy.com/user/kishimisu">kishimisu</a></h2>
+        <p>This example demonstrates how to render a ShaderToy shader in HTML using WebGL.</p>
+        <p>The sample is designed to be simple, clear, and self-contained.</p>
       </div>
     </div>
     <script>
       const vertexShaderSource = `#version 300 es
           precision highp float;
 
+          // The vertex shader is about as simple as it can get.
+          //  Pass the input untransformed to gl_Position
           in vec4 position;
           void main() {
             gl_Position = position;
@@ -76,11 +33,13 @@
           out vec4 fragColor;
 
           // Support ShaderToy iTime and iResolution
+          //  ShaderToy has many more uniforms but these two
+          //  are the most common ones
 
           uniform float iTime;
           uniform vec3 iResolution;
 
-          // Support ShaderToy mainImage
+          // Support ShaderToy mainImage signature
           void mainImage(out vec4 fragColor, in vec2 fragCoord);
 
           void main() {
@@ -90,6 +49,7 @@
           }
 
           // Paste ShaderToy shader here -->
+          //  Shader source found at: https://www.shadertoy.com/view/mtyGWy
 
           /* This animation is the material of my first youtube tutorial about creative
             coding, which is a video in which I try to introduce programmers to GLSL

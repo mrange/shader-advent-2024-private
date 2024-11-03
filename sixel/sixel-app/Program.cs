@@ -1,4 +1,6 @@
 ﻿// First check if the terminal supports Sixel graphics
+//  On Windows you can use Windows Terminal 1.22.2912.0+ (at the time of writing in preview)
+//  You can find Windows Terminal in Windows Store.
 {
     // Clear any pending input from STDIN
     while (Console.KeyAvailable)
@@ -6,10 +8,10 @@
         Console.ReadKey();
     }
 
-    // Query terminal capabilities
+    // Ask the terminal for its capabilities
     Console.Write("\x1B[c");
 
-    // Allow time for terminal response
+    // Wait for the terminal to respond
     Thread.Sleep(100);
 
     var sb = new StringBuilder();
@@ -20,23 +22,23 @@
         sb.Append(key.KeyChar);
     }
 
-    // Parse capabilities (semi-colon separated string)
+    // Parse capabilities (semicolon-separated)
     var caps = sb
         .ToString()
         .Split(";")
         .Select(x => x.Trim())
         .ToHashSet();
 
-    // Check for Sixel support (capability code 4)
+    // Check if Sixel support is present (capability code '4')
     if (!caps.Contains("4"))
     {
         throw new Exception("Terminal does not support Sixel graphics");
     }
 }
 
-// Hide cursor
+// Hide the cursor
 Console.Write("\x1B[?25l");
-// Clear screen
+// Clear the screen
 Console.Write("\x1B[2J");
 
 // TIC-80 fantasy console color palette
@@ -68,8 +70,8 @@ const byte SixelBase = 63;  // Base character '?' (ASCII 63)
 const int Width = 640;
 const int Height = 400;
 // Screen buffer - each byte represents one pixel
-// Only 16 colors are supported (4 bits), using the TIC-80 palette
-// Values 0-15 correspond to indices in the tic80Palette array
+// Uses 4-bit color (16 colors) from the TIC-80 palette
+// Values 0-15 map to indices in the tic80Palette array
 var screen = new byte[Width * Height];
 
 var builder = new StringBuilder();

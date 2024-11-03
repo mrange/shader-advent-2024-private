@@ -1,32 +1,30 @@
-# 🎄🌟🎄 Sixel graphics in Windows Terminal and beyond 🎄🌟🎄
+# 🎄🌟🎄 Sixel Graphics in Windows Terminal and Beyond 🎄🌟🎄
 
-🎅Ho, ho, ho! Merry Christmas fellow demo-coders!🎅
+🎅 Ho, ho, ho! Merry Christmas, fellow demo-coders! 🎅
 
-## Sixel? Did you mispell pixel?
+## 🏙️ Sixel? Did you mean Pixel? 🏙️
 
-Sixel is actually a thing. It was defined in the late 1970s by DEC to support "hires" printouts of images. Sixels are still supported by many Terminals and was recently added to Windows Terminal Preview.
+No typo here—*Sixel* is real! It was introduced in the late 1970s by DEC as a way to produce high-resolution images on early printers. Sixel graphics are still supported by many terminals and were recently added to Windows Terminal Preview.
 
-**TODO: Image in Windows terminal**
+**TODO: Image in Windows Terminal**
 
-For us that have the demo-coding itch it means a way to draw graphics in the terminal in a way that is to many surprising which mean it's cool.
+For us demo-coders, Sixel is a nifty way to create graphics in the terminal—cool and unexpected for most people.
 
-I am going to demonstrate how do draw a simple effect with Sixels using C#.
+Let’s dive in and create a simple effect with Sixels using C#.
 
-## How to get started
+🚀 Getting Started 🛠️
 
-First of all we should detect if the terminal supports Sixel graphics. The way we do it is that we send a special command `\x1B[c` to the terminal which will make it respond with the terminal capabilities. `\x1B` is the `ESC` character and often used when sending commands to the terminal.
-
+First, let’s detect if the terminal supports Sixel graphics. We do this by sending a special command, `\x1B[c`, which prompts the terminal to respond with its capabilities. (`\x1B` is the escape character, used for sending commands to terminals.)
 
 ```csharp
-// Query terminal capabilities
+// Ask the terminal for its capabilities
 Console.Write("\x1B[c");
 
-// Allow time for terminal response
+// Wait for the terminal to respond
 Thread.Sleep(100);
 ```
 
-Then we read the response and check if the returned capabilities (semi-colon separated) contains a '4' which means Sixel is supported.
-
+Next, we read the response to see if it includes a '4', which indicates Sixel support.
 
 ```csharp
 var sb = new StringBuilder();
@@ -37,85 +35,117 @@ while (Console.KeyAvailable)
     sb.Append(key.KeyChar);
 }
 
-// Parse capabilities (semi-colon separated string)
+// Parse capabilities (semicolon-separated)
 var caps = sb
     .ToString()
     .Split(";")
     .Select(x => x.Trim())
     .ToHashSet();
 
-// Check for Sixel support (capability code 4)
+// Check if Sixel support is present (capability code '4')
 if (!caps.Contains("4"))
 {
     throw new Exception("Terminal does not support Sixel graphics");
 }
 ```
 
-**IMPORTANT** In order for this example to work you need a terminal that supports sixels such as `Windows Terminal 1.22.2912.0+` (currently a preview at the time of writing). You can find Windows Terminal in Windows Store.
+**IMPORTANT**: To run this example, you'll need a Sixel-compatible terminal, such as Windows Terminal version 1.22.2912.0+ (currently in preview). You can find it in the Windows Store.
 
-Then we are ready to set up the terminal for some graphics using some special codes.
+Now we can set up the terminal for graphics using some more special commands:
 
 ```csharp
-// Hide cursor
+// Hide the cursor
 Console.Write("\x1B[?25l");
-// Clear screen
+// Clear the screen
 Console.Write("\x1B[2J");
 ```
 
-We setup a screen where we will draw our graphics to:
+Let’s set up a screen buffer for our graphics:
 
 ```csharp
 // Screen dimensions
 const int Width = 640;
 const int Height = 400;
 // Screen buffer - each byte represents one pixel
-// Only 16 colors are supported (4 bits), using the TIC-80 palette
-// Values 0-15 correspond to indices in the tic80Palette array
+// Uses 4-bit color (16 colors) from the TIC-80 palette
+// Values 0-15 map to indices in the tic80Palette array
 var screen = new byte[Width * Height];
 ```
 
-## Implementing a simple effect
+🎨 Implementing a Simple Effect ✨
 
-Using the screen we can implement a simple effect, in this case I computed the distance fields for circles that follows a sinus-like path. I combined the distance fields using `SoftMin` to create a meta-ball kind of effect.
+Now that our screen is set up, let’s create a simple effect. Here, we’ll compute distance fields for circles following a wavy, sinusoidal path. Then, we’ll combine these distance fields with `SoftMin` to give a smooth, blobby, meta-ball look.
 
-I don't want to get into much more details as the important bits is the next part. Where we take the screen and maps it to a sixel image which we "print" in the terminal.
+I won’t dive too deep into the math behind it—the main event is coming up next! We’ll take this screen data and map it to a Sixel image, then “print” it right in the terminal.
 
-## Converting an image into sixels
+Here's the next part revised to make the steps as clear as possible:
 
-Since we like to show our effect at the top of the terminal what we do first is moving the cursor to the top of the terminal and then clearing it.
+## 🖼️ Converting an Image into Sixels 🖼️
 
-In the world of sixels each sixel is six pixels high. That means we need to group 6 rows of pixels into a row of sixels.
+To start displaying our effect at the top of the terminal, we first move the cursor to the top and clear the screen.
 
-A sixel is six bits where a `0` means leave the current pixel as is and where `1` means set the current pixel to the current color. Conceptually it works a bit like old matrix printers where you had color tapes with multiple colors and the printer head punched pixels through the color tape to create a dot on the paper.
+In Sixel graphics, each "sixel" is a block of six pixels stacked vertically. This means we’ll group every 6 rows of pixels from our image into a single row of sixels.
 
-In order to support multiple colors we need to define a palette, in this case I used the tic-80 palette because I think it's sweet.
+A sixel itself is a 6-bit value where each bit represents one of the six vertical pixels. A `0` bit leaves the pixel as-is, and a `1` bit colors it in the currently selected color. Think of it like an old-school dot-matrix printer: it punches color through at specific points to build up an image.
 
-Then we loop through each color in the palette and selects and test all pixels against that color, if it matches we set the right bit in the sixel value to output a pixel of that color.
+### Step 1: Define the Color Palette
 
-A sixel is therefore a 6 bit value encoded as an 7 bit ASCII value. The base of the sixel is ASCII 63 or a `?`. `?` (ASCII 63) is an empty sixel and '~' (ASCII 126) is a full sixel.
+For our colors, let’s use the TIC-80 palette, which is a charming retro palette perfect for a demo effect. This palette gives us 16 colors to work with.
 
-In order to make sixels slightly more efficient it supports run-length encoding in that if you send the sequence `!10~` it will repeat sixel `~` 10 times. For short sequences up to 3 sixels it's better to just repeat the sixel like so: `~~~`.
+### Step 2: Encode Pixels by Color
 
-Another optimization to keep in mind is that if the line ends a sequence of `?` sixels it means we can skip them as no output is made.
+For each color in our palette:
+1. Loop through every pixel on the screen.
+2. If a pixel matches the current color, set the corresponding bit in the sixel to `1`.
+3. This way, we build up a sixel with bits indicating where this color appears in that 6-pixel stack.
 
-In order to write next color we end the line with '$' which returns the "printer head" to the start of the line.
+### Step 3: Convert Sixels to ASCII Values
 
-After we are done with all colors we send '-' which moves the "printer head" to the start of the line and advances us to the next line.
+Each sixel is a 6-bit value, which we convert into a 7-bit ASCII character. This encoding starts at ASCII 63 (`?`), where:
+- `?` represents an empty sixel (all bits `0`).
+- `~` (ASCII 126) represents a fully filled sixel (all bits `1`).
 
-So in order to generate a sixel image:
+### Step 4: Optimize the Output
 
-1. We move the cursor to the top by sending: `\x1B[H`
-2. We clear the terminal by sending: `\x1B[12t`
-3. We being a sixel image by sending its prelude: `\x1BP7;1;q`
-4. We then iterate through our palette and for each color send: `#COLOR_INDEX;2;RED-0-100;BLUE-0-100;GREEN-0-100`
-5. We then group rows into groups of 6 because each sixel is six pixels high
-6. For each color in the palette we start the row by selecting the color by sending: `#COLOR_INDEX`
-7. We then iterate through each pixels in row group and if the pixel matches the current color we set the corresponding bit in the pixel. The base sixel value is `?` (ASCII 63)
-8. In order to optimize before sending the sixel we count how many times it repeats so we can use the run-length encoding.
-9. We send each sixel either indivually or run-length encoded.
-10. End the line with ´$´ to return the "printer-head" to the start of the line for next color
-11. If we are done with the colors we send `-` to get to next line.
-12. Finally we complete the sixel image by sending: `\x1B\\`
+To make the output efficient, Sixel encoding supports run-length encoding:
+- If you need to repeat a sixel multiple times, you can send a sequence like `!10~` to print `~` ten times.
+- For short repeats (up to 3 sixels), just repeat the character, like `~~~`.
+
+You can also skip a sequence of trailing `?` sixels on a line, as they add no output.
+
+### Step 5: Move the “Printer Head”
+
+At the end of each color line, add `$` to reset the "printer head" to the start of the line.
+After processing each color, add `-` to move the "printer head" down to the next line.
+
+🖨️ Generating the Sixel Image 🌈
+
+Now let’s put it all together! Here are the steps to render the sixel image, along with the escape sequences needed for each step:
+
+1. **Move the cursor to the top**: Send `\x1B[H`.
+2. **Clear the terminal**: Send `\x1B[12t`.
+3. **Start the sixel image**: Send `\x1BP7;1;q` to begin a new sixel graphic.
+4. **Define the color palette**: For each color in the palette, send `#COLOR_INDEX;2;RED-0-100;BLUE-0-100;GREEN-0-100`, where color values are percentages (0 to 100) of each channel.
+
+5. **Group rows into sixes**: Since each sixel represents 6 vertical pixels, group your image rows accordingly.
+
+6. **Render each color in the palette**:
+   - Start each row for a color by selecting it: send `#COLOR_INDEX`.
+   - For each pixel in the row group, if it matches the current color, set the corresponding bit in the sixel (base sixel value is `?`, ASCII 63).
+
+7. **Optimize with run-length encoding**:
+   - Count consecutive identical sixels. If a sixel repeats multiple times, use run-length encoding (e.g., `!10~` for ten repetitions of `~`).
+   - For shorter repeats (up to three sixels), simply repeat the character directly, like `~~~`.
+
+8. **Send each sixel**: Output each sixel, either individually or using run-length encoding if there’s a repeat.
+
+9. **End each row**: To reset the "printer head" for the next color, end the row with `$`.
+
+10. **Advance to the next line**: After completing all colors for a row, send `-` to move down to the next line.
+
+11. **Finish the sixel image**: End the sixel sequence with `\x1B\\`.
+
+And there you have it! With this setup, your terminal should display the sixel image, ready to impress with that retro, demo-style effect.
 
 In code it looks like this:
 
@@ -229,14 +259,16 @@ In code it looks like this:
 }
 ```
 
-Then putting it all together it should look something like this:
+Putting it all together, our final code should look something like this:
 
-**TODO**
+**TODO: Add sample code**
 
-The full code [is available here](sixel-app/Program.cs) but I also include it below:
+You can find the full code [here](sixel-app/Program.cs), and it's also included below for convenience:
 
 ```csharp
 // First check if the terminal supports Sixel graphics
+//  On Windows you can use Windows Terminal 1.22.2912.0+ (at the time of writing in preview)
+//  You can find Windows Terminal in Windows Store.
 {
     // Clear any pending input from STDIN
     while (Console.KeyAvailable)
@@ -244,10 +276,10 @@ The full code [is available here](sixel-app/Program.cs) but I also include it be
         Console.ReadKey();
     }
 
-    // Query terminal capabilities
+    // Ask the terminal for its capabilities
     Console.Write("\x1B[c");
 
-    // Allow time for terminal response
+    // Wait for the terminal to respond
     Thread.Sleep(100);
 
     var sb = new StringBuilder();
@@ -258,23 +290,23 @@ The full code [is available here](sixel-app/Program.cs) but I also include it be
         sb.Append(key.KeyChar);
     }
 
-    // Parse capabilities (semi-colon separated string)
+    // Parse capabilities (semicolon-separated)
     var caps = sb
         .ToString()
         .Split(";")
         .Select(x => x.Trim())
         .ToHashSet();
 
-    // Check for Sixel support (capability code 4)
+    // Check if Sixel support is present (capability code '4')
     if (!caps.Contains("4"))
     {
         throw new Exception("Terminal does not support Sixel graphics");
     }
 }
 
-// Hide cursor
+// Hide the cursor
 Console.Write("\x1B[?25l");
-// Clear screen
+// Clear the screen
 Console.Write("\x1B[2J");
 
 // TIC-80 fantasy console color palette
@@ -306,8 +338,8 @@ const byte SixelBase = 63;  // Base character '?' (ASCII 63)
 const int Width = 640;
 const int Height = 400;
 // Screen buffer - each byte represents one pixel
-// Only 16 colors are supported (4 bits), using the TIC-80 palette
-// Values 0-15 correspond to indices in the tic80Palette array
+// Uses 4-bit color (16 colors) from the TIC-80 palette
+// Values 0-15 map to indices in the tic80Palette array
 var screen = new byte[Width * Height];
 
 var builder = new StringBuilder();
@@ -509,16 +541,17 @@ static class Extensions
 }
 ```
 
-## That's a wrap
+## 🎉🎁🎉 That’s a Wrap! 🎉🎁🎉
 
-So I hope this simple example on how to generate sixel graphics will be inspiring to some to create some cool sixel based demos? Or why not port Tic-80 to sixel graphics, that would be awesome? Or perhaps we need a new GUI toolkit that let's us draw buttons in menus as Sixels?
+I hope this simple example sparks some ideas for your own sixel-based creations! Imagine coding up demos that run right in the terminal, or even porting TIC-80 to sixel graphics—how cool would that be? Or maybe it’s time for a new GUI toolkit that renders menus and buttons as sixels.
 
-The amount of entertaining abuse we can get out Sixels are limitless!
+The potential for quirky, mind-bending terminal art is endless!
 
+So go ahead, dive in, and see what wild and wonderful things you can create with sixels!
 
-Merry christmas all!
+🎄🌟🎄 Merry Christmas to all, and happy coding! 🎄🌟🎄
 
-🎅 - mrange
+🎅 – mrange
 
 
 ## ❄️Licensing Information❄️

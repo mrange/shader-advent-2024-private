@@ -67,8 +67,11 @@ const byte SixelBase = 63;  // Base character '?' (ASCII 63)
 // Screen dimensions
 const int Width = 640;
 const int Height = 400;
-
+// Screen buffer - each byte represents one pixel
+// Only 16 colors are supported (4 bits), using the TIC-80 palette
+// Values 0-15 correspond to indices in the tic80Palette array
 var screen = new byte[Width * Height];
+
 var builder = new StringBuilder();
 var clock = Stopwatch.StartNew();
 var fps = 60;
@@ -97,7 +100,6 @@ while (!done)
                 var xx = (-Width + 2.0 * x) / Height;
 
                 var d = 1E3;
-                // Create multiple overlapping circles
                 for (var i = 0; i < 5; ++i)
                 {
                     var itime = time + i;

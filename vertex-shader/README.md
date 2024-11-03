@@ -1,4 +1,4 @@
-# 🎄🌟🎄Vertex Shaders in KodeLife by 🎅 mrange🎄🌟🎄
+# 🎄🌟🎄 Vertex Shaders in KodeLife 🎄🌟🎄
 
 🎅Ho, ho, ho! Merry Christmas!🎅
 

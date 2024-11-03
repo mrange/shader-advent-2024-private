@@ -99,14 +99,22 @@
         // Display an error message if WebGL2 is not supported
         alert("WebGL2 not supported in this browser. Unable to proceed.");
       } else {
-        // Continue with WebGL2 setup and rendering
+        // Proceed with the WebGL2 setup and rendering.
+        // For the sake of clarity and simplicity, I have omitted comprehensive
+        //  error handling and resource management.
+        // While this is sufficient for demo purposes, if you plan to use these
+        //  techniques in a production web application, it is important to
+        //  implement proper error handling and resource cleanup.
 
-        // createShader: Compiles a WebGL shader of a specified type (vertex or fragment) from source code
+        // createShader: Compiles a WebGL shader of a specified type (vertex or
+        //  fragment) from source code
         // Parameters:
-        //   - type: Specifies the type of shader (either gl.VERTEX_SHADER or gl.FRAGMENT_SHADER).
+        //   - type: Specifies the type of shader
+        //           (either gl.VERTEX_SHADER or gl.FRAGMENT_SHADER).
         //   - source: The GLSL source code for the shader as a string.
         // Returns:
-        //   - The compiled shader if successful, or null if there was a compilation error.
+        //   - The compiled shader if successful, or null if there was a
+        //      compilation error.
         function createShader(type, source) {
           // Create an empty shader object of the specified type
           const shader = gl.createShader(type);
@@ -128,12 +136,14 @@
           return shader;
         }
 
-        // createProgram: Builds and links a shader program from provided vertex and fragment shader source code.
+        // createProgram: Builds and links a shader program from provided vertex
+        //  and fragment shader source code.
         // Parameters:
         //   - vertexSource: GLSL source code for the vertex shader as a string.
         //   - fragmentSource: GLSL source code for the fragment shader as a string.
         // Returns:
-        //   - The linked shader program if successful, or null if there was an error during shader compilation or program linking.
+        //   - The linked shader program if successful, or null if there was an
+        //      error during shader compilation or program linking.
 
         function createProgram(vertexSource, fragmentSource) {
           // Compile the vertex shader from source
@@ -173,7 +183,8 @@
           return program;
         }
 
-        // Create a shader program using the provided vertex and fragment shader source code
+        // Create a shader program using the provided vertex and fragment shader
+        //  source code
         const shaderProgram = createProgram(vertexShaderSource, fragmentShaderSource);
 
         // Set the shader program as the active program for rendering
@@ -192,12 +203,13 @@
         const vertexBuffer = gl.createBuffer();
         // Bind the buffer as the current ARRAY_BUFFER
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-        // Fill the buffer with the vertex data, using STATIC_DRAW for data that won't change
+        // Fill the buffer with the vertex data, using STATIC_DRAW for data that
+        //  won't change
         gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
         // Get the location of the 'position' attribute from the shader program.
-        // Note: If the name of the 'position' attribute in the vertex shader is changed,
-        // you must update the name here to match the new attribute name.
+        // Note: If the name of the 'position' attribute in the vertex shader is
+        //  changed, you must update the name here to match the new attribute name.
         const positionLocation = gl.getAttribLocation(shaderProgram, 'position');
 
         // Enable the position attribute for use in the vertex shader
@@ -213,17 +225,22 @@
           0                 // Offset: 0 means start reading from the beginning of the buffer
         );
 
-        // Retrieve the locations of the uniforms defined in the fragment shader by their names.
-        // These locations will be stored so that we can update their values during the draw loop.
+        // Retrieve the locations of the uniforms defined in the fragment shader
+        //  by their names.
+        // These locations will be stored so that we can update their values
+        //  during the draw loop.
         const timeLocation = gl.getUniformLocation(shaderProgram, 'iTime');             // Location for the time uniform
         const resolutionLocation = gl.getUniformLocation(shaderProgram, 'iResolution'); // Location for the resolution uniform
 
-        // Capture the current time to use for calculating the elapsed time (iTime) in the draw loop.
+        // Capture the current time to use for calculating the elapsed time
+        //  (iTime) in the draw loop.
         const begin = performance.now();
 
         function drawShader(now) {
-          // Calculate the elapsed time (iTime) since the beginning of the rendering.
-          // The result is in seconds, as performance.now() returns time in milliseconds.
+          // Calculate the elapsed time (iTime) since the beginning of the
+          //  rendering.
+          // The result is in seconds, as performance.now() returns time in
+          //  milliseconds.
           const iTime = (now - begin) * 0.001;
 
           // Retrieve the current size of the canvas to set the iResolution uniform.
@@ -239,11 +256,12 @@
           gl.uniform1f(timeLocation, iTime);
 
           // Update the iResolution uniform with the current canvas size.
-          // The third component is set to 1, typically representing the depth in 2D rendering.
+          // The third component is set to 1, the same as ShaderToy uses.
           gl.uniform3f(resolutionLocation, width, height, 1);
 
           // Render the quad using the vertex buffer created earlier.
-          // This draws a triangle strip that forms a quad, utilizing the vertices defined in the vertexBuffer.
+          // This draws a triangle strip that forms a quad, utilizing the
+          //  vertices defined in the vertexBuffer.
           gl.drawArrays(
               gl.TRIANGLE_STRIP,  // Drawing mode: uses a triangle strip to create the quad
               0,                  // Starting vertex index in the vertex buffer
@@ -251,13 +269,16 @@
           );
 
           // Request the next animation frame to ensure smooth updates.
-          // This was a key insight for me after struggling with various methods for smooth rendering in web development.
-          // Unlike other approaches that had their drawbacks, requestAnimationFrame provides a seamless way to update animations.
+          // This was a key insight for me after struggling with various methods
+          //  for smooth rendering in web development.
+          // Unlike other approaches that had their drawbacks,
+          //  requestAnimationFrame provides a seamless way to update animations.
           requestAnimationFrame(drawShader);
         }
 
         // Initiate the draw loop by requesting the next animation frame.
-        // This will call the drawShader function, allowing for continuous rendering and updates.
+        // This will call the drawShader function, allowing for continuous
+        //  rendering and updates.
         requestAnimationFrame(drawShader);
       }
     </script>

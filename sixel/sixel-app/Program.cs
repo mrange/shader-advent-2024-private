@@ -1,6 +1,4 @@
 ﻿// First read the console capabilities
-using System.Diagnostics;
-
 {
     // Remove any potential input on the STDIN
     while (Console.KeyAvailable)
@@ -42,7 +40,7 @@ Console.Write("\x1B[?25l");
 // Clears screen
 Console.Write("\x1B[2J");
 
-// Define tic80 palette
+// Use the tic80 palette because it's sweet!
 RGB[] tic80Palette =
     [
         new RGB(0x0, 0x1C, 0x1C, 0x2C)
@@ -63,12 +61,12 @@ RGB[] tic80Palette =
     ,   new RGB(0xF, 0x33, 0x3C, 0x57)
     ];
 
-// Base Sixel is ASCII 63
+// Base Sixel is a '?' (ASCII 63)
 const byte SixelBase    = 63;
 
-// Define a screen in the same size as Tic-80
-const int Width         = 240;
-const int Height        = 136;
+// Define a classic screen size
+const int Width         = 640;
+const int Height        = 400;
 
 var screen  = new byte[Width*Height];
 var builder = new StringBuilder();
@@ -87,13 +85,41 @@ while (!done)
         done |= key.Key == ConsoleKey.Escape;
     }
 
-    // Effect
+    // A simple effect
     {
         var time = before/1000.0;
-        var bcol = (byte)(time*16);
-        for (int i = 0; i < screen.Length; ++i)
+        for (var y = 0; y < Height; ++y)
         {
-            screen[i] = (byte)(bcol+i);
+            var yoff = y*Width;
+            var yy = (-Height + 2.0*y)/Height;
+            for (var x = 0; x < Width; ++x)
+            {
+                var xx = (-Width+ 2.0*x)/Height;
+
+                var d = 1E3;
+                for (var i = 0; i < 5; ++i)
+                {
+                    var itime = time + i;
+                    var xx2 = xx+Sin(itime);
+                    var yy2 = yy+Sin(itime*0.707);
+                    var d2  = Sqrt(xx2*xx2+yy2*yy2)-0.5;
+                    d = SoftMin(d,d2,0.5);
+                }
+
+                var od = Abs(d)-0.025;
+
+                byte col = 8;
+                if (d < 0.0)
+                {
+                    col = (byte)(((int)Round((d+time)*16))&0xF);
+                }
+                if (od < 0.0)
+                {
+                    col = 12;
+                }
+
+                screen[x+yoff] = col;
+            }
         }
     }
 
@@ -105,6 +131,8 @@ while (!done)
             .Clear()
             // Clears the screen
             .Append("\x1B[H")
+            // Clears the screen
+            .Append("\x1B[12t")
             // Sixel image prelude (square sixels)
             .Append("\x1BP7;1;q")
             ;
@@ -136,7 +164,7 @@ while (!done)
                     byte sixel = 0;
                     // Check so we don't overrun the buffer in case Height 
                     //  not divisible by 6
-                    var rem = Math.Min(6, Height - y6);
+                    var rem = Min(6, Height - y6);
                     // Accumulate the sixel
                     for (var i = 0; i < rem; ++i) 
                     {
@@ -210,12 +238,21 @@ while (!done)
                     .Append('$')
                     ;
             }
+
             // This row is completed, goto next one
             builder
                 .Append('-')
                 ;
         }
 
+        // Complete the sixel image
+        builder
+            .Append("\x1B\\")
+            ;
+
+        // Write the sixel data to the console
+        var sixelImage = builder.ToString();
+        Console.Write(sixelImage);
     }
 
     var after = clock.ElapsedMilliseconds;
@@ -227,12 +264,24 @@ while (!done)
     }
 }
 
+double Mix(double a, double b, double x)
+{
+    return a + (b-a)*x;
+}
 
-record RGB(byte Index, byte Red, byte Blue, byte Green);
+// License: MIT, author: Inigo Quilez, found: https://www.iquilezles.org/www/articles/smin/smin.htm
+double SoftMin(double a, double b, double k) 
+{
+    var h = Clamp(0.5+0.5*(b-a)/k, 0.0, 1.0);
+    return Mix(b, a, h) - k*h*(1.0-h);
+}
+
+record RGB(byte Index, byte Red, byte Green, byte Blue);
+
 static class Extensions
 {
     public static byte ToSixelColorComponent(this byte c)
     {
-        return (byte)Math.Round(c*100.0/255);
+        return (byte)Round(c*100.0/255);
     }
 }

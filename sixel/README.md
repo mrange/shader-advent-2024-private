@@ -78,8 +78,6 @@ var screen = new byte[Width * Height];
 Now that our screen is set up, let’s create a simple effect. Here, we’ll compute distance fields for circles following a wavy, sinusoidal path. Then, we’ll combine these distance fields with `SoftMin` to give a smooth, blobby, meta-ball look.
 I won’t dive too deep into the math behind it—the main event is coming up next! We’ll take this screen data and map it to a Sixel image, then “print” it right in the terminal.
 
-Here's the next part revised to make the steps as clear as possible:
-
 ## 🖼️ Converting an Image into Sixels 🖼️
 
 To start displaying our effect at the top of the terminal, we first move the cursor to the top and clear the screen.

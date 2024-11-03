@@ -1,48 +1,50 @@
-# 🎄⭐🎉 Rendering shaders in WebGL 🎉⭐🎄
+# 🎄⭐🎉 Rendering Shaders in WebGL 🎉⭐🎄
 
-🎅 *Merry Christmas, webgl fans!* 🎅
+🎅 *Merry Christmas, WebGL fans!* 🎅
 
-Everyone loves to tinker with Shaders on [ShaderToy](https://www.shadertoy.com/) but sometimes it's fun to deploy these shader in your own code, perhaps a new demo?
+Who doesn’t love tinkering with shaders on [ShaderToy](https://www.shadertoy.com/)? While it’s exhilarating to create stunning visuals there, have you ever thought about deploying those shaders in your own code? Imagine turning your creative sparks into a demo that shines on the web!
 
-While it's possible to create Windows or MacOS program that renders your cool shaders why not use WebGL and give your demo maximum possible impact?!
+You could create a Windows or MacOS application to showcase your shaders, but why not harness the power of WebGL for a broader reach? With WebGL, your demo can dazzle anyone with a browser, maximizing its impact!
 
-[ShaderToy](https://www.shadertoy.com/) let's you share your shader using HTML markup that looks like this
+Sure, [ShaderToy](https://www.shadertoy.com/) lets you embed shaders with an HTML iframe like this:
 
 ```html
 <iframe width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/MfjyWK?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe>
 ```
 
-but as hacker we want to do it ourselves right? In addition, by rolling it ourselves we can do custom textures and music to kick it up a notch!
+But as a hacker, you want to dive deeper, right? By coding it yourself, you gain the freedom to customize textures, add music, and elevate your project to the next level!
 
-## It starts with a Canvas.
+## It Starts with a Canvas
 
-The starting point for WebGL is the `canvas`
+Let’s kick things off with a `canvas` element:
 
 ```html
 <canvas id="webGLCanvas" width="800" height="600"></canvas>
 ```
 
-In JavaScript we can the locate this `canvas` and it this request a WebGL context
+In JavaScript, we can locate this canvas and request a WebGL context. Here's how:
 
 ```javascript
-// Locate the canvas element where WebGL graphics will be drawn
 const canvas = document.getElementById('webGLCanvas');
-// Request the WebGL2 rendering context
-const gl = canvas.getContext('webgl2');
+const gl = canvas.getContext('webgl');
+if (!gl) {
+    console.error('WebGL not supported. Falling back on experimental-webgl');
+    gl = canvas.getContext('experimental-webgl');
+}
+if (!gl) {
+    alert('Your browser does not support WebGL');
+}
 ```
 
-[WebGL is well-document at MDN](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API) and works very much like OpenGL, so if you are used to OpenGL you feel right at home.
+WebGL is well-documented on [MDN](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API), and if you’re familiar with OpenGL, you’ll feel right at home. However, if you’re new to WebGL or OpenGL, the journey to rendering your first shader can feel a bit finicky. But don’t worry—we’ll walk through it together!
 
-If you are new to WebGL or OpenGL though it can be a bit finicky to render your first shader.
+## Compiling and Linking a Shader Program
 
+Shaders are special programs that run on the GPU, turning your artistic visions into reality. To render a fragment shader, you’ll also need a vertex shader! A simple one will suffice to get you started.
 
-## Compile and linking a Shader Program
+Here’s how we compile our shaders and link them into a cohesive shader program:
 
-Shaders are programs that run on the GPU. In order to render a fragment shader we need a vertex shader too although a very simple one will do.
-
-We compile these shaders using `createShader` and then link them together into the final shader program using `createProgram`.
-
-When that is done we `use` the shader program so that is applied when we draw our quad later:
+1. **Create and Compile Shaders**: Use `createShader` to create a shader object for both vertex and fragment shaders. Here’s a snippet to guide you:
 
 ```javascript
 // createShader: Compiles a WebGL shader of a specified type (vertex or
@@ -74,7 +76,12 @@ function createShader(type, source) {
   // If compilation was successful, return the compiled shader object
   return shader;
 }
+```
 
+2. **Link the Shader Program**: Once you have your shaders compiled, it’s time to link them together into a final shader program using `createProgram`:
+
+
+```javascript
 // createProgram: Builds and links a shader program from provided vertex
 //  and fragment shader source code.
 // Parameters:
@@ -125,20 +132,28 @@ function createProgram(vertexSource, fragmentSource) {
 // Create a shader program using the provided vertex and fragment shader
 //  source code
 const shaderProgram = createProgram(vertexShaderSource, fragmentShaderSource);
+```
 
+3. **Use the Shader Program**: After linking, you’ll want to tell WebGL to use your shader program whenever you draw:
+
+```javascript
 // Set the shader program as the active program for rendering
 gl.useProgram(shaderProgram);
 ```
 
-## Setting up the Quad
+## Setting Up the Quad
 
-In order to draw the fragment shader we will draw a quad (also known as a rectangle) filling the entire screen. For each pixel our shader program will be applied hopefully resulting in some sweet graphics.
+To render our fragment shader, we first need to draw a quad (or rectangle) that fills the entire screen. Each pixel on this quad will receive our shader’s magic, transforming it into something visually stunning!
 
-To set it up we need to define the corners (or vertices of the quad) and load that into a vertex buffer, then when we draw the quad it will use the vertices to draw the quad (in practice it draw two triangles that forms the quad).
+### Defining the Vertices
 
-These corners (or vertices) will be fed to the vertex shader so we need to tell WebGL which input variable in the vertex shader will receive the vertices, in our case the input variable `position`.
+To set up the quad, we need to define its corners (or vertices) and load them into a vertex buffer. When we draw the quad, WebGL will use these vertices to create the shape, typically by forming two triangles that make up the quad.
 
-### Our vertex shader
+Before we can proceed, we need to inform WebGL which input variable in the vertex shader will receive these vertices. In our case, we’ll use the input variable `position`.
+
+### Our Vertex Shader
+
+Here’s a minimal vertex shader that does just that:
 
 ```glsl
 #version 300 es
@@ -146,12 +161,15 @@ precision highp float;
 
 // A minimal vertex shader that passes input directly to gl_Position.
 in vec4 position;
+
 void main() {
-  gl_Position = position;
+    gl_Position = position;
 }
 ```
 
-Unfortunately, it is a bit finicky to set this up which is why I provided some code for you:
+### Setting Up the Vertex Buffer
+
+Now, let’s set up the vertex buffer to store our quad’s vertices. Here’s one way to do it:
 
 ```javascript
 // Define the vertex positions for a full-screen quad as a triangle strip
@@ -170,7 +188,13 @@ gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 // Fill the buffer with the vertex data, using STATIC_DRAW for data that
 //  won't change
 gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+```
 
+### Connecting the Vertex Buffer to the Shader
+
+Next, we need to connect our vertex buffer to the `position` variable in the vertex shader:
+
+```javascript
 // Get the location of the 'position' attribute from the shader program.
 // Note: If the name of the 'position' attribute in the vertex shader is
 //  changed, you must update the name here to match the new attribute name.
@@ -190,12 +214,17 @@ gl.vertexAttribPointer(
 );
 ```
 
-## Setting up the fragment shader uniforms
+And there you go! You’ve set up the quad and linked it to your vertex shader. Now, when you draw, your fragment shader will be applied across the entire screen.
 
-We have defined a fragment shader prelude that makes it simple to render ShaderToy shaders as it setups the uniforms (or input variables) `iTime` and `iResolution` which most shaders uses. Then you paste in the code for the shader you want to render at the end.
+## Setting Up the Fragment Shader Uniforms
 
-### Our fragment shader
-```
+We’ve defined a fragment shader prelude that streamlines the rendering of ShaderToy shaders by setting up the uniforms (or input variables) `iTime` and `iResolution`, which are widely used in shader programming. At the end, you’ll simply paste in the shader code you want to render.
+
+### Our Fragment Shader
+
+Here’s a simple fragment shader structure for your project:
+
+```glsl
 #version 300 es
 precision highp float;
 
@@ -217,7 +246,9 @@ void main() {
 // Paste ShaderToy shader code here -->
 ```
 
-But in order to be able to set these uniforms (or input variables) we need to ask WebGL for their location. Finally we capture the start time.
+### Getting Uniform Locations
+
+To set these uniforms in our shader, we first need to ask WebGL for their locations by name. This is how we can update their values during the draw loop:
 
 ```javascript
 // Retrieve the locations of the uniforms defined in the fragment shader
@@ -232,13 +263,17 @@ const resolutionLocation = gl.getUniformLocation(shaderProgram, 'iResolution'); 
 const begin = performance.now();
 ```
 
-## The draw loop
+With these locations captured, you’re ready to update the uniform values in your draw loop, allowing your shader to react dynamically to time and resolution changes.
 
-We enter an infinite loop where we compute the `iTime` and queries the canvas for its current size and sets the `iResolution` based on that.
+## The Draw Loop
 
-When that is all done we draw the vertices (corners) we defined above as a triangle strip and thanks to the layout of the vertices it will come out as a quad covering the entire canvas.
+Now we enter the heart of our application—the draw loop! In this loop, we compute the `iTime`, query the canvas for its current size, and set the `iResolution` based on that.
 
-Finally, we request a new animation frame to animate the graphics smoothly.
+Once everything is set, we draw the vertices (corners) we defined earlier as a triangle strip. Thanks to the arrangement of the vertices, this will form a quad that covers the entire canvas. Finally, we request a new animation frame to ensure our graphics animate smoothly.
+
+### The Draw Loop Code
+
+Here’s how this all comes together:
 
 ```javascript
 // Calculate the elapsed time (iTime) since the beginning of the
@@ -280,22 +315,25 @@ gl.drawArrays(
 requestAnimationFrame(drawShader);
 ```
 
-## And that's it
+### Why Use `requestAnimationFrame`?
 
-Drawing your first fragment shader is a bit finicky the first time which is why I created [this complete example](src/index.html) for you.
+Using `requestAnimationFrame` is a game-changer! It ensures that your animations are synchronized with the browser's refresh rate, leading to smoother graphics and more efficient rendering. Unlike other methods, which can lead to choppy animations or excessive CPU usage, `requestAnimationFrame` automatically pauses when the user navigates to another tab, conserving resources.
 
-You can clone this git repo or download the source code locally to open the web page (don't forget the CSS stylesheet `styles.css`) and see the entire example in it's glory.
+## And That's a Wrap
 
-If you want to add music you can use the `audio` element, it even supports FFT to make fancy VU meters with.
+Congratulations! With this you should be able to render your own fragment shaders in WebGL! While it can feel a bit daunting at first, that’s all part of the fun. To help you on your journey, I’ve created [this complete example](src/index.html) for you.
 
-So the browser contains everything you need to make cool WebGL demos and once you get over the initial hurdle you will find it's not that difficult to do.
+Feel free to clone the GitHub repository or download the source code to run it locally. Just remember to include the CSS stylesheet `styles.css` to see the full example in all its glory.
 
-What I want for Christmas now is loads and loads new WebGL based demos to look at.
+You can even add music using the `audio` element, which supports FFT for creating fancy VU meters. The browser really does contain everything you need to create amazing WebGL demos!
+
+Once you overcome that initial hurdle, you’ll find that crafting your own shaders and demos is not only doable but incredibly rewarding. I encourage you to experiment, play, and innovate! The world of shaders is your canvas—create something unique and share it with the community.
+
+What I want for Christmas is an avalanche of new WebGL-based demos to explore and enjoy. I can't wait to see what you all come up with!
 
 🎄🌟🎄 Merry Christmas to all, and happy coding! 🎄🌟🎄
 
 🎅 – mrange
-
 
 ## ❄️Licensing Information❄️
 

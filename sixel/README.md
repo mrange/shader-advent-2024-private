@@ -6,9 +6,10 @@
 
 No typo here—*Sixel* is real! It was introduced in the late 1970s by DEC as a way to produce high-resolution images on early printers. Sixel graphics are still supported by many terminals and were recently added to Windows Terminal Preview.
 
-**TODO: Image in Windows Terminal**
+![Across The Void II by Made/Bomb (3rd place Revision 2024) in Windows Terminal](assets/sixel--across-the-void-ii-by-made-of-bomb.jpg)
+*Across The Void II by Made/Bomb (3rd place Revision 2024) in Windows Terminal*
 
-For us demo-coders, Sixel is a nifty way to create graphics in the terminal—cool and unexpected for most people.
+For us demo coders, Sixel offers a nifty way to create graphics directly in the terminal—an approach that's both cool and unexpected for most people. It’s an alternative to opening a window, and it might even save some bytes for those size-coding competitions!
 
 Let’s dive in and create a simple effect with Sixels using C#.
 
@@ -75,7 +76,6 @@ var screen = new byte[Width * Height];
 🎨 Implementing a Simple Effect ✨
 
 Now that our screen is set up, let’s create a simple effect. Here, we’ll compute distance fields for circles following a wavy, sinusoidal path. Then, we’ll combine these distance fields with `SoftMin` to give a smooth, blobby, meta-ball look.
-
 I won’t dive too deep into the math behind it—the main event is coming up next! We’ll take this screen data and map it to a Sixel image, then “print” it right in the terminal.
 
 Here's the next part revised to make the steps as clear as possible:
@@ -261,7 +261,7 @@ In code it looks like this:
 
 Putting it all together, our final code should look something like this:
 
-**TODO: Add sample code**
+![Our simple effect running in Windows Terminal](assets/simple-effect.jpg)
 
 You can find the full code [here](sixel-app/Program.cs), and it's also included below for convenience:
 

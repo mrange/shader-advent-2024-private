@@ -13,7 +13,7 @@ For us demo coders, Sixel offers a nifty way to create graphics directly in the 
 
 Let’s dive in and create a simple effect with Sixels using C#.
 
-🚀 Getting Started 🛠️
+## 🚀 Getting Started 🛠️
 
 First, let’s detect if the terminal supports Sixel graphics. We do this by sending a special command, `\x1B[c`, which prompts the terminal to respond with its capabilities. (`\x1B` is the escape character, used for sending commands to terminals.)
 
@@ -73,7 +73,7 @@ const int Height = 400;
 var screen = new byte[Width * Height];
 ```
 
-🎨 Implementing a Simple Effect ✨
+## 🎨 Implementing a Simple Effect ✨
 
 Now that our screen is set up, let’s create a simple effect. Here, we’ll compute distance fields for circles following a wavy, sinusoidal path. Then, we’ll combine these distance fields with `SoftMin` to give a smooth, blobby, meta-ball look.
 I won’t dive too deep into the math behind it—the main event is coming up next! We’ll take this screen data and map it to a Sixel image, then “print” it right in the terminal.
@@ -116,7 +116,7 @@ You can also skip a sequence of trailing `?` sixels on a line, as they add no ou
 At the end of each color line, add `$` to reset the "printer head" to the start of the line.
 After processing each color, add `-` to move the "printer head" down to the next line.
 
-🖨️ Generating the Sixel Image 🌈
+## 🖨️ Generating the Sixel Image 🌈
 
 Now let’s put it all together! Here are the steps to render the sixel image, along with the escape sequences needed for each step:
 

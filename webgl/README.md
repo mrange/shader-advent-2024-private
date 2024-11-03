@@ -14,7 +14,7 @@ Sure, [ShaderToy](https://www.shadertoy.com/) lets you embed shaders with an HTM
 
 But as a hacker, you want to dive deeper, right? By coding it yourself, you gain the freedom to customize textures, add music, and elevate your project to the next level!
 
-## It Starts with a Canvas
+## 🖼️🎨  It Starts with a Canvas 🎨🖼️
 
 Let’s kick things off with a `canvas` element:
 
@@ -38,7 +38,7 @@ if (!gl) {
 
 WebGL is well-documented on [MDN](https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API), and if you’re familiar with OpenGL, you’ll feel right at home. However, if you’re new to WebGL or OpenGL, the journey to rendering your first shader can feel a bit finicky. But don’t worry—we’ll walk through it together!
 
-## Compiling and Linking a Shader Program
+## ⏳ Compiling and Linking a Shader Program ⏳
 
 Shaders are special programs that run on the GPU, turning your artistic visions into reality. To render a fragment shader, you’ll also need a vertex shader! A simple one will suffice to get you started.
 
@@ -141,7 +141,7 @@ const shaderProgram = createProgram(vertexShaderSource, fragmentShaderSource);
 gl.useProgram(shaderProgram);
 ```
 
-## Setting Up the Quad
+## 🟥🟩🟦 Setting Up the Quad 🟦🟩🟥
 
 To render our fragment shader, we first need to draw a quad (or rectangle) that fills the entire screen. Each pixel on this quad will receive our shader’s magic, transforming it into something visually stunning!
 
@@ -265,7 +265,7 @@ const begin = performance.now();
 
 With these locations captured, you’re ready to update the uniform values in your draw loop, allowing your shader to react dynamically to time and resolution changes.
 
-## The Draw Loop
+## ♻️ The Draw Loop ♻️
 
 Now we enter the heart of our application—the draw loop! In this loop, we compute the `iTime`, query the canvas for its current size, and set the `iResolution` based on that.
 
@@ -319,7 +319,7 @@ requestAnimationFrame(drawShader);
 
 Using `requestAnimationFrame` is a game-changer! It ensures that your animations are synchronized with the browser's refresh rate, leading to smoother graphics and more efficient rendering. Unlike other methods, which can lead to choppy animations or excessive CPU usage, `requestAnimationFrame` automatically pauses when the user navigates to another tab, conserving resources.
 
-## And That's a Wrap
+## 🎁 And That's a Wrap 🎁
 
 Congratulations! With this you should be able to render your own fragment shaders in WebGL! While it can feel a bit daunting at first, that’s all part of the fun. To help you on your journey, I’ve created [this complete example](src/index.html) for you.
 

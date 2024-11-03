@@ -7,7 +7,7 @@
 No typo here—*Sixel* is real! It was introduced in the late 1970s by DEC as a way to produce high-resolution images on early printers. Sixel graphics are still supported by many terminals and were recently added to Windows Terminal Preview.
 
 ![Across The Void II by Made/Bomb (3rd place Revision 2024) in Windows Terminal](assets/sixel--across-the-void-ii-by-made-of-bomb.jpg)
-*Across The Void II by Made/Bomb (3rd place Revision 2024) in Windows Terminal*
+*[Across The Void II by Made/Bomb](https://demozoo.org/graphics/342269/) (3rd place Revision 2024) in Windows Terminal*
 
 For us demo coders, Sixel offers a nifty way to create graphics directly in the terminal—an approach that's both cool and unexpected for most people. It’s an alternative to opening a window, and it might even save some bytes for those size-coding competitions!
 

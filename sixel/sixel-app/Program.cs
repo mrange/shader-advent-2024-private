@@ -1,205 +1,196 @@
-﻿// First read the console capabilities
+﻿// First check if the terminal supports Sixel graphics
 {
-    // Remove any potential input on the STDIN
+    // Clear any pending input from STDIN
     while (Console.KeyAvailable)
     {
         Console.ReadKey();
     }
 
-    // Ask the terminal what capabilities it has
+    // Query terminal capabilities
     Console.Write("\x1B[c");
 
-    // Wait for awhile to let the terminal respond
+    // Allow time for terminal response
     Thread.Sleep(100);
 
     var sb = new StringBuilder();
-    // Read all input available, non-blocking
+    // Read all available input (non-blocking)
     while (Console.KeyAvailable)
     {
         var key = Console.ReadKey();
         sb.Append(key.KeyChar);
     }
 
-    // Capabilities is a semi-colon separated string
+    // Parse capabilities (semi-colon separated string)
     var caps = sb
         .ToString()
         .Split(";")
         .Select(x => x.Trim())
-        .ToHashSet()
-        ;
+        .ToHashSet();
 
-    // Look for the Sixel capability (4)
+    // Check for Sixel support (capability code 4)
     if (!caps.Contains("4"))
     {
-        throw new Exception("This terminal lacks Sixel capability");
+        throw new Exception("Terminal does not support Sixel graphics");
     }
 }
 
-// Hides the cursor
+// Hide cursor
 Console.Write("\x1B[?25l");
-// Clears screen
+// Clear screen
 Console.Write("\x1B[2J");
 
-// Use the tic80 palette because it's sweet!
+// TIC-80 fantasy console color palette
+// See: https://tic80.com/
 RGB[] tic80Palette =
-    [
-        new RGB(0x0, 0x1C, 0x1C, 0x2C)
-    ,   new RGB(0x1, 0x5D, 0x27, 0x5D)
-    ,   new RGB(0x2, 0xB1, 0x3E, 0x53)
-    ,   new RGB(0x3, 0xEF, 0x7D, 0x57)
-    ,   new RGB(0x4, 0xFF, 0xCD, 0x75)
-    ,   new RGB(0x5, 0xA7, 0xF0, 0x70)
-    ,   new RGB(0x6, 0x38, 0xB7, 0x64)
-    ,   new RGB(0x7, 0x25, 0x71, 0x79)
-    ,   new RGB(0x8, 0x29, 0x36, 0x6F)
-    ,   new RGB(0x9, 0x3B, 0x5F, 0xC9)
-    ,   new RGB(0xA, 0x41, 0xA6, 0xF6)
-    ,   new RGB(0xB, 0x73, 0xEF, 0xF7)
-    ,   new RGB(0xC, 0xF4, 0xF4, 0xF4)
-    ,   new RGB(0xD, 0x94, 0xB0, 0xC2)
-    ,   new RGB(0xE, 0x56, 0x6C, 0x86)
-    ,   new RGB(0xF, 0x33, 0x3C, 0x57)
-    ];
+[
+    new RGB(0x0, 0x1C, 0x1C, 0x2C), // Night Blue
+    new RGB(0x1, 0x5D, 0x27, 0x5D), // Deep Purple
+    new RGB(0x2, 0xB1, 0x3E, 0x53), // Dark Red
+    new RGB(0x3, 0xEF, 0x7D, 0x57), // Orange
+    new RGB(0x4, 0xFF, 0xCD, 0x75), // Yellow
+    new RGB(0x5, 0xA7, 0xF0, 0x70), // Light Green
+    new RGB(0x6, 0x38, 0xB7, 0x64), // Green
+    new RGB(0x7, 0x25, 0x71, 0x79), // Teal
+    new RGB(0x8, 0x29, 0x36, 0x6F), // Dark Blue
+    new RGB(0x9, 0x3B, 0x5F, 0xC9), // Blue
+    new RGB(0xA, 0x41, 0xA6, 0xF6), // Light Blue
+    new RGB(0xB, 0x73, 0xEF, 0xF7), // Cyan
+    new RGB(0xC, 0xF4, 0xF4, 0xF4), // White
+    new RGB(0xD, 0x94, 0xB0, 0xC2), // Light Gray
+    new RGB(0xE, 0x56, 0x6C, 0x86), // Gray
+    new RGB(0xF, 0x33, 0x3C, 0x57)  // Dark Gray
+];
 
-// Base Sixel is a '?' (ASCII 63)
-const byte SixelBase    = 63;
+// Sixel constants
+const byte SixelBase = 63;  // Base character '?' (ASCII 63)
 
-// Define a classic screen size
-const int Width         = 640;
-const int Height        = 400;
+// Screen dimensions
+const int Width = 640;
+const int Height = 400;
 
-var screen  = new byte[Width*Height];
+var screen = new byte[Width * Height];
 var builder = new StringBuilder();
-var clock   = Stopwatch.StartNew();
-var fps     = 60;
-var sleepFor= (int)Math.Round(1000.0/fps);
+var clock = Stopwatch.StartNew();
+var fps = 60;
+var sleepFor = (int)Math.Round(1000.0 / fps);
 
 var done = false;
 while (!done) 
 {
     var before = clock.ElapsedMilliseconds;
-    // Check if we are done
+    // Check for exit condition (Escape key)
     if (Console.KeyAvailable)
     {
         var key = Console.ReadKey();
         done |= key.Key == ConsoleKey.Escape;
     }
 
-    // A simple effect
+    // Generate a simple animated effect
     {
-        var time = before/1000.0;
+        var time = before / 1000.0;
         for (var y = 0; y < Height; ++y)
         {
-            var yoff = y*Width;
-            var yy = (-Height + 2.0*y)/Height;
+            var yoff = y * Width;
+            var yy = (-Height + 2.0 * y) / Height;
             for (var x = 0; x < Width; ++x)
             {
-                var xx = (-Width+ 2.0*x)/Height;
+                var xx = (-Width + 2.0 * x) / Height;
 
                 var d = 1E3;
+                // Create multiple overlapping circles
                 for (var i = 0; i < 5; ++i)
                 {
                     var itime = time + i;
-                    var xx2 = xx+Sin(itime);
-                    var yy2 = yy+Sin(itime*0.707);
-                    var d2  = Sqrt(xx2*xx2+yy2*yy2)-0.5;
-                    d = SoftMin(d,d2,0.5);
+                    var xx2 = xx + Sin(itime);
+                    var yy2 = yy + Sin(itime * 0.707);
+                    var d2 = Sqrt(xx2 * xx2 + yy2 * yy2) - 0.5;
+                    d = SoftMin(d, d2, 0.5);
                 }
 
-                var od = Abs(d)-0.025;
+                var od = Abs(d) - 0.025;
 
+                // Color selection based on distance field
                 byte col = 8;
                 if (d < 0.0)
                 {
-                    col = (byte)(((int)Round((d+time)*16))&0xF);
+                    col = (byte)(((int)Round((d + time) * 16)) & 0xF);
                 }
                 if (od < 0.0)
                 {
                     col = 12;
                 }
 
-                screen[x+yoff] = col;
+                screen[x + yoff] = col;
             }
         }
     }
 
-    // Draw screen as sixels
+    // Render screen using Sixel graphics
     {
-        // We "draw" to a string builder
-        // When complete we send it to the console
         builder
             .Clear()
-            // Clears the screen
-            .Append("\x1B[H")
-            // Clears the screen
-            .Append("\x1B[12t")
-            // Sixel image prelude (square sixels)
-            .Append("\x1BP7;1;q")
+            .Append("\x1B[H")      // Move cursor to home position
+            .Append("\x1B[12t")    // Clear screen
+            .Append("\x1BP7;1;q")  // Initialize Sixel mode (square pixels)
             ;
-        // Output the tic80 palette to the sixel image
+
+        // Define color palette
         foreach (var color in tic80Palette)
         {
             builder.Append($"#{color.Index};2;{color.Red.ToSixelColorComponent()};{color.Green.ToSixelColorComponent()};{color.Blue.ToSixelColorComponent()}");
         }
 
-        // Write the pixels as sixels
-
-        // As each sixel row is six pixel high we increment by 6
+        // Convert pixel data to Sixel format
+        // Each Sixel represents 6 vertical pixels
         for (var y6 = 0; y6 < Height; y6 += 6) 
         {
-            // For each color we write all pixels of that color as sixels
+            // Process each color separately for RLE optimization
             foreach (var color in tic80Palette)
             {
                 var idx = color.Index;
                 builder.Append($"#{idx}");
 
-                // Sixels supports run-length encoding. To support that
-                //  we keep track of the current sixel and how many times
-                //  it is repeated
+                // Run-length encoding tracking
                 byte repeatedSixel = SixelBase;
                 int sixelRepetition = 0;
-                // Apply the current color to following sixels
+
                 for (var x = 0; x < Width; ++x) 
                 {
                     byte sixel = 0;
-                    // Check so we don't overrun the buffer in case Height 
-                    //  not divisible by 6
+                    // Handle edge case where height isn't divisible by 6
                     var rem = Min(6, Height - y6);
-                    // Accumulate the sixel
+                    
+                    // Build sixel by checking each vertical pixel
                     for (var i = 0; i < rem; ++i) 
                     {
-                        var y = y6+i;
-                        var pixel = screen[x+y*Width];
+                        var y = y6 + i;
+                        var pixel = screen[x + y * Width];
                         if (pixel == idx)
                         {
-                            // Current pixel matches the current sixel color
-                            //  Then set the corresponding bit in the sixel
                             sixel |= (byte)(1 << i);
                         }
                     }
 
-                    // Add the sixel base
                     sixel += SixelBase;
 
-                    // Is this pixel the same as the pixel being currently repeated?
+                    // Handle run-length encoding
                     if (repeatedSixel == sixel)
                     {
                         ++sixelRepetition;
                     }
                     else
                     {
-                        // No then write the sixel to the string builder
+                        // Output previous run
                         if (sixelRepetition > 3) 
                         {
-                            // Sixel repetition more than 3. Then it makes sense to use
-                            //  the run-length encoding
+                            // Use RLE for runs longer than 3
                             builder
                                 .Append($"!{sixelRepetition}")
                                 .Append((char)repeatedSixel);
                         } 
                         else 
                         {
-                            // Less than 3, then we just repeat the sixel
+                            // Direct output for short runs
                             for(var i = 0; i < sixelRepetition; ++i) 
                             {
                                 builder.Append((char)repeatedSixel);
@@ -211,21 +202,17 @@ while (!done)
                     }
                 }
 
-                // Is repeated sixel the base sixel?
-                //  That means it's empty and we don't have to write it
+                // Output final run if not empty
                 if (repeatedSixel != SixelBase)
                 {
                     if (sixelRepetition > 3) 
                     {
-                        // Sixel repetition more than 3. Then it makes sense to use
-                        //  the run-length encoding
                         builder
                             .Append($"!{sixelRepetition}")
                             .Append((char)repeatedSixel);
                     } 
                     else 
                     {
-                        // Less than 3, then we just repeat the sixel
                         for(var i = 0; i < sixelRepetition; ++i) 
                         {
                             builder.Append((char)repeatedSixel);
@@ -233,55 +220,50 @@ while (!done)
                     }
                 }
 
-                // Go back to start of line for more sixels
-                builder
-                    .Append('$')
-                    ;
+                builder.Append('$');  // Return to start of line
             }
 
-            // This row is completed, goto next one
-            builder
-                .Append('-')
-                ;
+            builder.Append('-');  // Move to next row
         }
 
-        // Complete the sixel image
-        builder
-            .Append("\x1B\\")
-            ;
+        // End Sixel sequence
+        builder.Append("\x1B\\");
 
-        // Write the sixel data to the console
-        var sixelImage = builder.ToString();
-        Console.Write(sixelImage);
+        // Output to console
+        Console.Write(builder.ToString());
     }
 
+    // Maintain target framerate
     var after = clock.ElapsedMilliseconds;
-    var elapsed = after-before;
+    var elapsed = after - before;
     if (elapsed < sleepFor)
     {
-        // Trying to maintain 60fps
         Thread.Sleep((int)(sleepFor - elapsed));
     }
 }
 
+// Helper functions
 double Mix(double a, double b, double x)
 {
-    return a + (b-a)*x;
+    return a + (b - a) * x;
 }
 
-// License: MIT, author: Inigo Quilez, found: https://www.iquilezles.org/www/articles/smin/smin.htm
+// Smooth minimum function
+// License: MIT, author: Inigo Quilez
+// Source: https://www.iquilezles.org/www/articles/smin/smin.htm
 double SoftMin(double a, double b, double k) 
 {
-    var h = Clamp(0.5+0.5*(b-a)/k, 0.0, 1.0);
-    return Mix(b, a, h) - k*h*(1.0-h);
+    var h = Clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0);
+    return Mix(b, a, h) - k * h * (1.0 - h);
 }
 
 record RGB(byte Index, byte Red, byte Green, byte Blue);
 
 static class Extensions
 {
+    // Convert 8-bit color component to Sixel color range (0-100)
     public static byte ToSixelColorComponent(this byte c)
     {
-        return (byte)Round(c*100.0/255);
+        return (byte)Round(c * 100.0 / 255);
     }
 }

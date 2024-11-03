@@ -18,7 +18,9 @@ But as a hacker, you want to dive deeper, right? By coding it yourself, you gain
 
 ## 🖼️🎨  It Starts with a Canvas 🎨🖼️
 
-<img src="assets/webgl-canvas.jpg" alt="A WebGL Canvas" style="width: 50%;" />
+<p align="center">
+  <img src="assets/webgl-canvas.jpg" alt="A WebGL Canvas" style="width: 50%;" />
+</p>
 
 Let’s kick things off with a `canvas` element:
 
@@ -324,6 +326,10 @@ requestAnimationFrame(drawShader);
 Using `requestAnimationFrame` is a game-changer! It ensures that your animations are synchronized with the browser's refresh rate, leading to smoother graphics and more efficient rendering. Unlike other methods, which can lead to choppy animations or excessive CPU usage, `requestAnimationFrame` automatically pauses when the user navigates to another tab, conserving resources.
 
 ## 🎁 And That's a Wrap 🎁
+
+<p align="center">
+  <img src="assets/webgl-canvas.jpg" alt="A WebGL Canvas" style="width: 50%;" />
+</p>
 
 Congratulations! With this you should be able to render your own fragment shaders in WebGL! While it can feel a bit daunting at first, that’s all part of the fun. To help you on your journey, I’ve created [this complete example](src/index.html) for you.
 

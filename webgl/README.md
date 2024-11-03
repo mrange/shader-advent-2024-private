@@ -4,6 +4,8 @@
 
 Who doesn’t love tinkering with shaders on [ShaderToy](https://www.shadertoy.com/)? While it’s exhilarating to create stunning visuals there, have you ever thought about deploying those shaders in your own code? Imagine turning your creative sparks into a demo that shines on the web!
 
+![Tinkering with ShaderToy shaders](assets/shadertoy-shader.jpg)
+
 You could create a Windows or MacOS application to showcase your shaders, but why not harness the power of WebGL for a broader reach? With WebGL, your demo can dazzle anyone with a browser, maximizing its impact!
 
 Sure, [ShaderToy](https://www.shadertoy.com/) lets you embed shaders with an HTML iframe like this:
@@ -15,6 +17,8 @@ Sure, [ShaderToy](https://www.shadertoy.com/) lets you embed shaders with an HTM
 But as a hacker, you want to dive deeper, right? By coding it yourself, you gain the freedom to customize textures, add music, and elevate your project to the next level!
 
 ## 🖼️🎨  It Starts with a Canvas 🎨🖼️
+
+<img src="assets/webgl-canvas.jpg" alt="A WebGL Canvas" style="width: 50%;" />
 
 Let’s kick things off with a `canvas` element:
 

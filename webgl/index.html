@@ -4,21 +4,132 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WEBGL</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #e0e0e0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .canvas-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1),
+                        0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s ease;
+        }
+
+        canvas {
+            display: block;
+            border-radius: 4px;
+            border: 1px solid #eee;
+        }
+
+        .caption {
+            margin-top: 15px;
+            text-align: center;
+            color: #333;
+            position: relative;
+            padding: 10px;
+        }
+
+        .caption h2 {
+            margin: 0;
+            font-size: 1.2em;
+            color: #2d3748;
+        }
+
+        .caption p {
+            margin: 5px 0 0;
+            font-size: 0.9em;
+            color: #718096;
+        }
+
+    </style>
 </head>
 <body>
-    <canvas id="webGLCanvas" width="800" height="600"></canvas>
+    <div class="canvas-container">
+      <canvas id="webGLCanvas" width="800" height="600"></canvas>
+      <div class="caption">
+          <h2>WebGL Animation</h2>
+          <p>A beautiful demonstration of real-time graphics</p>
+      </div>
+    </div>
     <script>
-      const vertexShaderSource = `
-          attribute vec4 position;
+      const vertexShaderSource = `#version 300 es
+          precision highp float;
+
+          in vec4 position;
           void main() {
-              gl_Position = position;
+            gl_Position = position;
           }
       `;
 
-      const fragmentShaderSource = `
-          precision mediump float;
+      const fragmentShaderSource = `#version 300 es
+          precision highp float;
+
+          out vec4 fragColor;
+
+          // Support ShaderToy iTime and iResolution
+
+          uniform float iTime;
+          uniform vec3 iResolution;
+
+          // Support ShaderToy mainImage
+          void mainImage(out vec4 fragColor, in vec2 fragCoord);
+
           void main() {
-              gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+            vec4 fc;
+            mainImage(fc, gl_FragCoord.xy);
+            fragColor = fc;
+          }
+
+          // Paste ShaderToy shader here -->
+
+          /* This animation is the material of my first youtube tutorial about creative
+            coding, which is a video in which I try to introduce programmers to GLSL
+            and to the wonderful world of shaders, while also trying to share my recent
+            passion for this community.
+                                                Video URL: https://youtu.be/f4s1h2YETNY
+          */
+
+          //https://iquilezles.org/articles/palettes/
+          vec3 palette( float t ) {
+              vec3 a = vec3(0.5, 0.5, 0.5);
+              vec3 b = vec3(0.5, 0.5, 0.5);
+              vec3 c = vec3(1.0, 1.0, 1.0);
+              vec3 d = vec3(0.263,0.416,0.557);
+
+              return a + b*cos( 6.28318*(c*t+d) );
+          }
+
+          //https://www.shadertoy.com/view/mtyGWy
+          void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+              vec2 uv = (fragCoord * 2.0 - iResolution.xy) / iResolution.y;
+              vec2 uv0 = uv;
+              vec3 finalColor = vec3(0.0);
+
+              for (float i = 0.0; i < 4.0; i++) {
+                  uv = fract(uv * 1.5) - 0.5;
+
+                  float d = length(uv) * exp(-length(uv0));
+
+                  vec3 col = palette(length(uv0) + i*.4 + iTime*.4);
+
+                  d = sin(d*8. + iTime)/8.;
+                  d = abs(d);
+
+                  d = pow(0.01 / d, 1.2);
+
+                  finalColor += col * d;
+              }
+
+              fragColor = vec4(finalColor, 1.0);
           }
       `;
 
@@ -69,11 +180,57 @@
         }
 
         const shaderProgram = createProgram(vertexShaderSource, fragmentShaderSource);
-
         gl.useProgram(shaderProgram);
 
-        gl.clearColor(0.2, 0.2, 0.6, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT);
+        // Create quad vertices (as a triangle strip)
+        const vertices = new Float32Array([
+            -1, -1,  // Bottom left
+             1, -1,  // Bottom right
+            -1,  1,  // Top left
+             1,  1,  // Top right
+        ]);
+
+        // Create and bind vertex buffer
+        const vertexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+        // Get and enable position attribute
+        const positionLocation = gl.getAttribLocation(shaderProgram, 'position');
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(
+            positionLocation,  // Attribute location
+            2,                // Number of components (x,y)
+            gl.FLOAT,         // Data type
+            false,            // Don't normalize
+            0,                // Stride (0 = auto)
+            0                 // Offset
+        );
+
+        const timeLocation = gl.getUniformLocation(shaderProgram, 'iTime');
+        const resolutionLocation = gl.getUniformLocation(shaderProgram, 'iResolution');
+
+        const begin = performance.now();
+
+        function drawShader(now) {
+          const currentTime = (now-begin)*0.001;
+          const width = canvas.clientWidth;
+          const height = canvas.clientHeight;
+          gl.viewport(0, 0, width, height);
+
+          gl.uniform1f(timeLocation, currentTime);
+          gl.uniform3f(resolutionLocation, width, height, 1);
+
+          gl.drawArrays(
+              gl.TRIANGLE_STRIP,  // Drawing mode
+              0,                  // Start vertex
+              4                   // Number of vertices
+          );
+
+          requestAnimationFrame(drawShader);
+        }
+
+        requestAnimationFrame(drawShader);
       }
     </script>
 </body>

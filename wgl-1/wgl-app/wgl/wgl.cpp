@@ -24,17 +24,6 @@
 #include "glext.h"      // Modern OpenGL extensions (needed for shaders)
 
 /*
- * Note for beginners:
- * - OpenGL is a graphics API that lets us render 3D/2D graphics
- * - We need Windows.h to create a window and handle user input
- * - gl.h provides basic OpenGL functions
- * - glext.h gives us access to modern OpenGL features like shaders
- *
- * A shader is a small program that runs on the graphics card (GPU).
- * Fragment shaders in particular determine the color of each pixel we draw.
- */
- 
-/*
  * Forward Declarations
  * These are functions we'll define later but need to reference now
  */
@@ -50,22 +39,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
  * These are only included when building in debug mode (_DEBUG is defined)
  */
 #ifdef _DEBUG
-    // Callback function for OpenGL to report errors
-    void APIENTRY debugCallback(
-        GLenum source,          // Where the error came from
-        GLenum type,            // The type of error
-        GLuint id,              // Error ID
-        GLenum severity,        // How serious the error is
-        GLsizei length,         // Length of the error message
-        GLchar const* message,  // The error message itself
-        void const* userParam   // User-provided data (unused)
-    ) {
-        printf(message);
-        printf("\n");
-    }
+// Callback function for OpenGL to report errors
+void APIENTRY debugCallback(
+    GLenum source           // Where the error came from
+  , GLenum type             // The type of error
+  , GLuint id               // Error ID
+  , GLenum severity         // How serious the error is
+  , GLsizei length          // Length of the error message
+  , GLchar const* message   // The error message itself
+  , void const* userParam   // User-provided data (unused)
+  ) {
+    printf(message);
+    printf("\n");
+}
     
-    // Buffer for debug messages
-    char debugLog[0xFFFF];  // 65535 characters
+// Buffer for debug messages
+char debugLog[0xFFFF];  // 65535 characters
 #endif
 
 /*
@@ -78,18 +67,18 @@ int yres = 1080;
 
 // Window class specification - tells Windows how to create our window
 WNDCLASSA windowClassSpecification {
-        CS_OWNDC    // style        : Give us our own DC (drawing context)
-      | CS_HREDRAW  //                Redraw on resize
-      | CS_VREDRAW  //                Redraw on resize
-    , &WndProc      // lpfnWndProc  : Function to handle window events
-    , 0             // cbClsExtra   : No extra class memory
-    , 0             // cbWndExtra   : No extra window memory
-    , 0             // hInstance    : Application instance handle (set later)
-    , 0             // hIcon        : Default icon
-    , 0             // hCursor      : Default cursor
-    , 0             // hbrBackground: No background brush
-    , 0             // lpszMenuName : No menu
-    , "DEMO"        // lpszClassName: Our window class name
+      CS_OWNDC    // style        : Give us our own DC (drawing context)
+    | CS_HREDRAW  //                Redraw on resize
+    | CS_VREDRAW  //                Redraw on resize
+  , &WndProc      // lpfnWndProc  : Function to handle window events
+  , 0             // cbClsExtra   : No extra class memory
+  , 0             // cbWndExtra   : No extra window memory
+  , 0             // hInstance    : Application instance handle (set later)
+  , 0             // hIcon        : Default icon
+  , 0             // hCursor      : Default cursor
+  , 0             // hbrBackground: No background brush
+  , 0             // lpszMenuName : No menu
+  , "DEMO"        // lpszClassName: Our window class name
 };
 
 // Pixel format specification - tells OpenGL how to set up our graphics buffer
@@ -124,248 +113,257 @@ PIXELFORMATDESCRIPTOR pixelFormatSpecification {
   , 0                               // dwDamageMask   : Not set
 };
 
+ 
 /*
- * Notes for beginners:
- * 1. This code sets up the basic structure we need to create a window and use OpenGL
- * 2. Double buffering means we draw to a "back buffer" while displaying the "front buffer",
- *    then swap them. This prevents flickering.
- * 3. RGBA means we store Red, Green, Blue, and Alpha (transparency) values for each pixel
- * 4. The depth buffer stores how "far away" each pixel is, letting us draw 3D properly
+ * Main Program Entry Point
+ * This code initializes OpenGL, creates a window, and runs the main rendering loop
  */
 
+// Different entry points for Debug and Release builds
 #ifdef _DEBUG
-// In debug mode we use a console program to be able to print debug messages to console
+// Debug builds use console mode for easier debugging
 int main() {
 #else
-// In release mode we use a windowed program
+// Release builds use regular Windows entry point
 int WINAPI WinMain(
-    HINSTANCE hInstance 
-,   HINSTANCE hPrevInstance     // Always NULL in Win32
-,   LPSTR     lpCmdLine         // Command line arguments
-,   int       nCmdShow          // Window display state
+    HINSTANCE hInstance     // Handle to current instance
+  , HINSTANCE hPrevInstance // Always NULL in Win32
+  , LPSTR     lpCmdLine     // Command line arguments
+  , int       nCmdShow      // Window display state
 ) {
 #endif
-  // I have lots of asserts in the code
-  //  This is to help detect errors early
-  //  But asserts will not be compiled into the final RELEASE exe
 
-#ifdef _DEBUG
-  // Gets the module handle for the process, need to register the windows class
-  //  Not available automatically in a console app
+  /*
+   * Step 1: Initialize Window
+   */
+  
+  #ifdef _DEBUG
+  // In debug mode, we need to manually get the instance handle
   auto hInstance = GetModuleHandle(0);
-  assert(hInstance);
-#endif
+  assert(hInstance && "Failed to get module handle");
+  #endif
 
-  // Set the module handle
-  windowClassSpecification.hInstance      = hInstance;
-
-  // Create the windows class, after that is successful
-  //  we can create our window
+  // Complete the window class specification by setting the hInstance
+  windowClassSpecification.hInstance = hInstance;
+  
+  // Register the window class with Windows. This is necessary to create a window 
+  // instance later based on the specifications defined in `windowClassSpecification`.
   auto regOk = RegisterClassA(&windowClassSpecification);
-  assert(regOk);
+  assert(regOk && "Failed to register window class");
 
-  // Windows style
+  // Define the window style with flags for visibility, overlapping, and popup behavior.
   auto dwStyle = WS_VISIBLE | WS_OVERLAPPEDWINDOW | WS_POPUP;
 
-  // The desired size
-  RECT windowRect {
-    0
-  , 0
-  , xres
-  , yres
-  };
+  // Adjust the window size to account for window borders and title bar based on the specified
+  // resolution (`xres` by `yres`). This ensures the client area matches the desired resolution.
+  RECT windowRect = { 0, 0, xres, yres };
+  auto rectOk = AdjustWindowRect(&windowRect, dwStyle, 0);
+  assert(rectOk && "Failed to adjust window rect");
 
-  // But we need to account for the surrounding borders
-	BOOL rectOk = AdjustWindowRect(&windowRect, dwStyle, 0);
-  assert(rectOk);
-
-  auto width  = windowRect.right  - windowRect.left;
-  auto height = windowRect.bottom - windowRect.top;
-
+  // Calculate the dimensions of the adjusted window and find the center position 
+  // based on the screen size, so the window will open centered on the screen.
+  auto width        = windowRect.right - windowRect.left;
+  auto height       = windowRect.bottom - windowRect.top;
   auto screenWidth  = GetSystemMetrics(SM_CXSCREEN);
   auto screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
-  // Create a window with a position
+  // Create the window with the specified style, dimensions, and centered position.
   auto hwnd = CreateWindowExA(
-    0                                       // dwExStyle
-  , windowClassSpecification.lpszClassName  // lpClassName
-  , nullptr                                 // lpWindowName
-  , dwStyle                                 // dwStyle
-  , (screenWidth - width) / 2               // nX
-  , (screenHeight - height) / 2             // nY
-  , width                                   // nWidth
-  , height                                  // nHeight
-  , nullptr                                 // hWndParent
-  , nullptr                                 // hMenu
-  , nullptr                                 // hInstance
-  , nullptr                                 // lpParam
+      0                                       // No extended window styles
+    , windowClassSpecification.lpszClassName  // Registered window class name
+    , nullptr                                 // No window title
+    , dwStyle                                 // Window style flags
+    , (screenWidth - width) / 2               // Centered X position
+    , (screenHeight - height) / 2             // Centered Y position
+    , width, height                           // Window dimensions
+    , nullptr, nullptr, nullptr, nullptr      // Parent, menu, instance, and param handles (unused)
   );
-  assert(hwnd);
+  assert(hwnd && "Failed to create window");
 
-  // As we want to draw graphics we need the Device context
+  /*
+   * Step 2: Initialize OpenGL
+   */
+
+  // Obtain the device context (DC) for the specified window, which allows us to draw 
+  // and interact with the window's graphics.
   auto hdc = GetDC(hwnd);
-  assert(hdc);
+  assert(hdc && "Failed to get DC");
 
-  // For this Device context find a pixel format that is compatible with OpenGL
-  auto pixelFormat = ChoosePixelFormat(
-    hdc
-  , &pixelFormatSpecification
-  );
-  assert(pixelFormat);
+  // Set up the OpenGL pixel format for the window, specifying how pixels should be represented.
+  auto pixelFormat = ChoosePixelFormat(hdc, &pixelFormatSpecification);
+  assert(pixelFormat && "Failed to choose pixel format");
 
-  // And switch to this pixel format
-  auto setOk = SetPixelFormat(
-    hdc
-  , pixelFormat
-  , nullptr
-  );
-  assert(setOk);
+  // Apply the selected pixel format to the device context, ensuring that it is properly configured 
+  // for OpenGL rendering.
+  auto setOk = SetPixelFormat(hdc, pixelFormat, &pixelFormatSpecification);
+  assert(setOk && "Failed to set pixel format");
 
-  // After that is done with can create the OpenGL context for the device context
+  // Create and activate an OpenGL rendering context for the device context, which allows us 
+  // to perform OpenGL operations in this window.
   auto hglrc = wglCreateContext(hdc);
-  assert(hglrc);
+  assert(hglrc && "Failed to create GL context");
 
-  // And make the created OpenGL context the currently in use
+  // Make the created OpenGL context current for the specified device context, enabling 
+  // OpenGL commands to affect the window's rendering.
   auto makeOk = wglMakeCurrent(hdc, hglrc);
-  assert(makeOk);
+  assert(makeOk && "Failed to make GL context current");
 
-  // Initialize the demo
+  /*
+   * Step 3: Set up Shader Program
+   */
 
-#ifdef _DEBUG
-  // First I enable a debug message callback. This will print errors that is discovered
-  //  during initalization
-
-  // Note that this relies on the OpenGL extensions which requires us to query 
-  //  for the function by name (here glDebugMessageCallback) and then invoke it
-  //  through the correct function pointer signature (here PFNGLDEBUGMESSAGECALLBACKPROC)
+  #ifdef _DEBUG
+  // Enable OpenGL debug output in debug builds
   glEnable(GL_DEBUG_OUTPUT);
-  ((PFNGLDEBUGMESSAGECALLBACKPROC)wglGetProcAddress("glDebugMessageCallback"))(debugCallback, 0);
-#endif
 
-  GLchar const * fragmentShaders[] {
-    GetFragmentShaderSource()
-  };
-  // Creates the entire shader program from a list of shader sources.
-  //  Very nice as it saves a bunch of calls that we have to do in WebGL to create
-  //  a shader program
-  auto shaderProgram = ((PFNGLCREATESHADERPROGRAMVPROC)wglGetProcAddress("glCreateShaderProgramv"))(GL_FRAGMENT_SHADER, 1, fragmentShaders);
-  assert(shaderProgram > 0);
+  // Retrieve a pointer to the OpenGL function `glDebugMessageCallback` using `wglGetProcAddress`.
+  // OpenGL functions like this one are often not directly accessible, as they may be specific 
+  // to certain OpenGL versions or extensions. By looking them up at runtime, we ensure compatibility
+  // with different graphics drivers and hardware setups.
+  auto glDebugMessageCallback = (PFNGLDEBUGMESSAGECALLBACKPROC)wglGetProcAddress("glDebugMessageCallback");
 
-#ifdef _DEBUG
-  // Disable the debug info to not interfere with the FPS of the main effect
-  ((PFNGLGETSHADERINFOLOGPROC)wglGetProcAddress("glGetProgramInfoLog"))(shaderProgram, sizeof(debugLog), NULL, debugLog);
+  // Set up a debug callback function (`debugCallback`) to handle messages from the OpenGL driver,
+  // like errors or performance warnings. This helps with diagnosing issues during development.
+  glDebugMessageCallback(debugCallback, 0);
+  #endif
+
+  // Create the shader program using `glCreateShaderProgramv` which creates a shader 
+  // program in one step by specifying the shader type and the shader source code. This function 
+  // allows us to skip manual shader compilation and linking steps. We specify `GL_FRAGMENT_SHADER` 
+  // as the shader type, with `1` indicating that there’s one shader source in `fragmentShaders`.
+  GLchar const* fragmentShaders[] = { GetFragmentShaderSource() };
+  auto glCreateShaderProgramv = (PFNGLCREATESHADERPROGRAMVPROC)wglGetProcAddress("glCreateShaderProgramv");
+  auto shaderProgram = glCreateShaderProgramv(GL_FRAGMENT_SHADER, 1, fragmentShaders);
+
+  // Ensure that `shaderProgram` was created successfully. A non-positive value would indicate
+  // a failure to create the program, so we use an assertion to catch this in debug builds.
+  assert(shaderProgram > 0 && "Failed to create shader program");
+
+  #ifdef _DEBUG
+  // Retrieve the compilation log for `shaderProgram` and print it
+  auto glGetProgramInfoLog = (PFNGLGETSHADERINFOLOGPROC)wglGetProcAddress("glGetProgramInfoLog");
+  glGetProgramInfoLog(shaderProgram, sizeof(debugLog), NULL, debugLog);
   printf(debugLog);
+
+  // Final setup is complete, so disable debug output
   glDisable(GL_DEBUG_OUTPUT);
-#endif
+  #endif
 
-  // Look for the iTime uniform location, so we can set it in the draw loop
-  auto iTimeLocation = ((PFNGLGETUNIFORMLOCATIONPROC)wglGetProcAddress("glGetUniformLocation"))(shaderProgram, "iTime");
-  assert(iTimeLocation > -1);
+  auto glGetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)wglGetProcAddress("glGetUniformLocation");
+  // Get the location of the `iTime` uniform in the shader program. This location will be used 
+  // to set the value of `iTime`.
+  auto iTimeLocation = glGetUniformLocation(shaderProgram, "iTime");
+  // Get the location of the `iResolution` uniform in the shader program. This location is 
+  // used to pass the resolution of the rendering window.
+  auto iResolutionLocation = glGetUniformLocation(shaderProgram, "iResolution");
+  assert(iTimeLocation > -1 && iResolutionLocation > -1 && "Failed to get uniform locations");
 
-  // Look for the iResolution uniform location, so we can set it in the draw loop
-  auto iResolutionLocation = ((PFNGLGETUNIFORMLOCATIONPROC)wglGetProcAddress("glGetUniformLocation"))(shaderProgram, "iResolution");
-  assert(iResolutionLocation > -1);
+  // Activate the shader program so it will be applied to all pixels 
+  // in subsequent draw calls, such as the upcoming call to `glRects`.
+  auto glUseProgram = (PFNGLUSEPROGRAMPROC)wglGetProcAddress("glUseProgram");
+  glUseProgram(shaderProgram);
 
-  // Make our shader program the current one
-  ((PFNGLUSEPROGRAMPROC)wglGetProcAddress("glUseProgram"))(shaderProgram);
+  /*
+   * Step 4: Main Render Loop
+   */
 
-  // The starting time in milliseconds
+  // Start time (in milliseconds)
   auto before = GetTickCount64();
-
   auto done = false;
-  MSG msg {};
+  MSG msg = {};
 
-  while(!done) {
-    // The classic windows message loop
-    //  We "pump" the message queue for windows message
-    //  Look at it (to determine if there's a quit message)
-    //  and then dispact the message to our window (which will invoke WndProc)
+  // Get function pointers for setting uniforms
+  auto glUniform1f = (PFNGLUNIFORM1FPROC)wglGetProcAddress("glUniform1f");
+  auto glUniform3f = (PFNGLUNIFORM3FPROC)wglGetProcAddress("glUniform3f");
+
+  while (!done) {
+    // Process Windows messages in a loop. This is typical in a Win32 application to handle 
+    // system events like keyboard input, window resizing, or close requests.
     while (PeekMessageA(&msg, 0, 0, 0, PM_REMOVE)) {
-      if (msg.message == WM_QUIT) done = 1;
-      // Result intentionally ignored
+      // Check if the message is `WM_QUIT`, which indicates the application should close.
+      // If so, set `done` to true to break out of the main loop.
+      if (msg.message == WM_QUIT) done = true;
+      // Prepare the message for further processing. `TranslateMessage` handles input-specific 
+      // tasks like converting keystrokes into character messages.
       TranslateMessage(&msg);
-      // Result intentionally ignored
+      // Dispatch the message to the appropriate window procedure, which will handle the message 
+      // (e.g., updating the window or responding to user actions).
       DispatchMessageA(&msg);
     }
 
-    // Get now in milliseconds
+    // Update shader uniforms with the current time and resolution.
+
+    // Get the current time in milliseconds and calculate the elapsed time (`iTime`) 
+    // since the program started, in seconds.
     auto now = GetTickCount64();
-    // Compute iTime
-    auto iTime = (now-before)/1000.F;
+    auto iTime = (now - before) / 1000.0f;
 
-    // Sets the iTime uniform
-    ((PFNGLUNIFORM1FPROC)wglGetProcAddress("glUniform1f"))(iTimeLocation, iTime);
+    // Set the `iTime` uniform in the shader program with the calculated time.
+    glUniform1f(iTimeLocation, iTime);
 
-    // Sets the iResolution uniform
-    ((PFNGLUNIFORM3FPROC)wglGetProcAddress("glUniform3f"))(
-        iResolutionLocation
-      , static_cast<GLfloat>(xres)
-      , static_cast<GLfloat>(yres)
-      , 1)
-      ;
+    // Set the `iResolution` uniform with the current window resolution (x, y, depth). 
+    glUniform3f(
+      iResolutionLocation
+    , static_cast<GLfloat>(xres)
+    , static_cast<GLfloat>(yres)
+    , 1.0f
+    );
 
+    // Draw a fullscreen quad (rectangle) that covers the viewport from -1 to 1 
+    // in normalized device coordinates. This applies the shader across the entire window.
+    glRects(-1, -1, 1, 1);
 
-    // Draw the code covering the client area in the window
-    glRects(-1,-1,1,1);
-
-    // Since we asked for a pixel format that is double buffered
-    //  ie we have a buffer that is shown and one that is rendered to
-    //  as we are now done rendering we need to swap the buffers
-    //  to show the result
+    // Swap the front and back buffers to display the rendered frame on the screen.
     auto swapOk = SwapBuffers(hdc);
-    assert(swapOk);
+    assert(swapOk && "Failed to swap buffers");
   }
 
-  // Don't free resources. Windows does it for us :)
+  // We are done, let windows clean up the resources
   return 0;
 }
 
-// Windows sends Windows messages to our window through the WndProc
-//  callback function. This allows us to react to them and handle
-//  different kind of events like WM_SIZE
+// Windows sends messages to our window through the WndProc callback function. 
+// This allows us to respond to various events, such as resizing or closing the window.
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-  // Don't handle these
+  // Ignore system commands related to screensaver activation or monitor power 
+  // management to prevent interference with our application.
   if (uMsg == WM_SYSCOMMAND && (wParam == SC_SCREENSAVE || wParam == SC_MONITORPOWER))
     return 0;
 
-  // User asked us to close the program, so a PostQuitMessage
-  //  This message will be picked up by our draw loop and cause it to exit
+  // Handle window closing events. If the user requests to close the window, 
+  // destroys the window, or presses the ESC key, we initiate shutdown.
   if (
-    // Is the Window closed?
+    // Check if the window is being closed
         uMsg == WM_CLOSE 
-    // Is the Window destroyed?
+    // Check if the window is being destroyed
     ||  uMsg == WM_DESTROY 
-    // Has the user pressed the ESC key?
+    // Check if the ESC key was pressed
     ||  (uMsg == WM_CHAR || uMsg == WM_KEYDOWN) && wParam == VK_ESCAPE) {
-    // If any of above are true then we are done
+    // Post a quit message to the message queue, which will be picked up 
+    // by our main loop to terminate the application.
     PostQuitMessage(0);
     return 0;
   }
 
-
-  // Window size has changed, capture the new window size, 
-  //  update the GL view port and store the updated size
+  // Handle window resizing. Update the global variables with the new 
+  // width and height, and adjust the OpenGL viewport accordingly.
   if (uMsg == WM_SIZE) {
-    xres = LOWORD(lParam);
-    yres = HIWORD(lParam);
+    xres = LOWORD(lParam);  // Get the new width
+    yres = HIWORD(lParam);  // Get the new height
 
-    // Updates the OpenGL viewport
-    glViewport(
-        0
-      , 0
-      , xres
-      , yres
-      );
+    // Update the OpenGL viewport to match the new window size.
+    glViewport(0, 0, xres, yres);
   }
 
-  // Otherwise, forward to the default message handler
-  return(DefWindowProcA(hWnd, uMsg, wParam, lParam));
+  // For any other messages, forward them to the default window procedure 
+  // for further processing.
+  return DefWindowProcA(hWnd, uMsg, wParam, lParam);
 }
 
 GLchar const * GetFragmentShaderSource() {
-  // Using an R-string to inline the shader source
-  //  Shader by Kishimisu: https://www.shadertoy.com/view/mtyGWy
+  // Return the fragment shader source code using a raw string literal for convenience.
+  // Shader by Kishimisu: https://www.shadertoy.com/view/mtyGWy
   return 
     R"SHADER(
 #version 300 es

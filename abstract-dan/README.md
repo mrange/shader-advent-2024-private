@@ -4,7 +4,7 @@ Ho ho, shader friends! Today I will tell you my christmas story about circles. C
 
 ## The basic idea
 
-It turns out that it is very simple to draw a circle using a shader. In fact drawing any 2D shape is simple if we have a function that return the distance from any point in the plane to the shape. And calculating the distance to a circle is trivial.
+It turns out that it is very simple to draw a circle using a shader. 
 
 ```glsl
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
@@ -83,8 +83,43 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 
 <img src="assets/many_nested_circles.png" width="250px" />
 
+Still no magic but maybe it could be interesting enough using some tricks?
+
+## Trick 1: Animation
+
 It is easy to animate by letting $\alpha$ vary by time.
 
 ```glsl
 float alpha = 3.15 / 15.0 * i * iTime;
 ```
+
+## Trick 2: A nice color palette
+
+Using the general palette function from https://iquilezles.org/articles/palettes/ combined with Kishimisu's parameter selection I got this
+
+```glsl
+vec3 palette(in float t) 
+{
+    vec3 a = vec3(0.5, 0.5, 0.5);
+    vec3 b = vec3(0.5, 0.5, 0.5);
+    vec3 c = vec3(1.0, 1.0, 1.0);
+    vec3 d = vec3(0.263, 0.416, 0.557);
+    return a + b*cos( 6.283185*(c*t+d) );
+}
+
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    // ... left out for brevity ...
+
+    vec3 color = palette(length(uv)+iTime*0.03)*(1.0-dist);       
+    fragColor = vec4(color, 1.0);
+}
+```
+
+## Trick 3: Color saturation overload
+
+Subtract a little.
+
+## Trick 4: Warp the plane by a pinch of noise
+
+https://www.shadertoy.com/view/lsl3RH

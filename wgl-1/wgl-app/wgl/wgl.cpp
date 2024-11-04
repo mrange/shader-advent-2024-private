@@ -1,105 +1,137 @@
+/*
+ * Windows OpenGL Shader Tutorial
+ * This file demonstrates how to set up a minimal OpenGL context in Windows
+ * and render using fragment shaders.
+ */
 
-// Some common defines which exacts semantics are unknown to me
-#define WIN32_LEAN_AND_MEAN
-#define WIN32_EXTRA_LEAN
-#define WINDOWS_IGNORE_PACKING_MISMATCH
+// Windows-specific configuration
+// These defines help reduce the size of the Windows headers and avoid some legacy code
+#define WIN32_LEAN_AND_MEAN  // Excludes rarely-used Windows headers
+#define WIN32_EXTRA_LEAN     // Further reduces Windows headers
+#define WINDOWS_IGNORE_PACKING_MISMATCH  // Prevents some alignment warnings
 
-// For ASSERT
-#include "assert.h"
+// Standard C headers
+#include <assert.h>  // For runtime assertions (checking if our assumptions are correct)
 
+// Debug-only includes
 #ifdef _DEBUG
-// For printf
-//  Used to print DEBUG info
-#include <stdio.h>
+    #include <stdio.h>  // For printf() - only included in debug builds
 #endif
 
-// Include the Windows API in order to create windows
-#include <windows.h>
+// Graphics-related headers
+#include <windows.h>    // Core Windows functions (creating windows, handling messages)
+#include <GL/gl.h>      // Core OpenGL functions
+#include "glext.h"      // Modern OpenGL extensions (needed for shaders)
 
-// Include the OpenGL API in order to do OpenGL things
-#include <GL/gl.h>
-// In addition we have a OpenGL extension header which contains additional functions
-#include "glext.h"
+/*
+ * Note for beginners:
+ * - OpenGL is a graphics API that lets us render 3D/2D graphics
+ * - We need Windows.h to create a window and handle user input
+ * - gl.h provides basic OpenGL functions
+ * - glext.h gives us access to modern OpenGL features like shaders
+ *
+ * A shader is a small program that runs on the graphics card (GPU).
+ * Fragment shaders in particular determine the color of each pixel we draw.
+ */
+ 
+/*
+ * Forward Declarations
+ * These are functions we'll define later but need to reference now
+ */
 
-// Returns the source code to the fragment shader
-GLchar const * GetFragmentShaderSource();
+// Gets the GLSL code for our fragment shader
+GLchar const* GetFragmentShaderSource(void);
 
-// Windows sends Windows messages to our window through the WndProc
-//  callback function. This allows us to react to them and handle
-//  different kind of events like WM_SIZE
+// Windows event handler - processes window events like resizing, closing, etc.
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+/*
+ * Debug Support
+ * These are only included when building in debug mode (_DEBUG is defined)
+ */
 #ifdef _DEBUG
-// In debug mode we want to print OpenGL errors to the console
-void APIENTRY debugCallback(
-    GLenum          source
-  , GLenum          type
-  , GLuint          id
-  , GLenum          severity
-  , GLsizei         length
-  , GLchar const *  message
-  , void const *    userParam
-  )
-{
-  printf(message);
-  printf("\n");
-}
-char debugLog[0xFFFF];
+    // Callback function for OpenGL to report errors
+    void APIENTRY debugCallback(
+        GLenum source,          // Where the error came from
+        GLenum type,            // The type of error
+        GLuint id,              // Error ID
+        GLenum severity,        // How serious the error is
+        GLsizei length,         // Length of the error message
+        GLchar const* message,  // The error message itself
+        void const* userParam   // User-provided data (unused)
+    ) {
+        printf(message);
+        printf("\n");
+    }
+    
+    // Buffer for debug messages
+    char debugLog[0xFFFF];  // 65535 characters
 #endif
 
-// The initial resolution of our window
+/*
+ * Window Configuration
+ */
+
+// Initial window size (16:9 aspect ratio)
 int xres = 1600;
 int yres = 1080;
 
-// The windows class specification
-//  Needed to be able to create a window later from this class
-//  The important settings is the windows message handler (WndProc)
-//  and the name ("DEMO")
+// Window class specification - tells Windows how to create our window
 WNDCLASSA windowClassSpecification {
-      CS_OWNDC | CS_HREDRAW | CS_VREDRAW  // style
-    , &WndProc                            // lpfnWndProc
-    , 0                                   // cbClsExtra
-    , 0                                   // cbWndExtra
-    , 0                                   // hInstance
-    , 0                                   // hIcon
-    , 0                                   // hCursor
-    , 0                                   // hbrBackground
-    , 0                                   // lpszMenuName
-    , "DEMO"                              // lpszClassName
+        CS_OWNDC    // style        : Give us our own DC (drawing context)
+      | CS_HREDRAW  //                Redraw on resize
+      | CS_VREDRAW  //                Redraw on resize
+    , &WndProc      // lpfnWndProc  : Function to handle window events
+    , 0             // cbClsExtra   : No extra class memory
+    , 0             // cbWndExtra   : No extra window memory
+    , 0             // hInstance    : Application instance handle (set later)
+    , 0             // hIcon        : Default icon
+    , 0             // hCursor      : Default cursor
+    , 0             // hbrBackground: No background brush
+    , 0             // lpszMenuName : No menu
+    , "DEMO"        // lpszClassName: Our window class name
 };
 
-// The pixel format specification
-// This contains lots of flags and what not but the important 
-//  bit is that we want to have a pixel format that is compatible
-//  with OpenGL and RGBA
+// Pixel format specification - tells OpenGL how to set up our graphics buffer
 PIXELFORMATDESCRIPTOR pixelFormatSpecification {
-    sizeof(PIXELFORMATDESCRIPTOR)                           // nSize
-  , 1                                                       // nVersion
-  , PFD_DRAW_TO_WINDOW|PFD_SUPPORT_OPENGL|PFD_DOUBLEBUFFER  // dwFlags
-  , PFD_TYPE_RGBA                                           // iPixelType
-  , 32                                                      // cColorBits
-  , 0                                                       // cRedBits
-  , 0                                                       // cRedShift
-  , 0                                                       // cGreenBits
-  , 0                                                       // cGreenShift
-  , 0                                                       // cBlueBits
-  , 0                                                       // cBlueShift
-  , 8                                                       // cAlphaBits
-  , 0                                                       // cAlphaShift
-  , 0                                                       // cAccumBits
-  , 0                                                       // cAccumRedBits
-  , 0                                                       // cAccumGreenBits
-  , 0                                                       // cAccumBlueBits
-  , 0                                                       // cAccumAlphaBits
-  , 32                                                      // cDepthBits
-  , 0                                                       // cStencilBits
-  , 0                                                       // cAuxBuffers
-  , PFD_MAIN_PLANE                                          // iLayerType
-  , 0                                                       // bReserved
-  , 0                                                       // dwLayerMask
-  , 0                                                       // dwVisibleMask
-  , 0                                                       // dwDamageMask
+    sizeof(PIXELFORMATDESCRIPTOR)   // nSize          : Size of struct, used as kind of versioning in Windows
+  , 1                               // nVersion       :
+  ,   PFD_DRAW_TO_WINDOW            // dwFlags        : Will draw in a window
+    | PFD_SUPPORT_OPENGL            //                  Using OpenGL
+    | PFD_DOUBLEBUFFER              //                  Use double buffering (smoother display)
+  , PFD_TYPE_RGBA                   // iPixelType     : Use RGBA colors                        
+  , 32                              // cColorBits     : 32 bits for color (8 each for R,G,B,A)
+  , 0                               // cRedBits       : Not set
+  , 0                               // cRedShift      : Not set
+  , 0                               // cGreenBits     : Not set
+  , 0                               // cGreenShift    : Not set
+  , 0                               // cBlueBits      : Not set
+  , 0                               // cBlueShift     : Not set
+  , 8                               // cAlphaBits:    : 8 bits for alpha channel
+  , 0                               // cAlphaShift    : Not set
+  , 0                               // cAccumBits     : Not set
+  , 0                               // cAccumRedBits  : Not set
+  , 0                               // cAccumGreenBits: Not set
+  , 0                               // cAccumBlueBits : Not set
+  , 0                               // cAccumAlphaBits: Not set
+  , 32                              // cDepthBits     : 32 bits for depth buffer
+  , 0                               // cStencilBits   : Not set
+  , 0                               // cAuxBuffers    : Not set
+  , PFD_MAIN_PLANE                  // iLayerType     : Main drawing layer
+  , 0                               // bReserved      : Not set
+  , 0                               // dwLayerMask    : Not set
+  , 0                               // dwVisibleMask  : Not set
+  , 0                               // dwDamageMask   : Not set
 };
+
+/*
+ * Notes for beginners:
+ * 1. This code sets up the basic structure we need to create a window and use OpenGL
+ * 2. Double buffering means we draw to a "back buffer" while displaying the "front buffer",
+ *    then swap them. This prevents flickering.
+ * 3. RGBA means we store Red, Green, Blue, and Alpha (transparency) values for each pixel
+ * 4. The depth buffer stores how "far away" each pixel is, letting us draw 3D properly
+ */
 
 #ifdef _DEBUG
 // In debug mode we use a console program to be able to print debug messages to console
@@ -213,26 +245,29 @@ int WINAPI WinMain(
   GLchar const * fragmentShaders[] {
     GetFragmentShaderSource()
   };
-  auto fragmentShaderProgram = ((PFNGLCREATESHADERPROGRAMVPROC)wglGetProcAddress("glCreateShaderProgramv"))(GL_FRAGMENT_SHADER, 1, fragmentShaders);
-  assert(fragmentShaderProgram > 0);
+  // Creates the entire shader program from a list of shader sources.
+  //  Very nice as it saves a bunch of calls that we have to do in WebGL to create
+  //  a shader program
+  auto shaderProgram = ((PFNGLCREATESHADERPROGRAMVPROC)wglGetProcAddress("glCreateShaderProgramv"))(GL_FRAGMENT_SHADER, 1, fragmentShaders);
+  assert(shaderProgram > 0);
 
 #ifdef _DEBUG
   // Disable the debug info to not interfere with the FPS of the main effect
-  ((PFNGLGETSHADERINFOLOGPROC)wglGetProcAddress("glGetProgramInfoLog"))(fragmentShaderProgram, sizeof(debugLog), NULL, debugLog);
+  ((PFNGLGETSHADERINFOLOGPROC)wglGetProcAddress("glGetProgramInfoLog"))(shaderProgram, sizeof(debugLog), NULL, debugLog);
   printf(debugLog);
   glDisable(GL_DEBUG_OUTPUT);
 #endif
 
   // Look for the iTime uniform location, so we can set it in the draw loop
-  auto iTimeLocation = ((PFNGLGETUNIFORMLOCATIONPROC)wglGetProcAddress("glGetUniformLocation"))(fragmentShaderProgram, "iTime");
+  auto iTimeLocation = ((PFNGLGETUNIFORMLOCATIONPROC)wglGetProcAddress("glGetUniformLocation"))(shaderProgram, "iTime");
   assert(iTimeLocation > -1);
 
   // Look for the iResolution uniform location, so we can set it in the draw loop
-  auto iResolutionLocation = ((PFNGLGETUNIFORMLOCATIONPROC)wglGetProcAddress("glGetUniformLocation"))(fragmentShaderProgram, "iResolution");
+  auto iResolutionLocation = ((PFNGLGETUNIFORMLOCATIONPROC)wglGetProcAddress("glGetUniformLocation"))(shaderProgram, "iResolution");
   assert(iResolutionLocation > -1);
 
   // Make our shader program the current one
-  ((PFNGLUSEPROGRAMPROC)wglGetProcAddress("glUseProgram"))(fragmentShaderProgram);
+  ((PFNGLUSEPROGRAMPROC)wglGetProcAddress("glUseProgram"))(shaderProgram);
 
   // The starting time in milliseconds
   auto before = GetTickCount64();

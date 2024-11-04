@@ -224,11 +224,11 @@ And there you go! You’ve set up the quad and linked it to your vertex shader. 
 
 ## Setting Up the Fragment Shader Uniforms
 
-We’ve defined a fragment shader prelude that streamlines the rendering of ShaderToy shaders by setting up the uniforms (or input variables) `iTime` and `iResolution`, which are widely used in shader programming. At the end, you’ll simply paste in the shader code you want to render.
+I’ve defined a fragment shader prelude that streamlines the rendering of ShaderToy shaders by setting up the uniforms (or input variables) `iTime` and `iResolution`, which are widely used in shader programming. At the end, you’ll simply paste in the shader code you want to render.
 
 ### Our Fragment Shader
 
-Here’s a simple fragment shader structure for your project:
+Here’s the fragment shader prelude:
 
 ```glsl
 #version 300 es
@@ -321,9 +321,9 @@ gl.drawArrays(
 requestAnimationFrame(drawShader);
 ```
 
-### Why Use `requestAnimationFrame`?
+### `requestAnimationFrame` is awesome
 
-Using `requestAnimationFrame` is a game-changer! It ensures that your animations are synchronized with the browser's refresh rate, leading to smoother graphics and more efficient rendering. Unlike other methods, which can lead to choppy animations or excessive CPU usage, `requestAnimationFrame` automatically pauses when the user navigates to another tab, conserving resources.
+Finding `requestAnimationFrame` was a game-changer! It ensures that our animations are synchronized with the browser's refresh rate, leading to smoother graphics and more efficient rendering. Unlike other methods I tried, which can lead to choppy animations or excessive CPU usage, `requestAnimationFrame` automatically pauses when the user navigates to another tab, conserving resources.
 
 ## 🎁 And That's a Wrap 🎁
 
@@ -331,7 +331,7 @@ Using `requestAnimationFrame` is a game-changer! It ensures that your animations
   <img src="assets/webgl-canvas.jpg" alt="A WebGL Canvas" style="width: 50%;" />
 </p>
 
-Congratulations! With this you should be able to render your own fragment shaders in WebGL! While it can feel a bit daunting at first, that’s all part of the fun. To help you on your journey, I’ve created [this complete example](src/index.html) for you.
+With this you should be able to render your own fragment shaders in WebGL! While it can feel a bit daunting at first, that’s all part of the fun. To help you on your journey, I’ve created [this complete example](src/index.html) for you.
 
 Feel free to clone the GitHub repository or download the source code to run it locally. Just remember to include the CSS stylesheet `styles.css` to see the full example in all its glory.
 

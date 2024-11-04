@@ -123,3 +123,5 @@ Subtract a little.
 ## Trick 4: Warp the plane by a pinch of noise
 
 https://www.shadertoy.com/view/lsl3RH
+
+## Trick 5: Tweak the numbers

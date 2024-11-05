@@ -23,6 +23,7 @@
 #include <GL/gl.h>      // Core OpenGL functions
 #include "glext.h"      // Modern OpenGL extensions (needed for shaders)
 
+extern "C" {
 /*
  * Forward Declarations
  * These are functions we'll define later but need to reference now
@@ -57,11 +58,7 @@ void APIENTRY debugCallback(
 char debugLog[0xFFFF];  // 65535 characters
 #endif
 
-#ifdef NOCRT
-extern "C" {
-  int _fltused;
-}
-#endif
+int _fltused;
 
 /*
  * Window Configuration
@@ -84,7 +81,7 @@ WNDCLASSA windowClassSpecification {
   , 0             // hCursor      : Default cursor
   , 0             // hbrBackground: No background brush
   , 0             // lpszMenuName : No menu
-  , "DEMO"        // lpszClassName: Our window class name
+  , "WGL"         // lpszClassName: Our window class name
 };
 
 // Pixel format specification - tells OpenGL how to set up our graphics buffer
@@ -438,7 +435,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
         d = sin(d*8. + iTime)/8.;
         d = abs(d);
 
-        d = pow(0.01 / d, 1.2);
+        d = pow(0.01 / d, 1.2)  ;
 
         finalColor += col * d;
     }
@@ -446,4 +443,6 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
     fragColor = vec4(finalColor, 1.0);
 }
 )SHADER";
+}
+
 }

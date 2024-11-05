@@ -8,12 +8,15 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
+		Release - CRINKLER|x86 = Release - CRINKLER|x86
 		Release - NOCRT|x86 = Release - NOCRT|x86
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{073F5031-E775-48DE-8149-89B03015158F}.Debug|x86.ActiveCfg = Debug|Win32
 		{073F5031-E775-48DE-8149-89B03015158F}.Debug|x86.Build.0 = Debug|Win32
+		{073F5031-E775-48DE-8149-89B03015158F}.Release - CRINKLER|x86.ActiveCfg = Release - CRINKLER|Win32
+		{073F5031-E775-48DE-8149-89B03015158F}.Release - CRINKLER|x86.Build.0 = Release - CRINKLER|Win32
 		{073F5031-E775-48DE-8149-89B03015158F}.Release - NOCRT|x86.ActiveCfg = Release - NOCRT|Win32
 		{073F5031-E775-48DE-8149-89B03015158F}.Release - NOCRT|x86.Build.0 = Release - NOCRT|Win32
 		{073F5031-E775-48DE-8149-89B03015158F}.Release|x86.ActiveCfg = Release|Win32

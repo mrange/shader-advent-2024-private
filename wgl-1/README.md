@@ -158,7 +158,7 @@ To request an OpenGL extension function, we use `wglGetProcAddress` to look it u
 auto glCreateShaderProgramv = (PFNGLCREATESHADERPROGRAMVPROC)wglGetProcAddress("glCreateShaderProgramv");
 ```
 
-Then, we can call the function through this pointer:
+Then, we can call the function through the pointer:
 
 ```c++
 // Use the queried function to create our shader program

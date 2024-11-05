@@ -4,6 +4,8 @@
 
 Tinkering with Shaders in ShaderToy is great fun but how do we package it as a Windows App or even better a 4KiB Windows App?
 
+![Kishimisu shader running in a Windows App](assets/desktop.jpg)
+
 There are tools out there to help you create a small executable but first you need a Windows App that renders a fragment shader.
 
 I thought I start by showing how to create a minimal Windows App that opens a Windows and renders a fragment shader in it. Then in the follow-up blog post we will minimize it to less than 4KiB.
@@ -451,6 +453,13 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 ```
 
 ## Wrapping up
+
+When all is compiled and run it should look like this:
+
+<p align="center">
+  <img src="assets/kishimisu.jpg" alt="Kishimisu shader running in a Windows app" style="width: 50%;" />
+</p>
+
 
 This concludes the walk-through of the code. There are a bunch of settings that has to be set as well but that is included in [complete example](wgl-1/) and I tried to document what it does.
 

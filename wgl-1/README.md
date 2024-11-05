@@ -14,7 +14,7 @@ I thought I start by showing how to create a minimal Windows App that opens a Wi
 2. Open a Window using Win32 (like BillG intended)
 3. Initialize OpenGL
 4. Compile the fragment shader
-5. In the draw loop render a quad covering the entire Window with fragment shader attached.
+5. In the render loop draw a quad covering the entire Window with fragment shader attached.
 5. Goto 4 until user hit Escape or closes the window
 
 ## Create a Visual C++ project
@@ -113,6 +113,8 @@ The graphics is going to be an OpenGL fragment shader so we need to initialize O
 2. Ask Windows for a pixel format compatible with OpenGL
 3. Switch the Device Context to this pixel format
 
+In code it looks like this:
+
 ```c++
 /*
   * Step 2: Initialize OpenGL
@@ -153,7 +155,7 @@ What we do is this:
 2. Using the very helpful OpenGL function `glCreateShaderProgramv` we pass the fragment shader source to it and store the result as `shaderProgram`
 3. Then we disable the OpenGL debug info to not interfere with us rendering the shader.
 4. Create an OpenGL account for the Device Context and make it the current one.
-5. Locate the uniform variables `iTime` and `iResolution` in the compiled shader, this will allow us to inject values into the shader during the draw loop later.
+5. Locate the uniform variables `iTime` and `iResolution` in the compiled shader, this will allow us to inject values into the shader during the render loop later.
 6. Last make the shader program the current one.
 
 One complexity is that while many functions are directly available as normal functions such as `glUseProgram` others we have to ask for by name such as `glCreateShaderProgramv`. This is because these functions are extensions that may or may not be available.
@@ -170,6 +172,8 @@ auto shaderProgram = glCreateShaderProgramv(GL_FRAGMENT_SHADER, 1, fragmentShade
 ```
 
 This is a very common pattern in OpenGL.
+
+In code it looks like this:
 
 ```c++
 /*
@@ -227,6 +231,236 @@ assert(iTimeLocation > -1 && iResolutionLocation > -1 && "Failed to get uniform 
 auto glUseProgram = (PFNGLUSEPROGRAMPROC)wglGetProcAddress("glUseProgram");
 glUseProgram(shaderProgram);
 ```
+## The render loop
+
+Finally we are ready to start the render loop.
+
+1. Capture the initial time (in milliseconds). We will use it to compute `iTime` later.
+2. Loop until `done` is true.
+3. Process the events Windows send to use, to make sure our window react on resize events and other events. If the `WM_QUIT` event is received set `done` to true.
+4. Compute `iTime` as the different between current time and initial time.
+5. Use the current `xres` and `yres` as `iResolution`
+6. Inject the `iTime` and `iResolution` values into the shader by setting the uniforms.
+7. Render a quad (rectangle) that covers the entire window.
+
+In code it looks like this:
+```c++
+/*
+  * Step 4: Main Render Loop
+  */
+
+// Start time (in milliseconds)
+auto before = GetTickCount64();
+auto done = false;
+MSG msg = {};
+
+// Get function pointers for setting uniforms
+auto glUniform1f = (PFNGLUNIFORM1FPROC)wglGetProcAddress("glUniform1f");
+auto glUniform3f = (PFNGLUNIFORM3FPROC)wglGetProcAddress("glUniform3f");
+
+while (!done) {
+  // Process Windows messages in a loop. This is typical in a Win32 application to handle
+  // system events like keyboard input, window resizing, or close requests.
+  while (PeekMessageA(&msg, 0, 0, 0, PM_REMOVE)) {
+    // Check if the message is `WM_QUIT`, which indicates the application should close.
+    // If so, set `done` to true to break out of the main loop.
+    if (msg.message == WM_QUIT) done = true;
+    // Prepare the message for further processing. `TranslateMessage` handles input-specific
+    // tasks like converting keystrokes into character messages.
+    TranslateMessage(&msg);
+    // Dispatch the message to the appropriate window procedure, which will handle the message
+    // (e.g., updating the window or responding to user actions).
+    DispatchMessageA(&msg);
+  }
+
+  // Update shader uniforms with the current time and resolution.
+
+  // Get the current time in milliseconds and calculate the elapsed time (`iTime`)
+  // since the program started, in seconds.
+  auto now = GetTickCount64();
+  auto iTime = (now - before) / 1000.0f;
+
+  // Set the `iTime` uniform in the shader program with the calculated time.
+  glUniform1f(iTimeLocation, iTime);
+
+  // Set the `iResolution` uniform with the current window resolution (x, y, depth).
+  glUniform3f(
+    iResolutionLocation
+  , static_cast<GLfloat>(xres)
+  , static_cast<GLfloat>(yres)
+  , 1.0f
+  );
+
+  // Draw a fullscreen quad (rectangle) that covers the viewport from -1 to 1
+  // in normalized device coordinates. This applies the shader across the entire window.
+  glRects(-1, -1, 1, 1);
+
+  // Swap the front and back buffers to display the rendered frame on the screen.
+  auto swapOk = SwapBuffers(hdc);
+  assert(swapOk && "Failed to swap buffers");
+}
+```
+
+## Cleaning up resources
+
+We don't, we let Windows do it for us. Easier and will save bytes when try to squeeze into `4KiB` later
+
+```c++
+// We are done, let windows clean up the resources
+return 0;
+```
+
+## Reacting to Windows events
+
+I try to explain how we do this. When creating our windows class we specified to use the `WndProc` function as a the windows event handler.
+
+Whenever out window receives a windows event it gets called.
+
+We then peek at `uMsg` to determine what kind of event it was. Extra data is passed to us through `wParam` and `lParam`.
+
+What is the structure of `wParam` and `lParam`? That depends on `uMsg`, need to read the Win32 docs for that.
+
+What we do is this
+
+1. React to events like windows close or the Escape key by sending the `WM_QUIT` message to interrupt the render loop.
+2. Detect changes to windows size and store the new size in `xres` and `yres` as well as updating the OpenGL viewport.
+3. If it's not something we care about we forward the call to the default windows event handler.
+
+This is where we implement the business logic of Win32 apps. Clicked a button? We get `WM_CLICK` and react to it.
+
+The code:
+```c++
+// Windows sends messages to our window through the WndProc callback function.
+// This allows us to respond to various events, such as resizing or closing the window.
+LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+  // Ignore system commands related to screensaver activation or monitor power
+  // management to prevent interference with our application.
+  if (uMsg == WM_SYSCOMMAND && (wParam == SC_SCREENSAVE || wParam == SC_MONITORPOWER))
+    return 0;
+
+  // Handle window closing events. If the user requests to close the window,
+  // destroys the window, or presses the ESC key, we initiate shutdown.
+  if (
+    // Check if the window is being closed
+        uMsg == WM_CLOSE
+    // Check if the window is being destroyed
+    ||  uMsg == WM_DESTROY
+    // Check if the ESC key was pressed
+    ||  (uMsg == WM_CHAR || uMsg == WM_KEYDOWN) && wParam == VK_ESCAPE) {
+    // Post a quit message to the message queue, which will be picked up
+    // by our main loop to terminate the application.
+    PostQuitMessage(0);
+    return 0;
+  }
+
+  // Handle window resizing. Update the global variables with the new
+  // width and height, and adjust the OpenGL viewport accordingly.
+  if (uMsg == WM_SIZE) {
+    xres = LOWORD(lParam);  // Get the new width
+    yres = HIWORD(lParam);  // Get the new height
+
+    // Update the OpenGL viewport to match the new window size.
+    glViewport(0, 0, xres, yres);
+  }
+
+  // For any other messages, forward them to the default window procedure
+  // for further processing.
+  return DefWindowProcA(hWnd, uMsg, wParam, lParam);
+}
+
+```
+
+## Fragment shader by kishimisu
+
+As an example of fragment shader I used one by [kishimisu](https://shadertoy.com/user/kishimisu) because it's short and it looks nice.
+
+I added a prelude so that you can try out other simple ShaderToy shaders by replacing the code after the prelude.
+
+It looks like this:
+
+```c++
+GLchar const * GetFragmentShaderSource() {
+  // Return the fragment shader source code using a raw string literal for convenience.
+  // Shader by Kishimisu: https://www.shadertoy.com/view/mtyGWy
+  return
+    R"SHADER(
+#version 300 es
+// Prelude compatible with simple ShaderToy shaders
+precision highp float;
+
+out vec4 fragColor;
+
+// ShaderToy Uniforms
+// These are the most commonly used ShaderToy uniforms.
+uniform float iTime;          // ShaderToy's time uniform
+uniform vec3 iResolution;     // ShaderToy's resolution (viewport) uniform
+
+// ShaderToy-compatible mainImage function signature
+void mainImage(out vec4 fragColor, in vec2 fragCoord);
+
+void main() {
+  // Pass the fragment coordinates to mainImage and output to fragColor
+  mainImage(fragColor, gl_FragCoord.xy);
+}
+
+// Paste ShaderToy shader code here -->
+
+/* This animation is the material of my first youtube tutorial about creative
+    coding, which is a video in which I try to introduce programmers to GLSL
+    and to the wonderful world of shaders, while also trying to share my recent
+    passion for this community.
+                                        Video URL: https://youtu.be/f4s1h2YETNY
+*/
+
+//https://iquilezles.org/articles/palettes/
+vec3 palette( float t ) {
+    vec3 a = vec3(0.5, 0.5, 0.5);
+    vec3 b = vec3(0.5, 0.5, 0.5);
+    vec3 c = vec3(1.0, 1.0, 1.0);
+    vec3 d = vec3(0.263,0.416,0.557);
+
+    return a + b*cos( 6.28318*(c*t+d) );
+}
+
+//https://www.shadertoy.com/view/mtyGWy
+void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+    vec2 uv = (fragCoord * 2.0 - iResolution.xy) / iResolution.y;
+    vec2 uv0 = uv;
+    vec3 finalColor = vec3(0.0);
+
+    for (float i = 0.0; i < 4.0; i++) {
+        uv = fract(uv * 1.5) - 0.5;
+
+        float d = length(uv) * exp(-length(uv0));
+
+        vec3 col = palette(length(uv0) + i*.4 + iTime*.4);
+
+        d = sin(d*8. + iTime)/8.;
+        d = abs(d);
+
+        d = pow(0.01 / d, 1.2);
+
+        finalColor += col * d;
+    }
+
+    fragColor = vec4(finalColor, 1.0);
+}
+)SHADER";
+}
+```
+
+## Wrapping up
+
+This concludes the walk-through of the code. There are a bunch of settings that has to be set as well but that is included in [complete example](wgl-1/) and I tried to document what it does.
+
+If you want to try for yourself it's likely simplest to clone this repo or download the source files into a directory and open with Visual Studio. Remember you need to install `Desktop development with C++`.
+
+In the next part I want to show you have to make this programmer smaller than 4KiB. At the time of writing the program is about 13 KiB so it doesn't seem to be that far off but there's actually a BIG problem that disqualifies it for size-coding competitions. But more on that in the next part.
+
+See you there!
+
+🎄🌟🎄 Merry Christmas to all, and happy coding! 🎄🌟🎄
 
 🎅 – mrange
 

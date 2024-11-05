@@ -23,7 +23,7 @@ I’m using [Visual Studio 2022 Community](https://visualstudio.microsoft.com/do
 
 ![Install Desktop development with C++](assets/vs-cpp-desktop.jpg)
 
-Start a new `Console App (C++)` project, or use the source files available [here](wgl-1/) to clone or download and follow along.
+Start a new `Console App (C++)` project, or use the source files available [here](wgl-app/) to clone or download and follow along.
 
 ## 🔔 Important Dependencies 🔔
 
@@ -446,7 +446,7 @@ Once everything is compiled and running, it should look like this:
   <img src="assets/kishimisu.jpg" alt="Kishimisu shader running in a Windows app" style="width: 50%;" />
 </p>
 
-And there you have it! This wraps up our code walk-through. While we covered the essentials, there are more settings to tweak, all documented in the [complete example](wgl-1/).
+And there you have it! This wraps up our code walk-through. While we covered the essentials, there are more settings to tweak, all documented in the [complete example](wgl-app/).
 
 If you’re eager to dive in and experiment, the easiest way is to clone this repo or download the source files into a directory and open them in Visual Studio. Just remember to install `Desktop development with C++`!
 

@@ -1,39 +1,33 @@
-# 🎄⭐🎉 Rendering Shaders in an Windows App 🎉⭐🎄
+# 🎄⭐🎉 Rendering Shaders in a Windows App 🎉⭐🎄
 
-🎅 *Merry Christmas, WebGL fans!* 🎅
+🧝🎅🧝 *Happy Holidays, Shader Elves!* 🧝🎅🧝
 
-Tinkering with Shaders in ShaderToy is great fun but how do we package it as a Windows App or even better a 4KiB Windows App?
+ShaderToy is a playground for wild, colorful effects, but how do we wrap up that magic in a Windows App? Or even, imagine—a 4KiB Windows App for the ultimate techie holiday treat!
 
 ![Kishimisu shader running in a Windows App](assets/desktop.jpg)
 
-There are tools out there to help you create a small executable but first you need a Windows App that renders a fragment shader.
+Before we get to the 4KiB challenge, let’s make a minimal Windows App to display a shader. Here, I'll guide you through creating a basic app that opens a window, runs a fragment shader, and sets up the scene for further festive experiments.
 
-I thought I start by showing how to create a minimal Windows App that opens a Windows and renders a fragment shader in it. Then in the follow-up blog post we will minimize it to less than 4KiB.
+## 📝 Our Game Plan 📝
 
-## The plan
-
-1. Create Visual C++ project
-2. Open a Window using Win32 (like BillG intended)
+1. Start a Visual C++ project
+2. Open a Window (old-school Win32 style, just as Santa BillG intended)
 3. Initialize OpenGL
-4. Compile the fragment shader
-5. In the render loop draw a quad covering the entire Window with fragment shader attached.
-5. Goto 4 until user hit Escape or closes the window
+4. Compile and load the fragment shader
+5. Render a quad that fills the whole window with the shader
+6. Repeat until the user hits Escape or closes the window
 
-## Create a Visual C++ project
+## 🎁 Step 1: Start a Visual C++ Project 🎁
 
-I am going to use [Visual Studio 2022 Community](https://visualstudio.microsoft.com/downloads/) which are free for tinkering with code.
-
-During install make sure to install `Desktop development with C++`:
+I’m using [Visual Studio 2022 Community](https://visualstudio.microsoft.com/downloads/)—it’s free, easy to set up, and great for shader mischief. During installation, check off `Desktop development with C++`:
 
 ![Install Desktop development with C++](assets/vs-cpp-desktop.jpg)
 
-I used the template `Console App (C++)` to create the project.
+Start a new `Console App (C++)` project, or use the source files available [here](wgl-1/) to clone or download and follow along.
 
-You can find the project [here](wgl-1/) and get it by either cloning this repository or downloading the files, you need all files to make it work.
+## 🔔 Important Dependencies 🔔
 
-## Important dependencies
-
-We need Windows headers (obviously) but also OpenGL headers
+You’ll need Windows and OpenGL headers to get going:
 
 ```c++
 #include <windows.h>    // Core Windows functions (creating windows, handling messages)
@@ -41,24 +35,20 @@ We need Windows headers (obviously) but also OpenGL headers
 #include "glext.h"      // Modern OpenGL extensions (needed for shaders)
 ```
 
-The `glext.h` contains extensions for OpenGL which we will use. This file is not provided out of the box but I included a copy in the demo project.
+The `glext.h` file contains necessary OpenGL extensions that don’t come built-in; I’ve included a copy in the demo project for easy setup. Don’t forget to link `opengl32.lib` in your project to compile successfully.
 
-In addition; we need to include OpenGL code by linking `opengl32.lib`. This I setup in the demo project.
+## 🪟 Opening a Window 🪟
 
-## Opening a Window
+The entry point for our app is the `main` function, where most of the code lives. We’ll go through it step-by-step. To catch errors early, I’ve packed in plenty of `assert` statements; these are stripped out in a Release build, so they won’t add bulk later.
 
-The entry point for a console application is the `main` function where I put the majority of the code.
+### 🖼️ Let’s Open a Window 🖼️
 
-I will walk you through the example. In order to detect errors as early as possible I added lots of `assert` to the code, these will not be included in a a Release build.
+Here’s the plan:
+1. We’re sticking with the Win32 API only. This keeps things lean, which will help us later as we aim to trim it down to a 4KiB executable. For now, though, the executable will be *much* bigger than that!
+2. We create a Window Class with specific flags and a custom event handler. The event handler lets us respond to events, like when the user tries to close the window.
+3. With this Window Class, we create a window and center it on the screen.
 
-Let's start with opening the window:
-
-The idea is this.
-1. We work only with the Win32 API, this is to make sure that we later on has as little overhead as possible to make a 4KiB executable. Right now though for various reasons the executable will be much bigger than 4KiB.
-2. Create a Window Class that has a certain flags set and a custom window event handler. The window event handler allows us to react on events such closing the window.
-3. Using this Window class we create a window centered on the screen.
-
-In code it looks like this:
+Here’s how it looks in code:
 ```c++
 /*
   * Step 1: Initialize Window
@@ -105,18 +95,17 @@ auto hwnd = CreateWindowExA(
 assert(hwnd && "Failed to create window");
 ```
 
-While a bit tricky to get all the configuration and parameters right the first time when it comes down to it, it's not that much code to open a Window.
+Opening a window with Win32 can be a bit finicky the first time, but it doesn’t take much code once you’ve got the parameters right!
 
-## Initialize OpenGL
+## 🛠️ Initializing OpenGL 🛠️
 
-The graphics is going to be an OpenGL fragment shader so we need to initialize OpenGL. Luckily it's rather simple to do so.
+Since we’re going to use an OpenGL fragment shader for our graphics, we need to set up OpenGL. Fortunately, this process is pretty straightforward:
 
-1. Get the Device Context (needed to draw graphics in general)
-2. Ask Windows for a pixel format compatible with OpenGL
-3. Switch the Device Context to this pixel format
+1. Grab the **Device Context** (needed for all graphics-related tasks).
+2. Request a **pixel format** from Windows that’s compatible with OpenGL.
+3. Set this pixel format on the Device Context to enable OpenGL rendering.
 
-In code it looks like this:
-
+Here’s how the code comes together:
 ```c++
 /*
   * Step 2: Initialize OpenGL
@@ -147,36 +136,38 @@ auto makeOk = wglMakeCurrent(hdc, hglrc);
 assert(makeOk && "Failed to make GL context current");
 ```
 
-## Initializing the demo
+## 🎆 Initializing the Demo 🎆
 
-This can be complex but in our case it's just to compile the fragment shader.
+Setting up OpenGL can get intricate, but for our demo, we’re just compiling and setting up a fragment shader. Here’s the breakdown:
 
-What we do is this:
+1. **Enable OpenGL Debug Info** during Debug builds, making it easier to troubleshoot if things go haywire.
+2. Use `glCreateShaderProgramv` to compile the fragment shader source and store it as `shaderProgram`.
+3. **Disable Debug Info** right after so it won’t interfere with rendering.
+4. Create an OpenGL rendering context for our window’s Device Context and make it active.
+5. **Find the Uniform Variables** `iTime` and `iResolution` in the shader—these let us pass in values (like time and window size) during the render loop.
+6. Finally, **Set the Shader Program** as active.
 
-1. Enable OpenGL debug info during Debug builds (to help us troubleshoot more easily)
-2. Using the very helpful OpenGL function `glCreateShaderProgramv` we pass the fragment shader source to it and store the result as `shaderProgram`
-3. Then we disable the OpenGL debug info to not interfere with us rendering the shader.
-4. Create an OpenGL account for the Device Context and make it the current one.
-5. Locate the uniform variables `iTime` and `iResolution` in the compiled shader, this will allow us to inject values into the shader during the render loop later.
-6. Last make the shader program the current one.
+### 🔎📡 Getting Functions by Name 📡🔍
 
-One complexity is that while many functions are directly available as normal functions such as `glUseProgram` others we have to ask for by name such as `glCreateShaderProgramv`. This is because these functions are extensions that may or may not be available.
+A unique quirk in OpenGL is that while some functions, like `glUseProgram`, are always available, others (especially newer ones) may not be. Functions like `glCreateShaderProgramv` are considered *extensions*, so we have to request them by name.
 
-So we query by name for `glCreateShaderProgramv` and store the pointer to that function in `glCreateShaderProgramv`:
+To request an OpenGL extension function, we use `wglGetProcAddress` to look it up by name and store a pointer to it. This is a standard OpenGL pattern:
 
 ```c++
+// Query the function by name and store it as a function pointer
 auto glCreateShaderProgramv = (PFNGLCREATESHADERPROGRAMVPROC)wglGetProcAddress("glCreateShaderProgramv");
 ```
 
-Then we can calling the function by using the function pointer:
+Then, we can call the function through this pointer:
+
 ```c++
+// Use the queried function to create our shader program
 auto shaderProgram = glCreateShaderProgramv(GL_FRAGMENT_SHADER, 1, fragmentShaders);
 ```
 
-This is a very common pattern in OpenGL.
+This querying approach is common in OpenGL, especially for accessing newer features or extensions. Here’s how the code comes together:
 
 In code it looks like this:
-
 ```c++
 /*
   * Step 3: Set up Shader Program
@@ -233,19 +224,19 @@ assert(iTimeLocation > -1 && iResolutionLocation > -1 && "Failed to get uniform 
 auto glUseProgram = (PFNGLUSEPROGRAMPROC)wglGetProcAddress("glUseProgram");
 glUseProgram(shaderProgram);
 ```
-## The render loop
+## 🔄 The Render Loop 🔄
 
-Finally we are ready to start the render loop.
+At last, we’re ready to start the render loop and bring our shader to life! Here’s the game plan:
 
-1. Capture the initial time (in milliseconds). We will use it to compute `iTime` later.
-2. Loop until `done` is true.
-3. Process the events Windows send to use, to make sure our window react on resize events and other events. If the `WM_QUIT` event is received set `done` to true.
-4. Compute `iTime` as the different between current time and initial time.
-5. Use the current `xres` and `yres` as `iResolution`
-6. Inject the `iTime` and `iResolution` values into the shader by setting the uniforms.
-7. Render a quad (rectangle) that covers the entire window.
+1. **Capture the Initial Time** in milliseconds. This helps us calculate `iTime` for our shader effects.
+2. Enter the loop and run it until `done` is `true`.
+3. **Handle Windows Events**: Process events from Windows to keep the window responsive. If we receive a `WM_QUIT` event, we set `done` to `true` to exit the loop.
+4. **Calculate `iTime`** as the difference between the current time and the initial time.
+5. **Set `iResolution`** based on the current values of `xres` and `yres`.
+6. Inject `iTime` and `iResolution` into the shader by setting the uniform values.
+7. Render a **quad** (rectangle) that fills the window, with the shader applied.
 
-In code it looks like this:
+Here’s how it all comes together in code:
 ```c++
 /*
   * Step 4: Main Render Loop
@@ -303,34 +294,30 @@ while (!done) {
 }
 ```
 
-## Cleaning up resources
+## Cleaning Up Resources 🎄
 
-We don't, we let Windows do it for us. Easier and will save bytes when try to squeeze into `4KiB` later
+In true holiday spirit, we’ll let Windows handle the cleanup for us! By skipping manual cleanup, we save a few bytes—essential for squeezing the final app down to `4KiB`.
 
 ```c++
 // We are done, let windows clean up the resources
 return 0;
 ```
 
-## Reacting to Windows events
+No fuss, no mess—just close up shop and leave it to Windows!
 
-I try to explain how we do this. When creating our windows class we specified to use the `WndProc` function as a the windows event handler.
+## ⏰ Reacting to Windows Events ⏰
 
-Whenever out window receives a windows event it gets called.
+Our window’s event handler is the `WndProc` function, which we set up in the Window Class. Whenever our window gets an event, `WndProc` is called, and we peek at `uMsg` to see what type of event it was. Extra data arrives in `wParam` and `lParam`—their structure depends on `uMsg`, so check the Win32 docs for specifics.
 
-We then peek at `uMsg` to determine what kind of event it was. Extra data is passed to us through `wParam` and `lParam`.
+Here’s the plan:
 
-What is the structure of `wParam` and `lParam`? That depends on `uMsg`, need to read the Win32 docs for that.
+1. **Handle Closing Events**: If the user closes the window or hits Escape, we send a `WM_QUIT` message to end the render loop.
+2. **Handle Resize Events**: When the window resizes, we update `xres` and `yres` and adjust the OpenGL viewport.
+3. **Forward Unused Events**: For events we don’t care about, we pass them to the default Windows event handler.
 
-What we do is this
+This is the heart of Win32 “business logic”—e.g., if the user clicks a button, we’d receive `WM_CLICK` here and act on it.
 
-1. React to events like windows close or the Escape key by sending the `WM_QUIT` message to interrupt the render loop.
-2. Detect changes to windows size and store the new size in `xres` and `yres` as well as updating the OpenGL viewport.
-3. If it's not something we care about we forward the call to the default windows event handler.
-
-This is where we implement the business logic of Win32 apps. Clicked a button? We get `WM_CLICK` and react to it.
-
-The code:
+Here’s how it all looks in code:
 ```c++
 // Windows sends messages to our window through the WndProc callback function.
 // This allows us to respond to various events, such as resizing or closing the window.
@@ -373,14 +360,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 ```
 
-## Fragment shader by kishimisu
+## 🎨 Fragment Shader by Kishimisu 🎨
 
-As an example of fragment shader I used one by [kishimisu](https://shadertoy.com/user/kishimisu) because it's short and it looks nice.
+For our demo, I chose a lovely, concise fragment shader by [kishimisu](https://shadertoy.com/user/kishimisu) as an example. It’s short, visually striking, and makes it easy to swap in other ShaderToy-style shaders.
 
-I added a prelude so that you can try out other simple ShaderToy shaders by replacing the code after the prelude.
+To make this work, I added a *prelude* at the start of the shader code. This prelude sets up any variables and functions needed to make ShaderToy-compatible shaders run smoothly here. Now, you can simply replace the code after the prelude to experiment with different ShaderToy shaders.
 
-It looks like this:
-
+Here’s what it looks like:
 ```c++
 GLchar const * GetFragmentShaderSource() {
   // Return the fragment shader source code using a raw string literal for convenience.
@@ -452,22 +438,21 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 }
 ```
 
-## Wrapping up
+## 🎉🎁🎉 Wrapping Up 🎉🎁🎉
 
-When all is compiled and run it should look like this:
+Once everything is compiled and running, it should look like this:
 
 <p align="center">
   <img src="assets/kishimisu.jpg" alt="Kishimisu shader running in a Windows app" style="width: 50%;" />
 </p>
 
+And there you have it! This wraps up our code walk-through. While we covered the essentials, there are more settings to tweak, all documented in the [complete example](wgl-1/).
 
-This concludes the walk-through of the code. There are a bunch of settings that has to be set as well but that is included in [complete example](wgl-1/) and I tried to document what it does.
+If you’re eager to dive in and experiment, the easiest way is to clone this repo or download the source files into a directory and open them in Visual Studio. Just remember to install `Desktop development with C++`!
 
-If you want to try for yourself it's likely simplest to clone this repo or download the source files into a directory and open with Visual Studio. Remember you need to install `Desktop development with C++`.
+In the next part, we’ll tackle the challenge of shrinking this program to under 4KiB. As of now, it’s about 13 KiB, so we’re not too far off! However, there's a BIG issue that could disqualify it from size-coding competitions, but I’ll reveal more on that soon.
 
-In the next part I want to show you have to make this programmer smaller than 4KiB. At the time of writing the program is about 13 KiB so it doesn't seem to be that far off but there's actually a BIG problem that disqualifies it for size-coding competitions. But more on that in the next part.
-
-See you there!
+Happy coding, and I can’t wait to see what you create!
 
 🎄🌟🎄 Merry Christmas to all, and happy coding! 🎄🌟🎄
 

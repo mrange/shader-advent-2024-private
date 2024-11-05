@@ -57,6 +57,12 @@ void APIENTRY debugCallback(
 char debugLog[0xFFFF];  // 65535 characters
 #endif
 
+#ifdef NOCRT
+extern "C" {
+  int _fltused;
+}
+#endif
+
 /*
  * Window Configuration
  */
@@ -123,6 +129,13 @@ PIXELFORMATDESCRIPTOR pixelFormatSpecification {
 #ifdef _DEBUG
 // Debug builds use console mode for easier debugging
 int main() {
+#elif defined(NOCRT)
+int WINAPI WinMainCRTStartup(
+    HINSTANCE hInstance,
+    HINSTANCE hPrevInstance,
+    LPSTR lpCmdLine,
+    int nCmdShow
+) {
 #else
 // Release builds use regular Windows entry point
 int WINAPI WinMain(
@@ -319,7 +332,12 @@ int WINAPI WinMain(
   }
 
   // We are done, let windows clean up the resources
+#if NOCRT
+  // When compiling without CRT we need to kill the process ourselves
+  ExitProcess(0);
+#else
   return 0;
+#endif
 }
 
 // Windows sends messages to our window through the WndProc callback function. 

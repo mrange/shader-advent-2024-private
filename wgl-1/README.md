@@ -104,6 +104,7 @@ Since we’re going to use an OpenGL fragment shader for our graphics, we need t
 1. Grab the **Device Context** (needed for all graphics-related tasks).
 2. Request a **pixel format** from Windows that’s compatible with OpenGL.
 3. Set this pixel format on the Device Context to enable OpenGL rendering.
+4. Create an OpenGL rendering context for our window’s Device Context and make it active.
 
 Here’s how the code comes together:
 ```c++
@@ -143,9 +144,8 @@ Setting up OpenGL can get intricate, but for our demo, we’re just compiling an
 1. **Enable OpenGL Debug Info** during Debug builds, making it easier to troubleshoot if things go haywire.
 2. Use `glCreateShaderProgramv` to compile the fragment shader source and store it as `shaderProgram`.
 3. **Disable Debug Info** right after so it won’t interfere with rendering.
-4. Create an OpenGL rendering context for our window’s Device Context and make it active.
-5. **Find the Uniform Variables** `iTime` and `iResolution` in the shader—these let us pass in values (like time and window size) during the render loop.
-6. Finally, **Set the Shader Program** as active.
+4. **Find the Uniform Variables** `iTime` and `iResolution` in the shader—these let us pass in values (like time and window size) during the render loop.
+5. Finally, **Set the Shader Program** as active.
 
 ### 🔎📡 Getting Functions by Name 📡🔍
 

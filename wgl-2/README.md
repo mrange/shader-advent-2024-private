@@ -2,7 +2,11 @@
 
 🧝🎅🧝 *Merry Christmas, size-coders!* 🧝🎅🧝
 
-In my last post, I showed you how to whip up a minimal Windows app that renders a fragment shader. Now, as promised, we're pushing it further to make this into a *tiny* 4KiB executable. But there’s a catch: the Windows app I created have one big, gift-wrapped problem when it comes to size-coding.
+In my last post, I showed you how to create a minimal Windows app that renders a fragment shader. Now, as promised, we’re taking it to the next level—turning it into a *tiny* 4KiB executable.
+
+This post isn’t about heavy coding; it’s more about configuring Visual C++ with some key settings. You can follow along with the project [here](wgl-app/).
+
+As I mentioned before, the Windows app has one *big*, gift-wrapped problem when it comes to size-coding.
 
 ## 💥🚨 What's the BIG Problem? 🚨💥
 
@@ -10,7 +14,6 @@ The Windows app I built last time requires C-runtime DLLs, but in a 4KiB size-co
 
 ## 👢➡️ Kicking Out the C-Runtime 🚫👢
 
-There isn't any heavy coding in this blog post; it’s mostly setting up Visual C++ with some handy options. Here’s a project [you can follow along with](wgl-app/).
 
 I set up a build configuration called "Release - NOCRT," which strips out the C-runtime. The key here is adding the `/NODEFAULTLIB` option to the linker.
 

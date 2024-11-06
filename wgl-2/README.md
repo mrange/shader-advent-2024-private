@@ -4,11 +4,11 @@
 
 In my last post, I showed you how to whip up a minimal Windows app that renders a fragment shader. Now, as promised, we're pushing it further to make this into a *tiny* 4KiB executable. But there’s a catch: the Windows app I created have one big, gift-wrapped problem when it comes to size-coding.
 
-## 🎁 What's the BIG Problem? 🎁
+## 💥🚨 What's the BIG Problem? 🚨💥
 
 The Windows app I built last time requires C-runtime DLLs, but in a 4KiB size-coding competition, bringing those along is like stuffing a turkey the size of Santa’s sleigh. We could embed the C-runtime into the executable, but that blows us up to about 100KiB. So, to squeeze under the 4KiB limit, we need to ditch the C-runtime entirely.
 
-## Evicting the C-Runtime
+## 👢➡️ Kicking Out the C-Runtime 🚫👢
 
 There isn't any heavy coding in this blog post; it’s mostly setting up Visual C++ with some handy options. Here’s a project [you can follow along with](wgl-app/).
 
@@ -18,7 +18,7 @@ I set up a build configuration called "Release - NOCRT," which strips out the C-
 
 Without the C-runtime, we lose functions like `printf` and some floating-point functions, but hey, it's all part of the size-coding challenge!
 
-## Resolving the Naughty Symbols
+## ⚠️🧝⚠️ Resolving the Naughty Symbols ⚠️🧝⚠️
 
 Once the C-runtime’s gone, the linker throws a few “missing symbol” tantrums:
 
@@ -52,13 +52,13 @@ extern "C" int WINAPI WinMainCRTStartup(
 
 This should shrink us to around 7KiB. We’re close—but we’re not done yet. Next up, I’ll cover tricks to shave off those last few KiBs to hit the 4KiB mark.
 
-## 🎅 A Sleighful of Settings to Tinker With 🎅
+## ⚙️🛠️ A Mountain of Settings to Tinker With 🛠️⚙️
 
 Visual C++ is packed with settings, and I’ve tweaked a whole bunch to minimize overhead. You can compare the `Release` and `Release - NOCRT` configs to see the differences, but I won’t pretend this is the ultimate setup. These are just some handy adjustments to pave the way for our next step.
 
 Of course, the star of the show is removing the C-runtime—that’s the real game-changer here.
 
-## Replacing the Default Linker with CRINKLER 🎁
+## 🔗🛠️ Replacing the Default Linker with CRINKLER 🛠️🔗
 
 The executable we’ve generated so far includes a lot of metadata and headers that Windows loves but we size-coders don’t need. Wouldn’t it be great if we could bundle everything up in a compressed, self-extracting package that decompresses itself at runtime? Good news! That’s exactly what [CRINKLER](https://github.com/runestubbe/Crinkler) is designed to do.
 
@@ -95,7 +95,7 @@ These options tweak Crinkler for maximum size reduction:
 
 In the example project, you’ll find a `Release - CRINKLER` configuration ready to go. Switch to it, compile, and watch the magic happen—your executable should shrink to less than 2KiB!
 
-### Tracking Down the Bytes with `REPORT.html`
+### 🕵️‍♂️🔎 Tracking Down the Bytes with `REPORT.html` 🔍🕵️‍♂️
 
 Crinkler produces a `REPORT.html` file, showing what’s taking up space. This is super useful when you’re hunting for those last few bytes.
 
@@ -103,7 +103,7 @@ Crinkler produces a `REPORT.html` file, showing what’s taking up space. This i
 
 *And a heads-up*: For larger demos, Crinkler’s compression can take a bit of time—usually around 3 minutes in my experience. Enjoy the progress bar!
 
-## Making Further Improvements 🎶
+## 💪🌱 Making Further Improvements 🌱💪
 
 There are plenty of ways to trim the fat even more. For instance, our shader code is a bit too “chatty” right now. To fix this, there’s an amazing tool called [shader-minifier](https://github.com/laurentlb/shader-minifier), which removes comments and shortens variable names to squeeze the shader code even smaller.
 

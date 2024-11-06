@@ -32,7 +32,7 @@ Once the C-runtime’s gone, the linker throws a few “missing symbol” tantru
 
 To quiet things down:
 
-- **`__fltused`**: Visual C++ throws this one in for reasons unknown. We’ll just define it ourselves in C-style:
+- **`__fltused`**: Visual C++ throws this one in for reasons unknown to me. We’ll just define it ourselves in C-style:
 
 ```c++
 extern "C" int _fltused;
@@ -42,16 +42,10 @@ extern "C" int _fltused;
 
 ![Disable Security Check setting in Visual Studio](assets/disable-security-check.png)
 
-- **Entry point**: Normally, `WinMain` runs after the C-runtime initializes. Without it, we directly expose a function Windows will call: `WinMainCRTStartup`.
+- **Application Entry Point**: Normally, `WinMain` is called by the C-runtime after initialization, with the entry point managed by Windows via a symbol defined in the Entry Point setting in Visual Studio. Without the C-runtime, we need to update the Entry Point setting to point directly to our custom `WinMain` instead.
 
-```c++
-extern "C" int WINAPI WinMainCRTStartup(
-    HINSTANCE hInstance,
-    HINSTANCE hPrevInstance,
-    LPSTR lpCmdLine,
-    int nCmdShow
-);
-```
+![Entry Point setting in Visual Studio](assets/entrypoint.png)
+
 
 This should shrink us to around 7KiB. We’re close—but we’re not done yet. Next up, I’ll cover tricks to shave off those last few KiBs to hit the 4KiB mark.
 

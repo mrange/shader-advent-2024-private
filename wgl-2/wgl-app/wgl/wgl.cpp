@@ -126,13 +126,6 @@ PIXELFORMATDESCRIPTOR pixelFormatSpecification {
 #ifdef _DEBUG
 // Debug builds use console mode for easier debugging
 int main() {
-#elif defined(NOCRT)
-int WINAPI WinMainCRTStartup(
-    HINSTANCE hInstance,
-    HINSTANCE hPrevInstance,
-    LPSTR lpCmdLine,
-    int nCmdShow
-) {
 #else
 // Release builds use regular Windows entry point
 int WINAPI WinMain(

@@ -95,7 +95,7 @@ In the example project, you’ll find a `Release - CRINKLER` configuration ready
 
 ### 🕵️‍♂️🔎 Tracking Down the Bytes with `REPORT.html` 🔍🕵️‍♂️
 
-Crinkler produces a `REPORT.html` file, showing what’s taking up space. This is super useful when you’re hunting for those last few bytes.
+Crinkler produces a [`REPORT.html`](wgl-app/wgl/REPORT.html) file, showing what’s taking up space. This is super useful when you’re hunting for those last few bytes.
 
 *Pro Tip*: Sometimes, Windows Defender or other antivirus software gets grumpy about Crinkler’s output, since it lacks standard headers. I often mark the build folder as safe to avoid unnecessary scans.
 

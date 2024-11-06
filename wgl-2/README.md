@@ -1,4 +1,4 @@
-# 🎄⭐🎉 Rendering Shaders in a Windows App 🎉⭐🎄
+# 🎄⭐🎉 Rendering Shaders in a 4KiB Windows App 🎉⭐🎄
 
 🧝🎅🧝 *Merry christmas all size-coders!* 🧝🎅🧝
 
@@ -18,7 +18,7 @@ In the example project I have created a build configuration called "Release - NO
 
 In this release config the big change is to remove the C-runtime, which we do by specifying the parameter `/NODEFAULTLIB` to the C++ linker
 
-**TODO: Image of setting**
+![Ignore all default libraries setting in Visual Studio](assets/ignore-all-default-libraries.png)
 
 This has a big limitation, you can't use C-runtime functions which removes obvious things like `printf` but also less obvious things like certain floating point functions (depending on the CPU architecture).
 
@@ -50,7 +50,7 @@ int _fltused;
 
 The security check related symbols are there because Visual C++ injects code to make the code more secure like checking for buffer overruns. We are size-coders, we care about size, not security. So let's disable that setting by specifying the parameter: `/GS-`
 
-**TODO: Image**
+![Disable Security Check setting in Visual Studio](assets/disable-security-check.png)
 
 Finally the linker is looking for the method that Windows will call when it starts the process. `main` and `WinMain` are not directly called by Windows, instead they are called by the C-runtime after it's initalized.
 
@@ -74,7 +74,7 @@ The end result is that we end up around 7KiB which is pretty good but not quite 
 
 Visual C++ has tons of settings and you can compare the `Relase` and `Release - NOCRT` to see that I tinkered with alot of them to help reduce overhead. I don't claim it's optimal, just some settings we tinker with and to setup the next step.
 
-The important step is to remove the C-runtime.
+The most important step is to remove the C-runtime.
 
 ## Replacing the default linker with CRINKLER.
 
@@ -86,13 +86,21 @@ Good news; there's a tool that does that and it's called [CRINKLER](https://gith
 
 First step is to download the linker and put it into project directory (I already done this for you, it's called `link.exe`). Then we setup that Visual C++ should search our project dir for executables, because it's called `link.exe` it will find it.
 
+![Executable Directories setting Visual Studio](assets/executable-directories.png)
+
+This is living a bit on the edge because a malovent contributor can put an executable call `link.exe` and when you pull and link next time an unknown executable is executed by Visual Studio. That's why size-coding is so exciting, always living on the edge.
+
 The default behavior of CRINKLER is to just default to the normal linker but if we specify the `/CRINKLER` link parameter it switches into CRINKLER mode.
 
 In the example project I use the command line options:
 
+![Additional options setting Visual Studio](assets/crinkler-options.png)
+
 ```
 /CRINKLER /TINYIMPORT /NOINITIALIZERS /UNSAFEIMPORT /PROGRESSGUI /HASHTRIES:20 /COMPMODE:fast /ORDERTRIES:1000 /REPORT:REPORT.html  /RANGE:opengl32
 ```
+
+This means:
 
 1. `/CRINKLER` - This simply specifies that you're using the CRINKLER linker.
 
@@ -130,7 +138,7 @@ Crinkling can take a lot of time if you are building bigger demos and does heavi
 
 There's lot of things one can improve. For example the shader code is too chatty. There's an excellent shader minifier one can use to remove comments and rewrite the shader code to smaller code. This tool is called shader-minifier and [can be found on github](https://github.com/laurentlb/shader-minifier).
 
-The shader in our example is about 2KiB uncompressed but if you pass it to shader-minifier it should be able to push it down to below 1KiB.
+The shader in our example is about 2KiB uncompressed but if you pass it to `shader-minifier` it should be able to push it down to below 1KiB.
 
 Another important aspect for demo is music and for size-coding you can't drop in an mp3. However, there are cool tools like [4klang](https://github.com/gopher-atz/4klang) and [sointu](https://github.com/vsariola/sointu) that lets you compose music and save it as assembler code that you can assemble and link into your demo.
 

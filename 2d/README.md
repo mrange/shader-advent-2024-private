@@ -10,7 +10,7 @@ Most examples on ShaderToy use ray marching in 3D, but creating cool shaders in 
 
 Shaders on [ShaderToy](https://www.shadertoy.com/) are fragment shaders, which are functions that take screen coordinates as input and return a color. In our fragment shader, we’ll model shapes using distance field functions that calculate the distance from a given point to the edge of the shape.
 
-Here’s an example of a ⭕ circle distance field:
+Here’s an example of a circle distance field:
 
 ```glsl
 float circle(vec2 pos, float radius) {
@@ -58,7 +58,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 }
 ```
 
-Hit Alt-Enter or press ▶️ to compile the shader, and voilà—you should see a ⭕ simple 2D circle like this:
+Hit Alt-Enter or press ▶️ to compile the shader, and voilà—you should see a simple 2D circle like this:
 ![A simple circle](assets/circle-2d.jpg)
 
 ## Visualizing the Distance Field
@@ -78,7 +78,7 @@ Now, we can see a visual representation of the distance field around the circle:
 
 This technique works for any distance field, so let’s try it with a more exciting shape. Creating reusable distance field functions can be tricky, but [IQ](https://www.shadertoy.com/user/iq) has a [fantastic collection of 2D distance functions](https://iquilezles.org/articles/distfunctions2d/) (licensed under MIT).
 
-One example is a ❤️ heart shape, `sdHeart`, which I’ve added to the code. I’m not entirely sure how `sdHeart` works under the hood, but like our `circle` function, it returns the distance to the shape’s edge.
+One example is a heart shape, `sdHeart`, which I’ve added to the code. I’m not entirely sure how `sdHeart` works under the hood, but like our `circle` function, it returns the distance to the shape’s edge.
 
 ```glsl
 float dot2(vec2 p) {
@@ -131,10 +131,10 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 }
 ```
 
-And here’s the result ❤️:
+And here’s the result:
 ![Visualizing the distance field around the heart](assets/heart-2d-with-distance.jpg)
 
-More interesting already! The distance field now follows the ❤️ heart shape, showing both inside and outside areas.
+More interesting already! The distance field now follows the heart shape, showing both inside and outside areas.
 
 ## Adding a Bit of Color 🌈
 
@@ -227,7 +227,7 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 }
 ```
 
-The inside of the ❤️ heart should now display an animated, vibrant color gradient!
+The inside of the heart should now display an animated, vibrant color gradient!
 
 ## Adding an Outline
 
@@ -328,7 +328,7 @@ Now you should see the heart with a clean white outline!
 
 One of the real joys of distance fields is how effortlessly shapes can be combined.
 
-To show both the ⭕ circle and ❤️ heart at once, we just need to merge their distance fields into a single one. Replace this line:
+To show both the circle and heart at once, we just need to merge their distance fields into a single one. Replace this line:
 
 ```glsl
   float d = dheart;

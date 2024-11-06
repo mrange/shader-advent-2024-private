@@ -75,16 +75,19 @@ Here are the options I’m using in the example project:
 /CRINKLER /TINYIMPORT /NOINITIALIZERS /UNSAFEIMPORT /PROGRESSGUI /HASHTRIES:20 /COMPMODE:fast /ORDERTRIES:1000 /REPORT:REPORT.html /RANGE:opengl32
 ```
 
-1. **`/CRINKLER`** – Activates Crinkler mode.
-2. **`/TINYIMPORT`** – Uses a more compact import format.
-3. **`/NOINITIALIZERS`** – Disables global variable initializers.
-4. **`/UNSAFEIMPORT`** – Aggressively reduces the import table.
-5. **`/PROGRESSGUI`** – Enables a linking progress bar.
-6. **`/HASHTRIES:20`** – Sets hash probing attempts, optimizing link time.
-7. **`/COMPMODE:fast`** – Chooses faster compression.
-8. **`/ORDERTRIES:1000`** – Attempts better function/data ordering.
-9. **`/REPORT:REPORT.html`** – Generates a detailed HTML report.
-10. **`/RANGE:opengl32`** – Includes `opengl32.dll` for OpenGL support.
+| Option                    | Description                                              |
+|---------------------------|----------------------------------------------------------|
+| **`/CRINKLER`**            | Activates Crinkler mode.                                |
+| **`/TINYIMPORT`**          | Uses a more compact import format.                      |
+| **`/NOINITIALIZERS`**      | Disables global variable initializers.                  |
+| **`/UNSAFEIMPORT`**        | Aggressively reduces the import table.                  |
+| **`/PROGRESSGUI`**         | Enables a linking progress bar.                         |
+| **`/HASHTRIES:20`**        | Sets hash probing attempts, optimizing link time.       |
+| **`/COMPMODE:fast`**       | Chooses faster compression.                             |
+| **`/ORDERTRIES:1000`**     | Attempts better function/data ordering.                 |
+| **`/REPORT:REPORT.html`**  | Generates a detailed HTML report.                       |
+| **`/RANGE:opengl32`**      | Includes `opengl32.dll` for OpenGL support.             |
+
 
 > *Curious?* There are plenty more options to explore in Crinkler’s [manual](https://github.com/runestubbe/Crinkler/blob/master/doc/manual.txt).
 

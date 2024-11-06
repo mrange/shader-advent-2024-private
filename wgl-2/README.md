@@ -97,9 +97,9 @@ In the example project, you’ll find a `Release - CRINKLER` configuration ready
 
 Crinkler produces a [`REPORT.html`](wgl-app/wgl/REPORT.html) file, showing what’s taking up space. This is super useful when you’re hunting for those last few bytes.
 
-*Pro Tip*: Sometimes, Windows Defender or other antivirus software gets grumpy about Crinkler’s output, since it lacks standard headers. I often mark the build folder as safe to avoid unnecessary scans.
+*Pro Tip*: Windows Defender or other antivirus software might get a bit grumpy about Crinkler’s output since it lacks standard headers. To avoid this, I simply mark the build folder as safe.
 
-*And a heads-up*: For larger demos, Crinkler’s compression can take a bit of time—usually around 3 minutes in my experience. Enjoy the progress bar!
+*Heads up*: For larger demos, Crinkler’s compression can take some time—usually around 3 minutes for my demos. Enjoy the progress bar while it works!
 
 ## 💪🌱 Making Further Improvements 🌱💪
 

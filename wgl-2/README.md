@@ -57,7 +57,7 @@ This should shrink us to around 7KiB. We’re close—but we’re not done yet. 
 
 ## 🔗🛠️ Replacing the Default Linker with CRINKLER 🛠️🔗
 
-The executable we’ve generated so far includes a lot of metadata and headers that Windows loves but we size-coders don’t need. Wouldn’t it be great if we could bundle everything up in a compressed, self-extracting package that decompresses itself at runtime? Good news! That’s exactly what [CRINKLER](https://github.com/runestubbe/Crinkler) is designed to do.
+The executable we’ve generated so far includes a lot of metadata and headers that Windows loves, but we size-coders don’t need. So, we want to strip them out. And wouldn’t it be great if we could bundle everything into a compressed, self-extracting package that decompresses at runtime? Good news! That’s exactly what [CRINKLER](https://github.com/runestubbe/Crinkler) is designed to do.
 
 ### Setting Up CRINKLER
 

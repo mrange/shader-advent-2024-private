@@ -42,18 +42,18 @@ extern "C" int _fltused;
 
 ![Disable Security Check setting in Visual Studio](assets/disable-security-check.png)
 
-- **Application Entry Point**: Normally, `WinMain` is called by the C-runtime after initialization, with the entry point managed by Windows via a symbol defined in the Entry Point setting in Visual Studio. Without the C-runtime, we need to update the Entry Point setting to point directly to our custom `WinMain` instead.
+- **Application Entry Point**: Normally, `WinMain` is called by the C-runtime after initialization, with the entry point managed by Windows via a symbol defined in the Entry Point setting in Visual Studio. Without the C-runtime, we need to update the Entry Point setting to point directly to our `WinMain` instead.
 
 ![Entry Point setting in Visual Studio](assets/entrypoint.png)
-
-
-This should shrink us to around 7KiB. We’re close—but we’re not done yet. Next up, I’ll cover tricks to shave off those last few KiBs to hit the 4KiB mark.
 
 ## ⚙️🛠️ A Mountain of Settings to Tinker With 🛠️⚙️
 
 Visual C++ is packed with settings, and I’ve tweaked a whole bunch to minimize overhead. You can compare the `Release` and `Release - NOCRT` configs to see the differences, but I won’t pretend this is the ultimate setup. These are just some handy adjustments to pave the way for our next step.
 
 Of course, the star of the show is removing the C-runtime—that’s the real game-changer here.
+
+
+This should shrink us to around 7KiB. We’re close—but we’re not done yet. Next up, I’ll cover tricks to shave off those last few KiBs to hit the 4KiB mark.
 
 ## 🔗🛠️ Replacing the Default Linker with CRINKLER 🛠️🔗
 

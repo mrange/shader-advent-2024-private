@@ -63,7 +63,7 @@ The executable we’ve generated so far includes a lot of metadata and headers t
 
 To start, download Crinkler and place `link.exe` into your project directory (I’ve already done this in the example). Then, tell Visual C++ to search this directory for executables. Since Crinkler’s linker also goes by `link.exe`, Visual Studio will automatically use it.
 
-> *Quick note*: This is living on the edge. Since Visual Studio just pulls any `link.exe` it finds, a sneaky `link.exe` from an untrusted source could spell trouble! But that’s the thrill of size-coding, right?
+> *Quick note*: This is living on the edge. Since Visual Studio just loads any `link.exe` it finds in the project directory, a sneaky `link.exe` from an untrusted source could spell trouble! But that’s the thrill of size-coding, right?
 
 By default, Crinkler behaves like a standard linker. To activate its compression magic, specify `/CRINKLER` as a linker parameter.
 
@@ -74,8 +74,6 @@ Here are the options I’m using in the example project:
 ```
 /CRINKLER /TINYIMPORT /NOINITIALIZERS /UNSAFEIMPORT /PROGRESSGUI /HASHTRIES:20 /COMPMODE:fast /ORDERTRIES:1000 /REPORT:REPORT.html /RANGE:opengl32
 ```
-
-These options tweak Crinkler for maximum size reduction:
 
 1. **`/CRINKLER`** – Activates Crinkler mode.
 2. **`/TINYIMPORT`** – Uses a more compact import format.

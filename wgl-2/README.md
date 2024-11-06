@@ -1,64 +1,48 @@
 # 🎄⭐🎉 Rendering Shaders in a 4KiB Windows App 🎉⭐🎄
 
-🧝🎅🧝 *Merry christmas all size-coders!* 🧝🎅🧝
+🧝🎅🧝 *Merry Christmas, size-coders!* 🧝🎅🧝
 
-Last blog I tried to show how to write a minimal Windows App that renders a fragment shader. I mentioned to follow-up I try to show how to make it into a 4KiB executable. I also mentioned there was a BIG problem with Windows App.
+In my last post, I showed you how to whip up a minimal Windows app that renders a fragment shader. Now, as promised, we're pushing it further to make this into a *tiny* 4KiB executable. But there’s a catch: the Windows app I created have one big, gift-wrapped problem when it comes to size-coding.
 
-## So what's the BIG problem?
+## 🎁 What's the BIG Problem? 🎁
 
-The issue with Windows App is that it requires the C-runtime DLL and that is not allowed in a size-coding competition.
+The Windows app I built last time requires C-runtime DLLs, but in a 4KiB size-coding competition, bringing those along is like stuffing a turkey the size of Santa’s sleigh. We could embed the C-runtime into the executable, but that blows us up to about 100KiB. So, to squeeze under the 4KiB limit, we need to ditch the C-runtime entirely.
 
-We can embed the C-runtime into the executable but then the program ends up around 100KiB, about 96KiB bigger than the 4KiB limit.
+## Evicting the C-Runtime
 
-## Getting rid of the C-runtime.
+There isn't any heavy coding in this blog post; it’s mostly setting up Visual C++ with some handy options. Here’s a project [you can follow along with](wgl-app/).
 
-Today it's mostly about setting various options in Visual C++ and less so about coding. I have provided an example [here](wgl-app/) that you can follow along in.
-
-In the example project I have created a build configuration called "Release - NOCRT".
-
-In this release config the big change is to remove the C-runtime, which we do by specifying the parameter `/NODEFAULTLIB` to the C++ linker
+I set up a build configuration called "Release - NOCRT," which strips out the C-runtime. The key here is adding the `/NODEFAULTLIB` option to the linker.
 
 ![Ignore all default libraries setting in Visual Studio](assets/ignore-all-default-libraries.png)
 
-This has a big limitation, you can't use C-runtime functions which removes obvious things like `printf` but also less obvious things like certain floating point functions (depending on the CPU architecture).
+Without the C-runtime, we lose functions like `printf` and some floating-point functions, but hey, it's all part of the size-coding challenge!
 
-In addition, when we remove the C-runtime the linker will complain about a few things
+## Resolving the Naughty Symbols
 
-1. `__fltused` missing symbol
-2. ` @__security_check_cookie@4` missing symbol
-3. `___security_cookie` missing symbol
-4. `_WinMainCRTStartup` missing symbol
+Once the C-runtime’s gone, the linker throws a few “missing symbol” tantrums:
 
-`__fltused` is for some reason referenced by the code that Visual C++ compiles but we just define it
+1. `__fltused`
+2. `@__security_check_cookie@4`
+3. `___security_cookie`
+4. `_WinMainCRTStartup`
 
-These symbols are symbols in the C naming convention as C++ names are "mangled" to encode type info in them. C don't do that. Let's instruct to only use C naming convention by surrounding around program with `extern "C"`.
+To quiet things down:
 
-```c++
-// extern "C" makes sure C++ "name mangling" don't change the name
-//  of the variable during linking
-//  The actual nane will be __fltused
-extern "C" {
-// All our code
-}
-```
-
-Then when we declare the missing symbol it gets the right name `__flutused` (C++ prepends an extra `_`).
+- **`__fltused`**: Visual C++ throws this one in for reasons unknown. We’ll just define it ourselves in C-style:
 
 ```c++
-int _fltused;
+extern "C" int _fltused;
 ```
 
-The security check related symbols are there because Visual C++ injects code to make the code more secure like checking for buffer overruns. We are size-coders, we care about size, not security. So let's disable that setting by specifying the parameter: `/GS-`
+- **Security symbols**: These are for Visual C++'s security checks. Since size-coders care more about bytes than buffer overflows, add `/GS-` to disable them.
 
 ![Disable Security Check setting in Visual Studio](assets/disable-security-check.png)
 
-Finally the linker is looking for the method that Windows will call when it starts the process. `main` and `WinMain` are not directly called by Windows, instead they are called by the C-runtime after it's initalized.
+- **Entry point**: Normally, `WinMain` runs after the C-runtime initializes. Without it, we directly expose a function Windows will call: `WinMainCRTStartup`.
 
-Just rename the
 ```c++
-// Function called by Windows
-//  The actual name will be _WinMainCRTStartup
-int WINAPI WinMainCRTStartup(
+extern "C" int WINAPI WinMainCRTStartup(
     HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
     LPSTR lpCmdLine,
@@ -66,91 +50,74 @@ int WINAPI WinMainCRTStartup(
 );
 ```
 
-That should fix the linker issues.
+This should shrink us to around 7KiB. We’re close—but we’re not done yet. Next up, I’ll cover tricks to shave off those last few KiBs to hit the 4KiB mark.
 
-The end result is that we end up around 7KiB which is pretty good but not quite 4KiB.
+## 🎅 A Sleighful of Settings to Tinker With 🎅
 
-## There are lots of settings to tinker with...
+Visual C++ is packed with settings, and I’ve tweaked a whole bunch to minimize overhead. You can compare the `Release` and `Release - NOCRT` configs to see the differences, but I won’t pretend this is the ultimate setup. These are just some handy adjustments to pave the way for our next step.
 
-Visual C++ has tons of settings and you can compare the `Relase` and `Release - NOCRT` to see that I tinkered with alot of them to help reduce overhead. I don't claim it's optimal, just some settings we tinker with and to setup the next step.
+Of course, the star of the show is removing the C-runtime—that’s the real game-changer here.
 
-The most important step is to remove the C-runtime.
+## Replacing the Default Linker with CRINKLER 🎁
 
-## Replacing the default linker with CRINKLER.
+The executable we’ve generated so far includes a lot of metadata and headers that Windows loves but we size-coders don’t need. Wouldn’t it be great if we could bundle everything up in a compressed, self-extracting package that decompresses itself at runtime? Good news! That’s exactly what [CRINKLER](https://github.com/runestubbe/Crinkler) is designed to do.
 
-One issue with the generated executable is that it included lots of headers and metadata which is nice but needed. As size-coders we like that to all go away.
+### Setting Up CRINKLER
 
-In addition; it would be nice if the executable was a self-extracting archive in that it contained compressed code and resources and during runtime decompresses it and runs i.
+To start, download Crinkler and place `link.exe` into your project directory (I’ve already done this in the example). Then, tell Visual C++ to search this directory for executables. Since Crinkler’s linker also goes by `link.exe`, Visual Studio will automatically use it.
 
-Good news; there's a tool that does that and it's called [CRINKLER](https://github.com/runestubbe/Crinkler).
+> *Quick note*: This is living on the edge. Since Visual Studio just pulls any `link.exe` it finds, a sneaky `link.exe` from an untrusted source could spell trouble! But that’s the thrill of size-coding, right?
 
-First step is to download the linker and put it into project directory (I already done this for you, it's called `link.exe`). Then we setup that Visual C++ should search our project dir for executables, because it's called `link.exe` it will find it.
+By default, Crinkler behaves like a standard linker. To activate its compression magic, specify `/CRINKLER` as a linker parameter.
 
-![Executable Directories setting Visual Studio](assets/executable-directories.png)
-
-This is living a bit on the edge because a malovent contributor can put an executable call `link.exe` and when you pull and link next time an unknown executable is executed by Visual Studio. That's why size-coding is so exciting, always living on the edge.
-
-The default behavior of CRINKLER is to just default to the normal linker but if we specify the `/CRINKLER` link parameter it switches into CRINKLER mode.
-
-In the example project I use the command line options:
+Here are the options I’m using in the example project:
 
 ![Additional options setting Visual Studio](assets/crinkler-options.png)
 
 ```
-/CRINKLER /TINYIMPORT /NOINITIALIZERS /UNSAFEIMPORT /PROGRESSGUI /HASHTRIES:20 /COMPMODE:fast /ORDERTRIES:1000 /REPORT:REPORT.html  /RANGE:opengl32
+/CRINKLER /TINYIMPORT /NOINITIALIZERS /UNSAFEIMPORT /PROGRESSGUI /HASHTRIES:20 /COMPMODE:fast /ORDERTRIES:1000 /REPORT:REPORT.html /RANGE:opengl32
 ```
 
-This means:
+These options tweak Crinkler for maximum size reduction:
 
-1. `/CRINKLER` - This simply specifies that you're using the CRINKLER linker.
+1. **`/CRINKLER`** – Activates Crinkler mode.
+2. **`/TINYIMPORT`** – Uses a more compact import format.
+3. **`/NOINITIALIZERS`** – Disables global variable initializers.
+4. **`/UNSAFEIMPORT`** – Aggressively reduces the import table.
+5. **`/PROGRESSGUI`** – Enables a linking progress bar.
+6. **`/HASHTRIES:20`** – Sets hash probing attempts, optimizing link time.
+7. **`/COMPMODE:fast`** – Chooses faster compression.
+8. **`/ORDERTRIES:1000`** – Attempts better function/data ordering.
+9. **`/REPORT:REPORT.html`** – Generates a detailed HTML report.
+10. **`/RANGE:opengl32`** – Includes `opengl32.dll` for OpenGL support.
 
-2. `/TINYIMPORT` - This option tells CRINKLER to use a more compact import table format, reducing the final executable size.
+> *Curious?* There are plenty more options to explore in Crinkler’s [manual](https://github.com/runestubbe/Crinkler/blob/master/doc/manual.txt).
 
-3. `/NOINITIALIZERS` - This disables the automatic generation of global variable initializers, again to reduce executable size.
+In the example project, you’ll find a `Release - CRINKLER` configuration ready to go. Switch to it, compile, and watch the magic happen—your executable should shrink to less than 2KiB!
 
-4. `/UNSAFEIMPORT` - This allows CRINKLER to be more aggressive in reducing the import table, though it may introduce compatibility issues in some cases.
+### Tracking Down the Bytes with `REPORT.html`
 
-5. `/PROGRESSGUI` - This enables a graphical progress bar during the linking process.
+Crinkler produces a `REPORT.html` file, showing what’s taking up space. This is super useful when you’re hunting for those last few bytes.
 
-6. `/HASHTRIES:20` - This sets the number of hash table probing attempts to 20, which can help improve linking performance.
+*Pro Tip*: Sometimes, Windows Defender or other antivirus software gets grumpy about Crinkler’s output, since it lacks standard headers. I often mark the build folder as safe to avoid unnecessary scans.
 
-7. `/COMPMODE:fast` - This sets the compression mode to "fast", prioritizing speed over maximum compression.
+*And a heads-up*: For larger demos, Crinkler’s compression can take a bit of time—usually around 3 minutes in my experience. Enjoy the progress bar!
 
-8. `/ORDERTRIES:1000` - This sets the number of ordering attempts to 1000, which can help CRINKLER find a more optimal order for functions and data.
+## Making Further Improvements 🎶
 
-9. `/REPORT:REPORT.html` - This generates an HTML report file with details about the linking process and final executable.
+There are plenty of ways to trim the fat even more. For instance, our shader code is a bit too “chatty” right now. To fix this, there’s an amazing tool called [shader-minifier](https://github.com/laurentlb/shader-minifier), which removes comments and shortens variable names to squeeze the shader code even smaller.
 
-10. `/RANGE:opengl32` - This tells CRINKLER to include the `opengl32.dll` library in the final executable, ensuring any OpenGL-related functionality is available.
+In our example, the shader starts at about 2KiB uncompressed, but with `shader-minifier`, you should be able to slim it down to below 1KiB!
 
-There are tons of options and ways to tweak CRINKLER that you can find in the [manual](https://github.com/runestubbe/Crinkler/blob/master/doc/manual.txt).
+And what’s a demo without some festive music? Size-coding doesn’t leave room for an MP3, but there are powerful tools like [4klang](https://github.com/gopher-atz/4klang) and [sointu](https://github.com/vsariola/sointu) that let you compose music, save it as assembly code, and link it directly into your demo. They’re perfect for adding those merry tunes without ballooning file size.
 
-I have setup a build configuration called `Release - CRINKLER` that let's you compile and link with CRINKLER.
+## 🎁 That’s a Wrap! 🎁
 
-If you switch to `Release - CRINKLER` and you compile the executable you will see that the final execuable is less than 2KiB which is pretty cool.
+I hope this guide has given you everything you need to dive into size-coding! It’s a wild mix of fun and challenge—sometimes maddening as you chase down those last 5 bytes. But when you finally get that executable under 4KiB (or even 1KiB!), the feeling is truly magic.
 
-Crinkler produces an HTML file called `REPORT.html` that lets you see what takes up space in your program. This is helpful when chasing bytes.
+So go on, give it a shot, and let’s see what tiny wonders you can create!
 
-There's a chance `Windows Defender` or other anti-virus software don't like the executable (it lacks headers and info) so I often add the build folder as safe folder it doesn't have to scan.
-
-Crinkling can take a lot of time if you are building bigger demos and does heavier compression, so crinkler shows a little progress bar. For the demos I have done it usually takes about 3 min to link.
-
-## Further improvements
-
-There's lot of things one can improve. For example the shader code is too chatty. There's an excellent shader minifier one can use to remove comments and rewrite the shader code to smaller code. This tool is called shader-minifier and [can be found on github](https://github.com/laurentlb/shader-minifier).
-
-The shader in our example is about 2KiB uncompressed but if you pass it to `shader-minifier` it should be able to push it down to below 1KiB.
-
-Another important aspect for demo is music and for size-coding you can't drop in an mp3. However, there are cool tools like [4klang](https://github.com/gopher-atz/4klang) and [sointu](https://github.com/vsariola/sointu) that lets you compose music and save it as assembler code that you can assemble and link into your demo.
-
-
-
-So with that I hope I got you enough of information to get started! Size-coding is great fun and sometimes frustrating when you chase 5 bytes for hours. But when you finally get your software below 4KiB (or 1KiB!) limit it's an amazing feeling.
-
-
-
-Happy coding, and I can’t wait to see what you create!
-
-🎄🌟🎄 Merry Christmas to all, and happy coding! 🎄🌟🎄
+🎄🌟🎄 Merry Christmas, and happy coding to all! 🎄🌟🎄
 
 🎅 – mrange
 

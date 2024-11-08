@@ -245,8 +245,7 @@ function bouncer(tm)
 end
 
 -- This creates a row of bouncing robots at the top of
--- the screen. Each robot moves at a slightly different
--- speed and height.
+-- the screen.
 function topBar(tm)
 	local px,py,dx,tx,w,nx,fx,b,si,i
 	local h0,h1,sx

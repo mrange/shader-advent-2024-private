@@ -466,6 +466,10 @@ end
 
 ## 🎁 And That’s a Wrap! 🎁
 
+<p align="center">
+	<img src="assets/bounce.gif" alt="A bouncing robot in TIC-80" style="width: 50%;" />
+</p>
+
 TIC-80 is truly incredible! It’s a blast to tinker with retro effects, and getting started couldn’t be easier. You can [run it directly in the browser](https://tic80.com/create) or download it to dive in offline. The TIC-80 website is packed with tons of examples, and it includes everything you need to create your own retro demos or games.
 
 Deploying your TIC-80 programs is a breeze too. For example, to deploy to a static web app, just run `export html my-app`. You’ll get a zip file, upload its contents, and you’re all set!

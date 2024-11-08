@@ -156,6 +156,28 @@ Pretty easy.
 
 Modern computers don't have this limitation but TIC-80 is a fantasy console that only has 16 colors on the screen but just like the conmputers of old it allows us to switch the colors (and other things) between lines to get more than 16 colors.
 
+As with retro computers we ["poke"](https://github.com/nesbox/TIC-80/wiki/poke) the values directly into the memory which is TIC-80 way of emulating hardware registers of computers of old.
+
+```lua
+-- Sets Red component of color palette 0
+poke(0x3FC0, 0xDF)
+-- Sets Green component of color palette 0
+poke(0x3FC1, 0xF1)
+-- Sets Blue component of color palette 0
+poke(0x3FC2, 0x80)
+
+-- Sets Red component of color palette 1
+poke(0x3FC3, 0xFF)
+-- Sets Green component of color palette 1
+poke(0x3FC4, 0x82)
+-- Sets Blue component of color palette 1
+poke(0x3FC5, 0x42)
+
+-- and so on...
+```
+
+This is so nice! `HAL` (Hardware Abstraction Layer) was a mistake!
+
 So below creates a nice looking blue gradient.
 
 ```lua
@@ -184,7 +206,32 @@ function BDR(ln)
 end
 ```
 
-### Setup
+### Let's look at the bottom bar
+
+This draw:
+1. Using [rect](https://github.com/nesbox/TIC-80/wiki/rect) to draw a blue background
+2. A white [line](https://github.com/nesbox/TIC-80/wiki/line) to separate from the main effect
+3. [Pritn](https://github.com/nesbox/TIC-80/wiki/print) `Hello World` going back and forth.
+
+The bottom bar is the simplest one so let's start there:
+
+```lua
+-- Creates the bottom banner with animated "Merry Christmas" text
+-- The text moves in a sinusoidal pattern and includes a shadow
+-- for better visibility
+function bottomBar(tm)
+	local px
+	rect(0,118,240,136,8)
+	line(0,118,240,118,12)
+
+	-- Create moving text effect
+	px = sin(tm)*40+30
+	print("Merry Christmas", px+1,122+1,0,0,2)  -- Shadow
+	print("Merry Christmas", px,122,12,0,2)     -- Text
+end
+```
+
+
 
 🎄🌟🎄 Merry Christmas to all, and happy coding! 🎄🌟🎄
 

@@ -1,57 +1,48 @@
-# 🎄🌟🎄 Treat yourself to a TIC-80 🎄🌟🎄
+# 🎄💾🎄 Treat Yourself to a TIC-80 🎄💾🎄
 
-🎅 Ho, ho, ho! Merry Christmas, fellow retro-hacckers! 🎅
+🎅 Ho, ho, ho! Merry Christmas, retro hackers! 🎅
 
-## 🕹️📼🖲️ TIC-80? I thought this was meant to be about shaders? 🖲️📼🕹️
+## 🕹️📼🖲️ TIC-80? I Thought This Was About Shaders! 🖲️📼🕹️
 
-Yes, normally for this Shader advent I write about shaders but TIC-80 is just so much fun!
+I know, I know. Normally, this Shader Advent is all about shaders. But here’s the thing: TIC-80 is just *way* too much fun to ignore!
 
-In addition, I like shader coding because it scratches the demo-coding itch in me and TIC-80 does the same. In addition; with shader coding I want to deliver nice looking stuff but that takes time and effort. In TIC-80 I can code up some craptastic retro effect in a single sitting and having a blast.
+If you’re like me, shaders are a gateway to demoscene-style coding—pushing pixels to make art and effects. But shader coding can be intense: you’re aiming for perfection, and that takes time. TIC-80, though? It’s like an instant ticket to retro joy. You can whip up a wild, "craptastic" effect in no time and still feel like a kid in a candy store.
 
-TIC-80 got everything built in, text editor, sprite editor, map editor, sfx editor and a tracker.
+Everything’s built-in: a text editor, sprite editor, map editor, SFX editor, and even a tracker for music. The quirky limitations—lower resolutions, color restrictions—bring back memories of the C64. It’s a slice of retro computing, and it’s *too* good to keep to myself.
 
-TIC-80 got weird limitations that makes you feel a bit like you are back on the C64.
+## 🚀🚀🚀 Getting Started with TIC-80 🚀🚀🚀
 
-It's too much fun not to mention!
+For those new to TIC-80, it’s a "fantasy console" that channels the essence of old-school machines: reduced resolution, funky constraints, and a sense of adventure.
 
-## Getting started with TIC-80
+Getting started is simple. Just head over to [the TIC-80 site](https://tic80.com/create), where you can run it right in your browser or download it to your desktop. Check out some of the amazing demos, like [TIMELINE 2](https://tic80.com/play?cart=3823), where you can jump straight into the code by pressing `Escape`.
 
-For those that don't know TIC-80 is a fantasy console that reminds us about computers of old in that it has reduced resolution and weird limitations.
+And hey, if you find yourself leaning toward another flavor, [PICO-8](https://www.lexaloffle.com/pico-8.php) is another cool fantasy console worth exploring. But seriously, TIC-80 has a special charm of its own!
 
-Getting started with TIC-80 is really easy, just goto the [create page](https://tic80.com/create) for TIC-80 and you have a fantasy console in your browser. You can download the fantasy console on the same page.
+## 🧭🗺️ Orienting Ourselves in TIC-80 🗺️🧭
 
-You can look at cool stuff people do for example [TIMELINE 2](https://tic80.com/play?cart=3823) and you can interrupt the demo and look at the code by pressing `Escape`.
+When you open TIC-80, you’re greeted by the console—a retro throwback right from the start. To get around, use the function keys to access each of TIC-80’s editors:
 
-And if TIC-80 is not your thing perhaps [Pico8](https://www.lexaloffle.com/pico-8.php) is?
+- **F1** - Code Editor
+- **F2** - Sprite Editor
+- **F3** - Map Editor
+- **F4** - SFX Editor
+- **F5** - Music Editor (Tracker)
 
-## Orienting ourselves in TIC-80
+Once you’re ready to test your creation, just press `Ctrl-R` to run the program.
 
-When you start TIC-80 you end up in the console. By fitting the function keys you enter the different editors:
+## 🛠️⚙️ Configuring TIC-80 for Quick Coding ⚙️🛠️
 
-F1 - Code editor
-F2 - Sprite editor
-F3 - Map editor
-F4 - SFX editor
-F5 - Music editor (tracker)
+First things first: let’s make it easier to jump between coding and testing without any fuss.
 
-Pressing `Ctrl-R` runs the TIC-80 program.
+1. Start up TIC-80.
+2. Press `Escape` to open the menu, then go to `Options`.
+3. Set **Dev Mode** to `On`.
 
-## Configure TIC-80
+With Dev Mode active, you can quickly hop back to the code editor/console whenever you press `Escape`. Now, it’s super easy to go from tweaking code to running your demo. Press `Ctrl-R` to run, and `Escape` to get right back to editing. Fast and seamless!
 
-The first thing I do is making sure it's easy to jump back and forth between the code and the demo (or game)?
+## 👋🎉👋 `Hello, World!` in TIC-80 👋🎉👋
 
-1. Start the TIC-80 program
-2. Hit `Escape`, this opens a menu with multiple options
-3. Select `Options`
-4. Select `Dev Move: On`
-5. Whenever you hit `Escape` from now on you end up directly in the code editor/console.
-
-That means it's now very quick to jump back and forth between running your game/demo and editing. Hit `Ctrl-R` to run, hit `Escape` to get back to code/console.
-
-## `Hello World` in TIC-80
-
-The `Hello World` program in TIC-80 looks like this:
-
+Time for our first program! A classic “Hello, World” in TIC-80 is simple and charming:
 ```lua
 t=0
 x=96
@@ -71,19 +62,21 @@ function TIC()
 end
 ```
 
-This is a simple program that when run let's you control a character using the arrow keys. By hitting `F2` you jump into the sprite editor that let's you tinker with the sprites.
+This simple program lets you control a character with the arrow keys. Hit `F2` to jump into the Sprite Editor, where you can tweak the sprites to your heart’s content.
 
-The program itself is in `lua` which is a simple yet flexible language and the program itself should be simple to follow.
+The code itself is in `Lua`, a light but powerful language that’s a joy to code in. Don’t worry if it’s new to you—this program is straightforward, and you’ll get the hang of it quickly.
 
-The function `TIC` runs every frame (60 times per second) so here is where we put most of our code.
+In TIC-80, there’s a main function called `TIC` that runs every frame (that’s 60 times per second), so this is where most of the magic happens.
 
-The only "difficult" thing is the sprite animation:
+### 🏃‍♂️🚴‍♂️🏃‍♂️ Sprite Animation Magic 🏃‍♂️🚴‍♂️🏃‍♂️
+
+Now, let’s take a look at the heart of our animation code:
 
 ```lua
-	spr(1+t%60//30*2,x,y,14,3,0,0,2,2)
+	spr(1 + t % 60 // 30 * 2, x, y, 14, 3, 0, 0, 2, 2)
 ```
 
-[`spr`](https://github.com/nesbox/TIC-80/wiki/spr) draws a sprite on the screen. Breaking down the arguments:
+The function `spr` draws a sprite on the screen. Here’s a breakdown of the arguments:
 
 ```lua
 spr(1+t%60//30*2, -- Alternates between 1 and 3
@@ -97,37 +90,42 @@ spr(1+t%60//30*2, -- Alternates between 1 and 3
     2)            -- Sprite height in tiles
 ```
 
-`1+t%60//30*2` can be understood by breaking it down:
+### 🎄 Breaking Down `1 + t % 60 // 30 * 2` 🎄
 
-1. `t%60` - This takes the current frame number (t) and gets the remainder when divided by 60
-   - With 60 FPS, this creates a repeating cycle from 0-59 every second
+Let’s break down this line to see the retro magic behind the sprite animation:
 
-2. `//30` - Integer division by 30
-   - This effectively splits the 60-frame cycle into two parts:
-   - When t%60 is 0-29: result is 0
-   - When t%60 is 30-59: result is 1
+1. **`t % 60`** – This takes the current frame (`t`) and gets the remainder when divided by 60.
+   - At 60 frames per second, this creates a cycle that repeats every second, counting from 0 to 59.
 
-3. `*2` - Multiplies the above result by 2
-   - So it alternates between 0 and 2
+2. **`// 30`** – Integer division by 30.
+   - This splits the cycle into two halves:
+     - When `t % 60` is between 0 and 29, it returns 0.
+     - When `t % 60` is between 30 and 59, it returns 1.
 
-4. `1 + ...` - Adds 1 to the final result
-   - This means the sprite ID alternates between 1 and 3
+3. **`* 2`** – Multiplies the previous result by 2.
+   - So, we get either 0 or 2, effectively creating an alternating value every 30 frames.
 
-Pretty cool.
+4. **`1 + ...`** – Adds 1 to the final result.
+   - This shifts the sprite ID to alternate between 1 and 3, resulting in a smooth frame switch for animation.
 
-## Demo of a demo
+Pretty cool, right? With a bit of math, you get a simple, effective animation cycle!
 
-I prepared [an example of a demo screen](src/merry-christmas.lua) that I hope can inspire people to tinker around in TIC-80.
+## 👨‍🏫🖥️👩‍🏫 Demo of a Demo 👩‍🏫🖥️👨‍🏫
 
-Just create a new LUA program by hitting `Escape` until you end up in the console and type: `new lua`.
+To get a feel for what TIC-80 can do, I’ve prepared a [sample demo screen](src/merry-christmas.lua) that’s ready for you to play with. Hopefully, it’ll inspire you to start tinkering and experimenting with your own creations!
 
-Replace the code with the content of [the example](src/merry-christmas.lua).
+Here’s how to try it out:
 
-Press `Ctrl-R` to run the demo.
+1. Press `Escape` until you’re in the console.
+2. Type `new lua` to create a new Lua program.
+3. Replace the code with the content of the [example](src/merry-christmas.lua).
+4. Press `Ctrl-R` to run the demo.
 
-## Breaking down the demo
+Enjoy the retro vibes and let your creativity flow!
 
-## Let's start with `TIC`
+## 🔍 Starting with `TIC` 🔍
+
+Now, let’s dive into the `TIC` function and bring this demo to life.
 
 ```lua
 -- TIC() is the main function that TIC-80 calls every frame
@@ -148,15 +146,15 @@ function TIC()
 end
 ```
 
-Pretty easy.
+Simple!
 
-## What is this `BDR` thing?
+## 🕵️‍♂️ What is this `BDR` Thing? 🕵️‍♂️
 
-`BDR` is a very cool function called once per horizontal line by TIC-80. It is a callback to old raster interrupts in C64 and other retro computers. Those computers had limited amount of colors but as old TVs rendered each line from top to bottom you could change the color palette after the TV rendered a line and thus end up with more than the possible colors on the screen.
+`BDR` is one of TIC-80’s coolest features—a function called once per horizontal line. It’s a nod to raster interrupts from the days of the C64 and other vintage computers. Back then, the limited color palette meant you had to get creative. Old TVs would render each line from top to bottom, allowing coders to change the color palette on the fly after each line was drawn, creating the illusion of more colors than the system officially supported.
 
-Modern computers don't have this limitation but TIC-80 is a fantasy console that only has 16 colors on the screen but just like the conmputers of old it allows us to switch the colors (and other things) between lines to get more than 16 colors.
+In TIC-80, we get to relive that magic! Although it only offers 16 colors at a time, you can switch colors (and tweak other settings) between lines, simulating more colors on the screen. It’s a clever workaround that lets us push past TIC-80’s color limits—just like in the golden age of computing.
 
-As with retro computers we [`poke`](https://github.com/nesbox/TIC-80/wiki/poke) the values directly into the memory which is TIC-80 way of emulating hardware registers of computers of old.
+And in true retro style, we use the command [`poke`](https://github.com/nesbox/TIC-80/wiki/poke) to write values directly into memory, just like hardware registers on classic machines. With `poke`, you can tweak TIC-80’s "hardware" settings and make your effects even more impressive.
 
 ```lua
 -- Sets Red component of color palette 0
@@ -176,9 +174,9 @@ poke(0x3FC5, 0x42)
 -- and so on...
 ```
 
-This is so nice! `HAL` (Hardware Abstraction Layer) was a mistake!
+This is so satisfying! If you ask me, HAL (Hardware Abstraction Layer) was a mistake! Who needs it when we can dive right into memory and make magic happen?
 
-So below creates a nice looking blue gradient.
+Here’s a simple example that creates a beautiful blue gradient:
 
 ```lua
 -- BDR is a special TIC-80 function that's called for every
@@ -206,13 +204,15 @@ function BDR(ln)
 end
 ```
 
-## Let's look at the bottom bar
+## 🔭 Let’s Look at the Bottom Bar 🔭
 
-The bottom bar is the simplest one so let's start there:
+Let’s start with the simplest part of our demo: the bottom bar. It’s a great place to add some extra flair. Here’s how we make it happen:
 
-1. Using [`rect`](https://github.com/nesbox/TIC-80/wiki/rect) to draw a blue background
-2. A white [`line`](https://github.com/nesbox/TIC-80/wiki/line) to separate from the main effect
-3. [`Print`](https://github.com/nesbox/TIC-80/wiki/print) `Hello World` going back and forth.
+1. **Using [`rect`](https://github.com/nesbox/TIC-80/wiki/rect)**: First, we draw a blue background for the bottom bar.
+
+2. **A white [`line`](https://github.com/nesbox/TIC-80/wiki/line)**: Next, we add a white line to separate the bottom bar from the main screen effect. It’s a subtle touch, but it helps define the space.
+
+3. **[`print`](https://github.com/nesbox/TIC-80/wiki/print) `Hello World` going back and forth**: Finally, we use `print` to display “Hello World” that moves from left to right across the bar. It adds some movement and makes it feel more dynamic.
 
 ```lua
 -- Creates the bottom banner with animated "Merry Christmas" text
@@ -230,15 +230,19 @@ function bottomBar(tm)
 end
 ```
 
-## What going on in the top bar?
+## 🤖🤖🤖 What’s Going On in the Top Bar? 🤖🤖🤖
 
-Top bar is more complex but the idea is this.
+The top bar is a bit more complex, but once you understand the idea, it’s pretty straightforward. Here’s how it works:
 
-1. Use [`spr`](https://github.com/nesbox/TIC-80/wiki/spr) we draw robots filling the entire top bar.
-2. Using the "cell id" of the bot we compute the color and a hash value for it. The bounce height and speed is determined from the cell id.
-3. Draw a rectangle using [`rect`](https://github.com/nesbox/TIC-80/wiki/rect)
-4. Use `poke4` to "recolor" the sprite to match the background.
-5. Finally draw a white [line](https://github.com/nesbox/TIC-80/wiki/line) to separate from the main effect.
+1. **Use [`spr`](https://github.com/nesbox/TIC-80/wiki/spr)**: First, we use the `spr` function to draw a bunch of robots across the entire top bar. These robots will fill the space, creating a fun, animated pattern. Each robot is a sprite, and we’ll control how it behaves.
+
+2. **Computing Color & Hashing with "Cell ID"**: For each robot, we calculate a color and a hash value based on its “cell id.” This gives each bot its own unique bounce height and speed. The cell id becomes the key that determines the randomness in their movement.
+
+3. **Drawing a Rectangle with [`rect`](https://github.com/nesbox/TIC-80/wiki/rect)**: Next, we draw a rectangle behind the bots, making sure they have a solid background to sit on. This ensures everything looks neat and defined.
+
+4. **Using `poke4` to Recolor the Sprite**: Since the sprites in TIC-80 are limited to 16 colors, we use `poke4` to recolor the robot sprites to match the background, making them seamlessly blend into the effect.
+
+5. **Finally, Drawing a White [`line`](https://github.com/nesbox/TIC-80/wiki/line)**: To finish off the top bar, we draw a white line that separates it from the main content area, just like we did for the bottom bar. It creates a neat boundary and helps visually organize the screen.
 
 ```lua
 -- This creates a row of bouncing robots at the top of
@@ -279,13 +283,15 @@ function topBar(tm)
 end
 ```
 
-## The big bouncing robot.
+## 🦾🤖🦿 The Big Bouncing Robot 🦾🤖🦿
+This one's pretty straightforward, but it adds a lot of flair. Big sprites were a challenge back in the day, so they’re sure to impress retro enthusiasts!
 
-Quite straight forward.
+1. **Computing `x` to Move Back and Forth**: We use the `t` variable (time) to calculate the robot’s `x` position. By applying a triangular wave, the robot bounces back and forth on the screen, while ensuring it always faces the right direction.
 
-1. Compute `x` that goes back and forth depending on the time
-2. Compute `y` to bounc up and down
-3. Use [`spr`](https://github.com/nesbox/TIC-80/wiki/spr) to render a big robot (zoom level 3x)
+2. **Computing `y` to Bounce Up and Down**: Similarly, we calculate the `y` position using a simple quadratic formula, creating a smooth up-and-down bouncing motion.
+
+3. **Using [`spr`](https://github.com/nesbox/TIC-80/wiki/spr) to Render the Big Robot**: Finally, we use the `spr` function to draw the robot on the screen. We increase the sprite’s zoom level to make the robot bigger and more eye-catching (3x zoom here).
+
 
 ```lua
 -- This function creates a single bouncing robot sprite
@@ -315,19 +321,24 @@ function bouncer(tm)
 end
 ```
 
-## The fractal thing
+## 🎄 The Fractal Effect 🎄
 
-The main effect is an Apollonian fractal which is very commonly in shaders for example [this one by IQ](https://www.shadertoy.com/view/4ds3zn).
+The main effect is an **Apollonian fractal**, which is a popular choice in shaders, like [this one by IQ](https://www.shadertoy.com/view/4ds3zn).
 
-To spice things up a bit, even if this a 2D effect the Apollonian fractal is in 3D. Then we sample the Apollonian fractal against points on a rotating 3D plane creating a cool looking (I think) animated 2D fractal.
+To add some extra flair, even though this is a 2D effect, the Apollonian fractal is rendered in 3D. We sample the fractal at points on a rotating 3D plane, which creates a dynamic, animated 2D fractal effect.
 
-To achieve this I loop of over 100x100 pixels from the pixel coord compute the 3D coordinate, rotate and compute the Appollonian distance in all three axis.
+Here's how it works:
+1. We loop over a 100x100 grid of pixels. For each pixel, we compute a corresponding 3D coordinate.
+2. We apply a rotation to the 3D coordinates.
+3. Then, we calculate the Apollonian distance in all three axes (X, Y, Z).
 
-If inside the distance we plot a pixel using [`pix`](https://github.com/nesbox/TIC-80/wiki/poke) and color it different shades of blue depending on which axis we are considering now.
+If the pixel is inside the fractal distance, we plot it using [`pix`](https://github.com/nesbox/TIC-80/wiki/poke) and color it in different shades of blue based on which axis is being considered.
 
-In addition; reflect the result to the left and right and color the pixels to the left in shades of red and to the right in shades of green.
+To add even more flair:
+- We reflect the fractal result to the left and right of the center.
+- Pixels to the left are colored in shades of red, and pixels to the right are shaded in green.
 
-Pretty sweet!
+Pretty sweet, right?
 
 ```lua
 -- This creates the main visual effect based on the apollonian
@@ -424,13 +435,13 @@ function apollonianEffect(tm)
 end
 ```
 
-## The setup
+## 🎄 The Setup 🎄
 
-The setup is usually nothing in this case but I left in an option to run using a "strict" mode. Normally lua silently creates global variables so it's very easy to end up with global variables when I wanted locals.
+In most cases, the setup doesn't do much, but I’ve included an option to enable "strict" mode. By default, Lua silently creates global variables, which makes it easy to accidentally create globals when you intended to use locals.
 
-With the help of the method `strict` lua will throw an exception whenever I create a global varible unintentionally.
+To prevent this, I use the `strict` function, which throws an error whenever I try to create a global variable unintentionally.
 
-Normally, I don't initialize the strict mode but if I have been writing lots of code I turn on strict model to clean up the code from globals.
+Normally, I don't enable strict mode right away. However, after writing a lot of code, I turn it on to clean up any unintentional global variables and keep the code tidy.
 
 ```lua
 -- Initial setup function
@@ -440,24 +451,20 @@ function setup()
 end
 ```
 
-## 🎁 And that's a wrap 🎁
+## 🎁 And That’s a Wrap! 🎁
 
-TIC-80 is amazing, it's so much fun I think to tinker around with retro effects in it. It's also really easy to get started, [run it in the browser](https://tic80.com/create) or download a copy (from the same page). There are tons of example on the site and TIC-80 includes everything you need to make retro demos or games.
+TIC-80 is truly incredible! It’s a blast to tinker with retro effects, and getting started couldn’t be easier. You can [run it directly in the browser](https://tic80.com/create) or download it to dive in offline. The TIC-80 website is packed with tons of examples, and it includes everything you need to create your own retro demos or games.
 
-It's super easy to deploy your TIC-80 programs. For example to deploy it to a static web app do `export html my-app`. You get a zip file, upload it's contents to the web and you are done!
+Deploying your TIC-80 programs is a breeze too. For example, to deploy to a static web app, just run `export html my-app`. You’ll get a zip file, upload its contents, and you’re all set!
 
-In addition; most mondays on twitch [FieldFx](https://www.twitch.tv/fieldfxdemo) streams TIC-80 coding jams. Really recommend tuning in and watch or even better; join in the fun!
+And if you're looking for some inspiration, don’t miss [FieldFx’s](https://www.twitch.tv/fieldfxdemo) weekly TIC-80 coding jams on Twitch every Monday. I highly recommend tuning in to watch, or better yet, join in on the fun!
 
-🎄🌟🎄 Merry Christmas to all, and retro-tastic coding! 🎄🌟🎄
+🎄🌟🎄 Merry Christmas to all, and happy retro-tastic coding! 🎄🌟🎄
 
 🎅 – mrange
-
 
 ## ❄️Licensing Information❄️
 
 All code content I created for this blog post, including the linked KodeLife sample code, is licensed under [CC0](https://creativecommons.org/public-domain/cc0/) (effectively public domain). Any code snippets from other developers retain their original licenses.
 
 The text content of this blog is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) (the same license as Stack Overflow).
-
-Additionally, the Sixel image of "Across The Void II" by "Made/Bomb" is a derivative [of the original image](https://demozoo.org/graphics/342269/), and "Made/Bomb" holds the copyright for it.
-

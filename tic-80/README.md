@@ -5,8 +5,9 @@
 ## 🕹️📼🖲️ TIC-80? I Thought This Was About Shaders! 🖲️📼🕹️
 
 I know, I know. Normally, this Shader Advent is all about shaders. But here’s the thing: TIC-80 is just *way* too much fun to ignore!
-
-![A bouncing robot](assets/bounce.gif)
+<p align="center">
+	<img src="assets/bounce.gif" alt="A bouncing robot in TIC-80" style="width: 50%;" />
+</p>
 
 If you’re like me, shaders are a gateway to demoscene-style coding—pushing pixels to make art and effects. But shader coding can be intense: you’re aiming for perfection, and that takes time. TIC-80, though? It’s like an instant ticket to retro joy. You can whip up a wild, "craptastic" effect in no time and still feel like a kid in a candy store.
 

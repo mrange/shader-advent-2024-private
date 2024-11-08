@@ -49,7 +49,6 @@ With Dev Mode active, you can quickly hop back to the code editor/console whenev
 	<img src="assets/helloworld.png" alt="Hello World app in TIC-80" style="width: 50%;" />
 </p>
 
-
 Time for our first program! A classic “Hello, World” in TIC-80 is simple and charming:
 ```lua
 t=0
@@ -128,6 +127,12 @@ Here’s how to try it out:
 2. Type `new lua` to create a new Lua program.
 3. Replace the code with the content of the [example](src/merry-christmas.lua).
 4. Press `Ctrl-R` to run the demo.
+
+<p align="center">
+	<img src="assets/gettingstarted.png" alt="Getting Started coding in TIC-80" style="width: 50%;" />
+</p>
+
+
 
 Enjoy the retro vibes and let your creativity flow!
 

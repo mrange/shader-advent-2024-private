@@ -46,7 +46,7 @@ With Dev Mode active, you can quickly hop back to the code editor/console whenev
 ## 👋🎉👋 `Hello, World!` in TIC-80 👋🎉👋
 
 <p align="center">
-	<img src="assets/helloworld.gif" alt="Hello World app in TIC-80" style="width: 50%;" />
+	<img src="assets/helloworld.png" alt="Hello World app in TIC-80" style="width: 50%;" />
 </p>
 
 

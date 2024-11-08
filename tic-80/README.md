@@ -1,4 +1,4 @@
-# 🎄💾🎄 Treat Yourself to a TIC-80 🎄💾🎄
+§# 🎄💾🎄 Treat Yourself to a TIC-80 🎄💾🎄
 
 🎅 Ho, ho, ho! Merry Christmas, retro hackers! 🎅
 
@@ -90,7 +90,7 @@ spr(1+t%60//30*2, -- Alternates between 1 and 3
     2)            -- Sprite height in tiles
 ```
 
-### 🎄 Breaking Down `1 + t % 60 // 30 * 2` 🎄
+### 🧮 Breaking Down `1 + t % 60 // 30 * 2` 🧮
 
 Let’s break down this line to see the retro magic behind the sprite animation:
 
@@ -321,7 +321,7 @@ function bouncer(tm)
 end
 ```
 
-## 🎄 The Fractal Effect 🎄
+## 🎉🎉🎉 The Fractal Effect 🎉🎉🎉
 
 The main effect is an **Apollonian fractal**, which is a popular choice in shaders, like [this one by IQ](https://www.shadertoy.com/view/4ds3zn).
 
@@ -435,7 +435,7 @@ function apollonianEffect(tm)
 end
 ```
 
-## 🎄 The Setup 🎄
+## ⚙️🛠️ The Setup 🛠️⚙️
 
 In most cases, the setup doesn't do much, but I’ve included an option to enable "strict" mode. By default, Lua silently creates global variables, which makes it easy to accidentally create globals when you intended to use locals.
 

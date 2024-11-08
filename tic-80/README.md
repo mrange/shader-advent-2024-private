@@ -45,6 +45,11 @@ With Dev Mode active, you can quickly hop back to the code editor/console whenev
 
 ## 👋🎉👋 `Hello, World!` in TIC-80 👋🎉👋
 
+<p align="center">
+	<img src="assets/helloworld.gif" alt="Hello World app in TIC-80" style="width: 50%;" />
+</p>
+
+
 Time for our first program! A classic “Hello, World” in TIC-80 is simple and charming:
 ```lua
 t=0

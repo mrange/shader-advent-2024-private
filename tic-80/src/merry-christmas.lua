@@ -119,9 +119,9 @@ function BDR(ln)
 	else
 		-- For the middle portion, create a deep blue gradient
 		-- by modifying the background color for each scanline
-		poke(0x3FC0, 0)
-		poke(0x3FC1, 0)
-		poke(0x3FC2, 3*(ln-top))
+		poke(0x3FC0, 0x1A)
+		poke(0x3FC1, 0x1C)
+		poke(0x3FC2, 0x2C+3*(ln-top))
 	end
 end
 
@@ -267,8 +267,17 @@ function topBar(tm)
 		py = round(40*mix(0.25,1.0,h0)*(b-0.25)+3)
 		si = floor(3*tm*mix(0.5,1.5,h1))%2
 		-- Draw background bar and sprite
+		-- Remove the white color (12) from
+		--	the color cycle
+		nx = (round(nx%15)-3)&0xF
 		rect(px-2,0,sx,18,nx)
-		spr(1+2*si,px,py,14,1,1,0,2,2)
+		-- Switching palette color 10
+		--	This renders the sprite with
+		--	different base colors
+		poke4(0x3FF0*2+10,nx)
+		spr(1+2*si,px-1,py,14,1,1,0,2,2)
+		-- Restoring palette color 10
+		poke4(0x3FF0*2+10,10)
 	end
 	line(0,18,240,18,12)
 end

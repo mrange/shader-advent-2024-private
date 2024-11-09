@@ -222,9 +222,9 @@ Let’s start with the simplest part of our demo: the bottom bar.
 
 1. **Using [`rect`](https://github.com/nesbox/TIC-80/wiki/rect)**: First, we draw a blue background for the bottom bar.
 
-2. **A white [`line`](https://github.com/nesbox/TIC-80/wiki/line)**: Next, we add a white line to separate the bottom bar from the main screen effect. It’s a subtle touch, but it helps define the space.
+2. **A white [`line`](https://github.com/nesbox/TIC-80/wiki/line)**: Next, we add a white line to separate the bottom bar from the main screen effect.
 
-3. **[`print`](https://github.com/nesbox/TIC-80/wiki/print) `Hello World` going back and forth**: Finally, we use `print` to display “Hello World” that moves from left to right across the bar. It adds some movement and makes it feel more dynamic.
+3. **[`print`](https://github.com/nesbox/TIC-80/wiki/print) `Hello World` going back and forth**: Finally, we `print` to display “Hello World” that moves from left to right across the bar. It adds some movement and makes it feel more dynamic.
 
 ```lua
 -- Creates the bottom banner with animated "Merry Christmas" text
@@ -244,17 +244,19 @@ end
 
 ## 🤖🤖🤖 What’s Going On in the Top Bar? 🤖🤖🤖
 
-The top bar is a bit more complex, but once you understand the idea, it’s pretty straightforward. Here’s how it works:
+The top bar effect is a bit complex, but once you get the hang of it, it’s straightforward. Here’s how it works:
 
-1. **Use [`spr`](https://github.com/nesbox/TIC-80/wiki/spr)**: First, we use the [`spr`](https://github.com/nesbox/TIC-80/wiki/spr) function to draw a bunch of robots across the entire top bar. These robots will fill the space, creating a fun, animated pattern. Each robot is a sprite, and we’ll control how it behaves.
+1. **Looping to Fill the Bar with Robots**: We create a row of bouncing robots moving from left to right across the bar.
 
-2. **Computing Color & Hashing with "Cell ID"**: For each robot, we calculate a color and a hash value based on its “cell id.” This gives each bot its own unique bounce height and speed. The cell id becomes the key that determines the randomness in their movement.
+2. **Calculating Color & "Cell ID" Hashing**: For each robot, we calculate a color and a hash based on its “cell ID,” giving each robot a unique bounce height and speed. This cell ID introduces randomness in their movement.
 
-3. **Drawing a Rectangle with [`rect`](https://github.com/nesbox/TIC-80/wiki/rect)**: Next, we draw a rectangle behind the bots, making sure they have a solid background to sit on. This ensures everything looks neat and defined.
+3. **Drawing a Background Rectangle**: We draw a rectangle behind the robots with `rect`, using the computed color as the background.
 
-4. **Using `poke4` to Recolor the Sprite**: Since the sprites in TIC-80 are limited to 16 colors, we use `poke4` to recolor the robot sprites to match the background, making them seamlessly blend into the effect.
+4. **Recoloring the Sprite with `poke4`**: Since TIC-80 limits sprites to 16 colors, we use `poke4` to recolor the robots to match the background color.
 
-5. **Finally, Drawing a White [`line`](https://github.com/nesbox/TIC-80/wiki/line)**: To finish off the top bar, we draw a white line that separates it from the main content area, just like we did for the bottom bar. It creates a neat boundary and helps visually organize the screen.
+5. **Drawing the Robot Sprite**: We then draw each robot with `spr`, using the previously calculated position and color.
+
+6. **Adding a White Separator Line**: Finally, we draw a white line with `line` to separate the top bar from the main effect area, similar to the bottom bar.
 
 ```lua
 -- This creates a row of bouncing robots at the top of

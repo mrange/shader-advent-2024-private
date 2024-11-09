@@ -298,7 +298,7 @@ end
 ```
 
 ## 🦾🤖🦿 The Big Bouncing Robot 🦾🤖🦿
-This one's pretty straightforward, but it adds a lot of flair. Big sprites were a challenge back in the day, so they’re sure to impress retro enthusiasts!
+This one's pretty straightforward, but it adds a lot of rizz. Big sprites were a challenge back in the day, so they’re sure to impress retro enthusiasts!
 
 1. **Computing `x` to Move Back and Forth**: We use the `t` variable (time) to calculate the robot’s `x` position. By applying a triangular wave, the robot bounces back and forth on the screen, while ensuring it always faces the right direction.
 
@@ -339,7 +339,7 @@ end
 
 The main effect is an **Apollonian fractal**, which is a popular choice in shaders, like [this one by IQ](https://www.shadertoy.com/view/4ds3zn).
 
-To add some extra flair, even though this is a 2D effect, the Apollonian fractal is rendered in 3D. We sample the fractal at points on a rotating 3D plane, which creates a dynamic, animated 2D fractal effect.
+To add some extra oomph, even though this is a 2D effect, the Apollonian fractal is rendered in 3D. We sample the fractal at points on a rotating 3D plane, which creates a dynamic, animated 2D fractal effect.
 
 Here's how it works:
 1. We loop over a 100x100 grid of pixels. For each pixel, we compute a corresponding 3D coordinate.
@@ -348,7 +348,7 @@ Here's how it works:
 
 If the pixel is inside the fractal distance, we plot it using [`pix`](https://github.com/nesbox/TIC-80/wiki/poke) and color it in different shades of blue based on which axis is being considered.
 
-To add even more flair:
+To add even more zing:
 - We reflect the fractal result to the left and right of the center.
 - Pixels to the left are colored in shades of red, and pixels to the right are shaded in green.
 

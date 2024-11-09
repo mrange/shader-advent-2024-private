@@ -102,7 +102,7 @@ Here's an improved version:
 
 ### 🧮 Animating the Sprite: `1 + t % 60 // 30 * 2` 🧮
 
-This formula may look complex, but its purpose is simple: it alternates between sprite #1 and sprite #2 based on the current frame, creating an eye animation to give the robot a bit more life.
+This formula may look complex, but its purpose is simple: it alternates between sprite #1 and sprite #3 based on the current frame, creating an eye animation to give the robot a bit more life.
 
 1. **`t % 60`** – This takes the current frame (`t`) and gets the remainder when divided by 60.
    - At 60 frames per second, this creates a cycle that repeats every second, counting from 0 to 59.

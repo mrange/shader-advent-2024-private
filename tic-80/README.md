@@ -137,7 +137,7 @@ Here’s how to try it out:
 
 ## 🔍 Starting with `TIC` 🔍
 
-Now, let’s dive into the `TIC` function and bring this demo to life.
+Now, let’s dive into the `TIC` function, the engine driving our demo.
 
 ```lua
 -- TIC() is the main function that TIC-80 calls every frame
@@ -148,7 +148,7 @@ Now, let’s dive into the `TIC` function and bring this demo to life.
 function TIC()
 	local tm
 	tm = time()/1000  -- Convert to seconds
-	cls(0)           -- Clear screen to black
+	cls(0)            -- Clear screen to black
 
 	-- Draw all effects
 	apollonianEffect(tm)

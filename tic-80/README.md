@@ -98,9 +98,9 @@ spr(1+t%60//30*2, -- Alternates between 1 and 3
     2)            -- Sprite height in tiles
 ```
 
-### 🧮 Breaking Down `1 + t % 60 // 30 * 2` 🧮
+### 🧮 Animating the sprite: `1 + t % 60 // 30 * 2` 🧮
 
-Let’s break down this line to see the retro magic behind the sprite animation:
+The formula for selecting which sprite to show is a bit of a mouthful so let's break it down:
 
 1. **`t % 60`** – This takes the current frame (`t`) and gets the remainder when divided by 60.
    - At 60 frames per second, this creates a cycle that repeats every second, counting from 0 to 59.

@@ -19,7 +19,7 @@ For those new to TIC-80, it’s a "fantasy console" that channels the essence of
 
 Getting started is simple. Just head over to [the TIC-80 site](https://tic80.com/create), where you can run it right in your browser or download it to your desktop. Check out some of the amazing demos, like [TIMELINE 2](https://tic80.com/play?cart=3823), where you can jump straight into the code by pressing `Escape`.
 
-And hey, if you find yourself leaning toward another flavor, [PICO-8](https://www.lexaloffle.com/pico-8.php) is another cool fantasy console worth exploring. But seriously, TIC-80 has a special charm of its own!
+And hey, if you find yourself in the need of another flavor, [PICO-8](https://www.lexaloffle.com/pico-8.php) is another cool fantasy console worth exploring.
 
 ## 🧭🗺️ Orienting Ourselves in TIC-80 🗺️🧭
 

@@ -52,7 +52,7 @@ With Dev Mode active, you can quickly hop back to the code editor/console whenev
 	<img src="assets/helloworld.png" alt="Hello World app in TIC-80" style="width: 50%;" />
 </p>
 
-Time for our first program! A classic “Hello, World” in TIC-80 is simple and charming:
+Time for our first program! Whenever you start TIC-80 or enter new lua in the console, a basic "Hello, World" program is automatically created, complete with some starter code and sprites.
 ```lua
 t=0
 x=96

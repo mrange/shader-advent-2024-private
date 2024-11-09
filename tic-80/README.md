@@ -135,10 +135,6 @@ Here’s how to try it out:
 	<img src="assets/gettingstarted.png" alt="Getting Started coding in TIC-80" style="width: 50%;" />
 </p>
 
-
-
-Enjoy the retro vibes and let your creativity flow!
-
 ## 🔍 Starting with `TIC` 🔍
 
 Now, let’s dive into the `TIC` function and bring this demo to life.

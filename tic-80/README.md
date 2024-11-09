@@ -78,12 +78,10 @@ The code itself is in `Lua`, a light but powerful language that’s a joy to cod
 
 In TIC-80, there’s a main function called `TIC` that runs every frame (that’s 60 times per second), so this is where most of the magic happens.
 
-### 🏃‍♂️🚴‍♂️🏃‍♂️ Sprite Animation Magic 🏃‍♂️🚴‍♂️🏃‍♂️
-
-Now, let’s take a look at the heart of our animation code:
+### 🦾🤖🦿 Drawing a Big Robot 🦾🤖🦿
 
 ```lua
-	spr(1 + t % 60 // 30 * 2, x, y, 14, 3, 0, 0, 2, 2)
+spr(1 + t % 60 // 30 * 2, x, y, 14, 3, 0, 0, 2, 2)
 ```
 
 The function [`spr`](https://github.com/nesbox/TIC-80/wiki/spr) draws a sprite on the screen. Here’s a breakdown of the arguments:

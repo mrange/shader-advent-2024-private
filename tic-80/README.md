@@ -72,7 +72,7 @@ function TIC()
 end
 ```
 
-This simple program lets you control a character with the arrow keys. Hit `F2` to jump into the Sprite Editor, where you can tweak the sprites to your heart’s content.
+This simple program lets you control a character with the arrow keys. Hit `F1` to see the code or hit `F2` to jump into the Sprite Editor, where you can tweak the sprites to your heart’s content.
 
 The code itself is in `Lua`, a light but powerful language that’s a joy to code in. Don’t worry if it’s new to you—this program is straightforward, and you’ll get the hang of it quickly.
 
@@ -86,7 +86,7 @@ Now, let’s take a look at the heart of our animation code:
 	spr(1 + t % 60 // 30 * 2, x, y, 14, 3, 0, 0, 2, 2)
 ```
 
-The function `spr` draws a sprite on the screen. Here’s a breakdown of the arguments:
+The function [`spr`](https://github.com/nesbox/TIC-80/wiki/spr) draws a sprite on the screen. Here’s a breakdown of the arguments:
 
 ```lua
 spr(1+t%60//30*2, -- Alternates between 1 and 3
@@ -250,7 +250,7 @@ end
 
 The top bar is a bit more complex, but once you understand the idea, it’s pretty straightforward. Here’s how it works:
 
-1. **Use [`spr`](https://github.com/nesbox/TIC-80/wiki/spr)**: First, we use the `spr` function to draw a bunch of robots across the entire top bar. These robots will fill the space, creating a fun, animated pattern. Each robot is a sprite, and we’ll control how it behaves.
+1. **Use [`spr`](https://github.com/nesbox/TIC-80/wiki/spr)**: First, we use the [`spr`](https://github.com/nesbox/TIC-80/wiki/spr) function to draw a bunch of robots across the entire top bar. These robots will fill the space, creating a fun, animated pattern. Each robot is a sprite, and we’ll control how it behaves.
 
 2. **Computing Color & Hashing with "Cell ID"**: For each robot, we calculate a color and a hash value based on its “cell id.” This gives each bot its own unique bounce height and speed. The cell id becomes the key that determines the randomness in their movement.
 

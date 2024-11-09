@@ -1,4 +1,4 @@
-§# 🎄💾🎄 Treat Yourself to a TIC-80 🎄💾🎄
+# 🎄💾🎄 Treat Yourself to a TIC-80 🎄💾🎄
 
 🎅 Ho, ho, ho! Merry Christmas, retro hackers! 🎅
 

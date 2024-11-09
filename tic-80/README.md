@@ -15,7 +15,7 @@ Everything’s built-in: a text editor, sprite editor, map editor, SFX editor, a
 
 ## 🚀🚀🚀 Getting Started with TIC-80 🚀🚀🚀
 
-For those new to TIC-80, it’s a "fantasy console" that channels the essence of old-school machines: reduced resolution and funky constraints
+For those new to TIC-80, it’s a "fantasy console" that channels the essence of old-school machines: reduced resolution and funky constraints.
 
 Getting started is simple. Just head over to [the TIC-80 site](https://tic80.com/create), where you can run it right in your browser or download it to your desktop. Check out some of the amazing demos, like [TIMELINE 2](https://tic80.com/play?cart=3823), where you can jump straight into the code by pressing `Escape`.
 

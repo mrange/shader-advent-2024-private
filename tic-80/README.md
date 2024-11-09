@@ -220,6 +220,8 @@ end
 
 Let’s start with the simplest part of our demo: the bottom bar.
 
+![The bottom bar](assets/bottombar.png)
+
 1. **Using [`rect`](https://github.com/nesbox/TIC-80/wiki/rect)**: First, we draw a blue background for the bottom bar.
 
 2. **A white [`line`](https://github.com/nesbox/TIC-80/wiki/line)**: Next, we add a white line to separate the bottom bar from the main screen effect.
@@ -245,6 +247,8 @@ end
 ## 🤖🤖🤖 What’s Going On in the Top Bar? 🤖🤖🤖
 
 The top bar effect is a bit complex, but once you get the hang of it, it’s straightforward. Here’s how it works:
+
+![The top bar](assets/topbar.png)
 
 1. **Looping to Fill the Bar with Robots**: We create a row of bouncing robots moving from left to right across the bar.
 
@@ -300,6 +304,8 @@ end
 ## 🦾🤖🦿 The Big Bouncing Robot 🦾🤖🦿
 This one's pretty straightforward, but it adds a lot of rizz. Big sprites were a challenge back in the day, so they’re sure to impress retro enthusiasts!
 
+![The bouncing robot](assets/mainevent.png)
+
 1. **Computing `x` to Move Back and Forth**: We use the `t` variable (time) to calculate the robot’s `x` position. By applying a triangular wave, the robot bounces back and forth on the screen, while ensuring it always faces the right direction.
 
 2. **Computing `y` to Bounce Up and Down**: Similarly, we calculate the `y` position using a simple quadratic formula, creating a smooth up-and-down bouncing motion.
@@ -338,6 +344,8 @@ end
 ## 🎉🎉🎉 The Fractal Effect 🎉🎉🎉
 
 The main effect is an **Apollonian fractal**, which is a popular choice in shaders, like [this one by IQ](https://www.shadertoy.com/view/4ds3zn).
+
+![The Apollonian effect](assets/mainevent.png)
 
 To add some extra oomph, even though this is a 2D effect, the Apollonian fractal is rendered in 3D. We sample the fractal at points on a rotating 3D plane, which creates a dynamic, animated 2D fractal effect.
 

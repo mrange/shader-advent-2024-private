@@ -218,7 +218,7 @@ end
 
 ## 🔭 Let’s Look at the Bottom Bar 🔭
 
-Let’s start with the simplest part of our demo: the bottom bar. It’s a great place to add some extra flair. Here’s how we make it happen:
+Let’s start with the simplest part of our demo: the bottom bar.
 
 1. **Using [`rect`](https://github.com/nesbox/TIC-80/wiki/rect)**: First, we draw a blue background for the bottom bar.
 

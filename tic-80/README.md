@@ -19,7 +19,7 @@ For those new to TIC-80, it’s a "fantasy console" that channels the essence of
 
 Getting started is simple. Just head over to [the TIC-80 site](https://tic80.com/create), where you can run it right in your browser or download it to your desktop. Check out some of the amazing demos, like [TIMELINE 2](https://tic80.com/play?cart=3823), where you can jump straight into the code by pressing `Escape`.
 
-And hey, if you find yourself in the need of another flavor, [PICO-8](https://www.lexaloffle.com/pico-8.php) is another cool fantasy console worth exploring.
+And hey, if you're craving a different flavor, PICO-8 is another awesome fantasy console worth checking out.
 
 ## 🧭🗺️ Orienting Ourselves in TIC-80 🗺️🧭
 
@@ -40,6 +40,9 @@ First things first: let’s make it easier to jump between coding and testing wi
 1. Start up TIC-80.
 2. Press `Escape` to open the menu, then go to `Options`.
 3. Set **Dev Mode** to `On`.
+<p align="center">
+	<img src="assets/devmode-on.png" alt="Dev mode is on in TIC80" style="width: 50%;" />
+</p>
 
 With Dev Mode active, you can quickly hop back to the code editor/console whenever you press `Escape`. Now, it’s super easy to go from tweaking code to running your demo. Press `Ctrl-R` to run, and `Escape` to get right back to editing. Fast and seamless!
 

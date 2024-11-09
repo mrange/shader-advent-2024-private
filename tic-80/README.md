@@ -98,9 +98,11 @@ spr(1+t%60//30*2, -- Alternates between 1 and 3
     2)            -- Sprite height in tiles
 ```
 
-### 🧮 Animating the sprite: `1 + t % 60 // 30 * 2` 🧮
+Here's an improved version:
 
-The formula for selecting which sprite to show is a bit of a mouthful so let's break it down:
+### 🧮 Animating the Sprite: `1 + t % 60 // 30 * 2` 🧮
+
+This formula may look complex, but its purpose is simple: it alternates between sprite #1 and sprite #2 based on the current frame, creating an eye animation to give the robot a bit more life.
 
 1. **`t % 60`** – This takes the current frame (`t`) and gets the remainder when divided by 60.
    - At 60 frames per second, this creates a cycle that repeats every second, counting from 0 to 59.

@@ -168,11 +168,11 @@ While there are simpler overloads available, they limit you to a maximum of 10 a
 
 Overall, I’ve found [System.CommandLine](https://www.nuget.org/packages/System.CommandLine) invaluable for building F# tools. It simplifies parsing complex command-line inputs, supports nested commands and detailed options, and lets you easily provide intuitive help messages.
 
-## Tip 3: Preparing your tool for packaging
+## Tip 3: Preparing Your Tool for Packaging
 
-In order to package your tool for publification on nuget you need to provide some information in the project file.
+Once your tool is ready, you’ll want to package it for distribution on NuGet. To do this, you'll need to add some metadata to your project file.
 
-This is the project file for my tool `fsimg2sixel` which is a tool to convert images into sixel format (It's a very useless, but fun tool):
+Here’s an example project file for my tool, `fsimg2sixel`, which converts images into the quirky Sixel format (not essential, but certainly fun):
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -248,37 +248,44 @@ This is the project file for my tool `fsimg2sixel` which is a tool to convert im
 </Project>
 ```
 
-Using a project like this you can upload the tool to nuget. The first step is building the package using
+In this project file, we specify the necessary package metadata such as the package name, description, licensing, and even the README file. You can also include extra files, like an icon or a license file, to make your package more complete.
+
+### Building and Publishing the Package
+
+Once the project file is ready, it’s time to build the NuGet package. Run the following command to pack the tool:
 
 ```
 # Build version 0.0.1
 dotnet pack /p:Version=0.0.1
 ```
 
-This creates a package file for you under `nupkg` folder. This package you can then upload to nuget to make the package downloadable by others.
+This generates the `.nupkg` file in the `nupkg` folder. You can then upload this package to NuGet, making it available for others to download and use.
 
-Note; after uploading the package it can take a few moments before you can install the tool locally. For example here's how to install the image to sixel tool:
+### Installing Your Tool
+
+After uploading, it may take a few moments for the package to appear on NuGet. Once it’s available, you can install your tool globally with:
 
 ```bash
-# Installs the sixel tool globally.
+# Install the sixel tool globally
 dotnet tool install --global FsImageToSixel.Tool
 ```
 
-You can also a tool in git repository:
+Alternatively, you can install the tool directly into a Git repository. This is especially handy for project-specific tools:
 
 ```bash
-# Create a tool manifest (only needed once in each repo)
+# Create a tool manifest (only needed once per repo)
 dotnet new tool-manifest
 # Install the tool into the repo
 dotnet tool install FsImageToSixel.Tool
-# Whenever you need to access the tool in a build script you need to restore it
+# Restore the tool in your build script
 dotnet tool restore
-# And then you can execute the local tool
+# Run the tool locally
 dotnet tool run fsimg2sixel
 ```
 
-Very useful.
+This method ensures you can easily access the tool locally within your repository or during build processes. It's a great way to manage tools in specific environments without polluting the global toolset.
 
+Very useful indeed!
 
 
 

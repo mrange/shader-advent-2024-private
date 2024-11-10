@@ -1,33 +1,25 @@
-# 🎄💾🎄 Writing tools in F#🎄💾🎄
+# 🎄💾🎄 Writing Tools in F# 🎄💾🎄
 
 🎅 Ho, ho, ho! Merry Christmas, tool hackers! 🎅
 
-## 🕹️📼🖲️ F# Tools? What? I thought this was about shaders? 🖲️📼🕹️
+## 🕹️📼🖲️ "F# Tools? I Thought This Was About Shaders!" 🖲️📼🕹️
 
-In order to pad out the empty days in Christmas Advent blog I need to give myself a bit of freedom on the topics lest I run out of ideas.
+Yes, this blog series may *mostly* be about shaders, but let’s sprinkle in some F# tooling magic to keep the ideas fresh! Tools in .NET tie in nicely, too, especially since I use them to help out with shader-related work. For example, I’ve built tools like [FsDistanceField](https://www.nuget.org/packages/FsDistanceField), which converts images into distance fields—perfect for shader projects.
 
-However, tools in .NET is a bit related to shaders as I write tools that help me out with shader development such [FsDistanceField](https://www.nuget.org/packages/FsDistanceField) that convers images into a distance field.
+Creating command-line tools in .NET can make your work easier to share and simpler to integrate, whether it’s in a Git repo or on a colleague's terminal. Plus, when I'm off the clock, I reach for F# because, well, it’s just plain fun!
 
-So I thought I could share a bit how to create tool in .NET that lets your users install them easily to their git repos or command line.
+## Tip 1: SixLabors.ImageSharp 🎨
 
-The reason I write tools in F# is that I do enjoy F# the most out of the .NET languages and when I write non-work code I pick the tool that entertain me most.
+If your tool needs to load and process images (a common shader-related task!), [SixLabors.ImageSharp](https://github.com/SixLabors/ImageSharp) is the go-to library. It works seamlessly across platforms—unlike `System.Drawing`, which is Windows-only.
 
-## Tip 1: SixLabors.ImageSharp
+Good news: ImageSharp is open source and friendly for open-source projects under the [Apache License v2.0](https://www.apache.org/licenses/LICENSE-2.0.html). SixLabors also offers [SixLabors.Fonts](https://github.com/SixLabors/Fonts) and other useful libraries if you need more than images!
 
-Often in a shader related tool there is a new to load and process images and [SixLabors.ImageSharp](https://github.com/SixLabors/ImageSharp) is a great library to do that. It's also works on non-Windows which `System.Drawing` don't do.
-
-[SixLabors.ImageSharp](https://github.com/SixLabors/ImageSharp) has a [license](https://github.com/SixLabors/ImageSharp/blob/main/LICENSE) that let's open source projects use it in under [Apache License v2.0](https://www.apache.org/licenses/LICENSE-2.0.html).
-
-There are a bunch of other libraries under SixLabors that are very useful in addition to Image share such as [SixLabors.Fonts](https://github.com/SixLabors/Fonts).
-
-Loading an image in ImageSharp is easy:
-
+Loading an image with ImageSharp is easy:
 ```fsharp
 use image = Image.Load<Rgba32> fullInputPath
 ```
 
-Using built-in mutators you can do alot alterations to the image such as resizing.
-
+With built-in mutators, you can make a variety of changes to the image, like resizing.
 ```fsharp
 let mutator (ctx : IImageProcessingContext) =
   let options = ResizeOptions (
@@ -39,8 +31,7 @@ let mutator (ctx : IImageProcessingContext) =
 image.Mutate mutator
 ```
 
-You can also access the bits of an image using `ProcessPixelRows`:
-
+You can also access the image’s pixel data using `ProcessPixelRows`:
 ```fsharp
 let pa =
   PixelAccessorAction<Rgba32> (
@@ -56,16 +47,15 @@ let pa =
 image.ProcessPixelRows pa
 ```
 
-A very useful library.
+ImageSharp is a versatile, cross-platform library with powerful tools for everything from resizing to advanced pixel manipulation—indispensable for .NET image tools.
 
-## Tip 2: System.CommandLine to parse command line
+## Tip 2: Using System.CommandLine for Parsing Input
 
-For a command line tool you need to parse the command line provided by the user. For simple command lines you might get away with switching over the input but it quickly grows beyond what a switch statement can manage.
+If you're building a command-line tool, you’ll need a way to parse user input. For basic tasks, a simple switch statement might work, but things can quickly get out of hand.
 
-Microsoft is working on a quite competent library called [System.CommandLine](https://www.nuget.org/packages/System.CommandLine) that I used lately. While it is a bit quirky to use this library the first times once I got used to it I appreciate that it is competent.
+Enter [System.CommandLine](https://www.nuget.org/packages/System.CommandLine), a capable library Microsoft has been developing. Although it can feel a bit quirky at first, once you get used to it, you'll appreciate its flexibility and power.
 
-I created a small example program demonstrating how to use this lib:
-
+Here’s a small example program I created to show how to use this library:
 ```fsharp
 open System.CommandLine
 open System.CommandLine.Invocation
@@ -146,20 +136,37 @@ let main args =
   rootCommand.Invoke args
 ```
 
-This gives us a command line interface that supports multiple commands, different options per command, different aliases per option and the ability to give the user some help if `-h` is passed.
+With this setup, our command-line interface can handle multiple commands, custom options per command, and even alternative aliases for each option. Plus, it offers built-in help when users pass `-h`.
 
 ```bash
-# Prints the help
+# Shows help for available commands
 dotnet run -- -h
 
-# Prints the README (this is a subcommand)
+# Executes the "readme" subcommand
 dotnet run -- readme
 
-# Halts as -v is not defined for readme
+# Throws an error, as "-v" isn’t defined for "readme"
 dotnet run -- readme -v
 
+# Runs the root command with the "-i" option
+dotnet run -- -i print.txt
 
+# Same as above but using long-form aliases for options
+dotnet run -- --input print.txt --verbose
 ```
+
+I’ve come to prefer the more verbose `CommandHandler` approach, like this:
+
+```fsharp
+let rootCommandHandler
+  (ctx : InvocationContext)
+  : unit =
+  ...
+```
+
+While there are simpler overloads available, they limit you to a maximum of 10 arguments and don’t provide control over the command’s exit code.
+
+Overall, I’ve found [System.CommandLine](https://www.nuget.org/packages/System.CommandLine) invaluable for building F# tools. It simplifies parsing complex command-line inputs, supports nested commands and detailed options, and lets you easily provide intuitive help messages.
 
 ## Tip 3: Preparing your tool for packaging
 

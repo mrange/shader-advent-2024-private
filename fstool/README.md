@@ -2,13 +2,13 @@
 
 🎅 Ho, ho, ho! Merry Christmas, tool hackers! 🎅
 
-## 🕹️📼🖲️ "F# Tools? I Thought This Was About Shaders!" 🖲️📼🕹️
+## 🔧🔩🪛 "F# Tools? I Thought This Was About Shaders!" 🪛🔩🔧
 
 Yes, this blog series may *mostly* be about shaders, but let’s sprinkle in some F# tooling magic to keep the ideas fresh! Tools in .NET tie in nicely, too, especially since I use them to help out with shader-related work. For example, I’ve built tools like [FsDistanceField](https://www.nuget.org/packages/FsDistanceField), which converts images into distance fields—perfect for shader projects.
 
 Creating command-line tools in .NET can make your work easier to share and simpler to integrate, whether it’s in a Git repo or on a colleague's terminal. Plus, when I'm off the clock, I reach for F# because, well, it’s just plain fun!
 
-## Tip 1: SixLabors.ImageSharp 🎨
+## 🎨🖌️ Tip 1: SixLabors.ImageSharp 🖌️🎨
 
 If your tool needs to load and process images (a common shader-related task!), [SixLabors.ImageSharp](https://github.com/SixLabors/ImageSharp) is the go-to library. It works seamlessly across platforms—unlike `System.Drawing`, which is Windows-only.
 
@@ -47,9 +47,9 @@ let pa =
 image.ProcessPixelRows pa
 ```
 
-ImageSharp is a versatile, cross-platform library with powerful tools for everything from resizing to advanced pixel manipulation—indispensable for .NET image tools.
+ImageSharp is amazing for developers who want to build tools for processing images.
 
-## Tip 2: Using System.CommandLine for Parsing Input
+## ⌨️ Tip 2: Using System.CommandLine for Parsing Input ⌨️
 
 If you're building a command-line tool, you’ll need a way to parse user input. For basic tasks, a simple switch statement might work, but things can quickly get out of hand.
 
@@ -163,12 +163,12 @@ let rootCommandHandler
   : unit =
   ...
 ```
-
 While there are simpler overloads available, they limit you to a maximum of 10 arguments and don’t provide control over the command’s exit code.
 
-Overall, I’ve found [System.CommandLine](https://www.nuget.org/packages/System.CommandLine) invaluable for building F# tools. It simplifies parsing complex command-line inputs, supports nested commands and detailed options, and lets you easily provide intuitive help messages.
+While I find [System.CommandLine](https://www.nuget.org/packages/System.CommandLine) a bit clunky, it’s incredibly useful for parsing command-line inputs.
 
-## Tip 3: Preparing Your Tool for Packaging
+
+## 📦🚚 Tip 3: Preparing Your Tool for Packaging 🚚📦
 
 Once your tool is ready, you’ll want to package it for distribution on NuGet. To do this, you'll need to add some metadata to your project file.
 
@@ -287,9 +287,11 @@ This method ensures you can easily access the tool locally within your repositor
 
 Very useful indeed!
 
+## 🎁 And That’s a Wrap! 🎁
 
+While this blog post wasn’t about shaders, I hope it sparked some ideas for building and deploying your own .NET tools to NuGet. Whether you're handling images with the powerful [SixLabors.ImageSharp](https://github.com/SixLabors/ImageSharp) or mastering command-line interfaces with [System.CommandLine](https://www.nuget.org/packages/System.CommandLine), I’m sure these tools can make your coding journey smoother and more fun.
 
-🎄🌟🎄 Merry Christmas to all, and happy retro-tastic coding! 🎄🌟🎄
+🎄🌟🎄 Merry Christmas to all, and may your code be as joyful as a holiday lights display! 🎄🌟🎄
 
 🎅 – mrange
 

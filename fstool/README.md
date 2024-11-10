@@ -173,7 +173,7 @@ While I find [System.CommandLine](https://www.nuget.org/packages/System.CommandL
 
 Once your tool is ready, you’ll want to package it for distribution on NuGet. To do this, you'll need to add some metadata to your project file.
 
-Here’s an example project file for my tool, `fsimg2sixel`, which converts images into the quirky Sixel format (not essential, but certainly fun):
+Here’s an example project file for my tool, `fsimg2sixel`, which converts images into the Sixel format (not essential, but certainly fun):
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">

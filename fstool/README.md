@@ -4,7 +4,7 @@
 
 ## 🔧🔩🪛 "F# Tools? I Thought This Was About Shaders!" 🪛🔩🔧
 
-Yes, this blog series may *mostly* be about shaders, but let’s sprinkle in some F# tooling magic to keep the ideas fresh! Tools in .NET tie in nicely, too, especially since I use them to help out with shader-related work. For example, I’ve built tools like [FsDistanceField](https://www.nuget.org/packages/FsDistanceField), which converts images into distance fields—perfect for shader projects.
+Yes, this blog series is *mostly* about shaders, but I needed to fill in the gaps since I couldn’t find contributors for every day! Tools in .NET tie in nicely, too, especially since I use them to help out with shader-related work. For example, I’ve built tools like [FsDistanceField](https://www.nuget.org/packages/FsDistanceField), which converts images into distance fields—perfect for shader projects.
 
 Creating command-line tools in .NET can make your work easier to share and simpler to integrate, whether it’s in a Git repo or on a colleague's terminal. Plus, when I'm off the clock, I reach for F# because, well, it’s just plain fun!
 

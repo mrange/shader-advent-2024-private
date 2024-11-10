@@ -12,7 +12,8 @@ Creating command-line tools in .NET can make your work easier to share and simpl
 
 If your tool needs to load and process images (a common shader-related task!), [SixLabors.ImageSharp](https://github.com/SixLabors/ImageSharp) is the go-to library. It works seamlessly across platforms—unlike `System.Drawing`, which is Windows-only.
 
-Good news: ImageSharp is open source and friendly for open-source projects under the [Apache License v2.0](https://www.apache.org/licenses/LICENSE-2.0.html). SixLabors also offers [SixLabors.Fonts](https://github.com/SixLabors/Fonts) and other useful libraries if you need more than images!
+ImageSharp is open source and available under the **SixLabors Split License**, which allows you to use it under the terms of the [Apache License v2.0](https://www.apache.org/licenses/LICENSE-2.0.html) if you meet certain conditions, such as using it in an open-source project. SixLabors also offers other useful libraries, like [SixLabors.Fonts](https://github.com/SixLabors/Fonts), for projects that need more than just image processing!
+
 
 Loading an image with ImageSharp is easy:
 ```fsharp

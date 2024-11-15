@@ -109,7 +109,7 @@ By varying `a`, you’ll generate a vibrant color palette filled with rich blues
   <img src="assets/xordev--cosmic.jpg" alt="Cosmic by XorDev" style="width: 50%;" />
 </p>
 
-Since discovering it, I’ve used this function countless times in my own [work](https://www.shadertoy.com/view/cdKXDV). I also created [a shader to visualize how the palette function works](https://www.shadertoy.com/view/McVyzw). It shows how the red, green, and blue components change over time, along with the resulting color they produce.
+Since discovering this function, I’ve used it countless times in my own [projects](https://www.shadertoy.com/view/cdKXDV). To make its inner workings clearer, I also created [a shader visualization](https://www.shadertoy.com/view/McVyzw). It demonstrates how the red, green, and blue components evolve over time and how they combine to produce the resulting colors.
 
 <p align="center">
   <img src="assets/palette.jpg" alt="Palette Generation Visualization Shader" style="width: 50%;" />

@@ -148,15 +148,8 @@ Again, time is used to animate the effect.
 A very simple and cheap trick to get more saturated colors seems to be to subract a little. I do not know why it works but I tried, and I liked the result. 
 
 ```glsl
-void mainImage( out vec4 fragColor, in vec2 fragCoord )
-{
-    ...
-
-    dist -= 0.5;  // Magic: Subtract a little for more saturation
-    vec3 color = palette(...) * (1.0 - dist);       
-
-    ...;
-}
+dist -= 0.5;  // Magic: Subtract a little for more saturation
+vec3 color = palette(...) * (1.0 - dist);       
 ```
 
 ## Trick 4: Warp the plane by a pinch of noise

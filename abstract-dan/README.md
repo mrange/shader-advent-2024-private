@@ -215,3 +215,4 @@ The result looked like below.
 The final shader, after some tweaking of the constants, can be seen [here](https://www.shadertoy.com/view/McdcWM).
 With only a basic understanding and a few simple concepts, I managed to create a vibrant, colorful effect. Sure, it carries the mark of a beginner, but it’s mine—and it’s unique. It feels like there’s an entire universe of undiscovered shaders waiting to be explored. Good times. Wishing you a bright and creative St. Lucia’s Day—and a joyful Advent!
 
+*Abstract Dan, 2024*

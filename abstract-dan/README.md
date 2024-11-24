@@ -42,7 +42,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 
 A single circle is not interesting enough though but what about a circles that contains other circles? 
 
-If $r_n$ is the radius of the outer circle and $c_n$ is the center we can calculate the radius of the inner circle by multiplying by a number less than one, for example 0.8.
+If $r_n$ is the radius of the outer circle and $c_n$ is the center we can calculate the radius of the inner circle by multiplying by a number less than one, for example
 
 $r_{n+1} = r_{n} * 0.8$
 

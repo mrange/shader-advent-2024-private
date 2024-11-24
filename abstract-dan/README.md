@@ -1,6 +1,18 @@
 # Circles of light
+Ho ho, shader friends!
+Today, I have a Christmas tale to share—a tale of circles. 
+Not just any circles, but circles that begin as humble shapes and evolve into radiant, magical rings of light.
+But let’s not skip ahead. 
+The story begins with me agreeing to write this article about shader coding. 
+“Me? Is this really a good idea?” I wondered, considering I’m still a beginner in the world of shaders?
+Days passed, the deadline loomed, and progress... well, it didn’t.
 
-Ho ho, shader friends! Today I will tell you my christmas story about circles. Circles that starts out very ordinary and then turn into magic circles of light. But let's not get ahead of ourselfs. The story began by me, accepting to write an article about shader coding. Me? Was that really a good idea considering my lack of experience in the field. Time went by and not much happend other than the deadline coming closer. One evening I did a lazy search for shader tutorials on youtube and I found *An introduction to Shader Art Coding* by Kishimisu. Wow! Starting out with simple circles, Kishimisu used clever tricks to transform the plain circles into magic. Maybe I could do that as well but in my own style?
+One evening, in a fit of procrastination, I lazily searched YouTube for shader tutorials. 
+That’s when I stumbled upon An Introduction to Shader Art Coding by Kishimisu. 
+Wow. Starting with the simplest of circles, 
+Kishimisu used ingenious techniques to transform them into dazzling, animated works of art.
+
+Inspired, I thought, “Could I pull off something similar but with my own twist?”
 
 ## The basic idea
 

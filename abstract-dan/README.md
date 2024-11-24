@@ -66,7 +66,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     vec2 c_1 = c_0 + (r_0 - r_1) * vec2(cos(alpha), sin(alpha));
     float  dist_1 = smoothstep(...);    
 
-    // The combined distance is the minium distance of 
+    // The combined distance is the minimum distance of 
     // the parts
     float dist = min(dist_0, dist_1);
     

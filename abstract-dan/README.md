@@ -24,7 +24,15 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     vec2 uv = (fragCoord * 2.0 - iResolution.xy) / iResolution.y;    
     vec2 center = vec2(0.0,0.0);
     float radius = 0.7;
-    float dist = smoothstep(0.0, 0.05, abs(length(uv + center) - radius));    
+
+    // Calculate distance to circle. Use smoothstep
+    // to get smooth edges.
+    float dist = 
+        smoothstep(
+            0.0, 
+            0.05, 
+            abs(length(uv + center) - radius)
+        );
         
     fragColor = vec4(dist, dist, dist, 1.0);
 }
@@ -47,19 +55,22 @@ where $\alpha$ is the rotation of the inner circle around the center of the oute
 ```glsl
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
-    vec2 uv = (fragCoord * 2.0 - iResolution.xy) / iResolution.y;    
+    vec2 uv = ...;    
     
-    float r_0 = 0.7;
-    vec2 c_0 = vec2(0.0,0.0);
-    float dist_0 = smoothstep(0.0, 0.05, abs(length(uv + c_0) - r_0));    
+    float r_0 = ...;
+    vec2 c_0 = ...;
+    float dist_0 = smoothstep(...);    
 
     float r_1 = r_0 * 0.8;
-    float alpha = 3.14/5.0;
+    float alpha = ...;  // Arbitrary rotation angle
     vec2 c_1 = c_0 + (r_0 - r_1) * vec2(cos(alpha), sin(alpha));
-    float  dist_1 = smoothstep(0.0, 0.05, abs(length(uv + c_1) - r_1));    
+    float  dist_1 = smoothstep(...);    
 
-    float dist = min(dist_0, dist_1);  // combine result
-    fragColor = vec4(dist, dist, dist, 1.0);
+    // The combined distance is the minium distance of 
+    // the parts
+    float dist = min(dist_0, dist_1);
+    
+    fragColor = ...;
 }
 ```
 
@@ -71,18 +82,18 @@ Using a for loop we can create as many as we want.
 ```glsl
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
-    vec2 uv = (fragCoord * 2.0 - iResolution.xy) / iResolution.y;    
+    vec2 uv = ...;    
     
-    float ro = 0.8;
-    vec2 co = vec2(0.0,0.0);
-    float dist = smoothstep(0.0, 0.05, abs(length(uv + co) - ro));    
+    float ro = ...;
+    vec2 co = ...;
+    float dist = ...;    
     
     for(float i=1.0; i<5.0; i++)
     {        
-        float ri = ro * 0.8;
-        float alpha = 3.15 / 15.0 * i;
-        vec2 ci = co + (ro - ri) * vec2(cos(alpha), sin(alpha));
-        float disti = smoothstep(0.0, 0.05, abs(length(uv + ci) - ri));    
+        float ri = ...;
+        float alpha = ...;
+        vec2 ci = ...;
+        float disti = ...;    
         dist = min(disti, dist);
         
         ro = ri;
@@ -99,10 +110,10 @@ Still no magic but maybe it could be interesting enough using some tricks?
 
 ## Trick 1: Animation
 
-It is easy to animate by letting $\alpha$ vary by time.
+It is easy to animate by letting the rotation $\alpha$ vary by time and circle index.
 
 ```glsl
-float alpha = 3.15 / 15.0 * i * iTime;
+float alpha = <arbitrary constant> * i * iTime;
 ```
 
 ## Trick 2: A nice color palette
@@ -110,7 +121,7 @@ float alpha = 3.15 / 15.0 * i * iTime;
 Using the general palette function from https://iquilezles.org/articles/palettes/ combined with Kishimisu's parameter selection I got this
 
 ```glsl
-vec3 palette(in float t) 
+vec3 palette( in float t ) 
 {
     vec3 a = vec3(0.5, 0.5, 0.5);
     vec3 b = vec3(0.5, 0.5, 0.5);
@@ -121,19 +132,86 @@ vec3 palette(in float t)
 
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
-    // ... left out for brevity ...
+    ...
 
-    vec3 color = palette(length(uv)+iTime*0.03)*(1.0-dist);       
+    vec3 color = 
+        palette(
+            length(uv) + iTime * <arbitrary constant>
+        ) * (1.0 - dist);       
     fragColor = vec4(color, 1.0);
 }
 ```
 
+Again, time is used to animate the effect.
+
 ## Trick 3: Color saturation overload
 
-Subtract a little.
+A very simple and cheap trick to get more saturated colors seems to be to subract a little. I do not know why it works but I tried, and I liked the result. 
+
+```glsl
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    ...
+
+    dist -= 0.5;  // Magic: Subtract a little for more saturation
+    vec3 color = palette(...) * (1.0 - dist);       
+
+    ...;
+}
+```
 
 ## Trick 4: Warp the plane by a pinch of noise
 
-https://www.shadertoy.com/view/lsl3RH
+At this point the result look as below.
 
-## Trick 5: Tweak the numbers
+<img src="assets/without-noise.png" width="300px" />
+
+Colorful, but a bit boring. What if I could warp the plane with some noise to make it more interesting? 
+
+Searching for noise effects on shadertoy.com did not disappoint. I copied to noise function from [Warping - procedural 2](https://www.shadertoy.com/view/lsl3RH).
+
+```glsl
+const mat2 m = mat2( 0.80,  0.60, -0.60,  0.80 );
+
+float noise( in vec2 p )
+{
+	return sin(p.x)*sin(p.y);
+}
+
+float fbm4( vec2 p )
+{
+    float f = 0.0;
+    f += 0.5000*noise( p ); p = m*p*2.02;
+    f += 0.2500*noise( p ); p = m*p*2.03;
+    f += 0.1250*noise( p ); p = m*p*2.01;
+    f += 0.0625*noise( p );
+    return f/0.9375;
+}
+
+vec2 fbm4_2( vec2 p )
+{
+    return vec2(fbm4(p), fbm4(p+vec2(7.8)));
+}
+```
+
+Using this noise function it was just a matter of mixing it with the uv-coordinates.
+
+```glsl
+vec2 uv = ...;  
+float warpAmount = 0.75;  // rather arbitrary
+uv = mix(
+    fbm4_2(uv + iTime * <arbitrary constant>), 
+    uv, 
+    warpAmount
+);
+```
+
+The result looked like below.
+
+<img src="assets/with-noise.png" width="300px" />
+
+# Summary
+
+The final shader, after some tweaking of the constants, can be seen [here](https://www.shadertoy.com/view/McdcWM).
+With only a basic understanding and a few simple concepts, I managed to create a vibrant, colorful effect. Sure, it carries the mark of a beginner, but it’s mine—and it’s unique. It feels like there’s an entire universe of undiscovered shaders waiting to be explored. Good times. Wishing you a bright and creative St. Lucia’s Day—and a joyful Advent!
+

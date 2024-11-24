@@ -8,7 +8,7 @@ The story begins with me agreeing to write this article about shader coding.
 Days passed, the deadline loomed, and progress... well, it didn’t.
 
 One evening, in a fit of procrastination, I lazily searched YouTube for shader tutorials. 
-That’s when I stumbled upon An Introduction to Shader Art Coding by Kishimisu. 
+That’s when I stumbled upon [An Introduction to Shader Art Coding by Kishimisu](https://www.youtube.com/watch?v=f4s1h2YETNY). 
 Wow. Starting with the simplest of circles, 
 Kishimisu used ingenious techniques to transform them into dazzling, animated works of art.
 

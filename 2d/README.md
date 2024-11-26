@@ -439,7 +439,7 @@ Distance fields are a handy tool in shader programming, showing up in all sorts 
 
 In this post, we covered some basics: combining shapes with `min` and `max`, and using distance fields to play with colors, outlines, and even animated gradients. There’s still plenty to explore, like using `soft-min` and `soft-max` to combine shapes. We skipped anti-aliasing for now, but it's an easy one-liner I can cover in a future post.
 
-I hope this guide helps you dive into 2D shaders and sparks some fun experiments with shapes and color effects!
+I hope this guide helps you getting started with 2D shaders and spark some fun experiments with shapes and color effects!
 
 ✨🎄🎁 Merry Christmas, and happy coding! 🎁🎄✨
 

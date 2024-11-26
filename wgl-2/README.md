@@ -111,7 +111,7 @@ And what’s a demo without some festive music? Size-coding doesn’t leave room
 
 ## 🎁 That’s a Wrap! 🎁
 
-I hope this guide has given you everything you need to dive into size-coding! It’s a wild mix of fun and challenge—sometimes maddening as you chase down those last 5 bytes. But when you finally get that executable under 4KiB (or even 1KiB!), the feeling is truly magic.
+I hope this guide has given you everything you need to start with size-coding! It’s a wild mix of fun and challenge—sometimes maddening as you chase down those last 5 bytes. But when you finally get that executable under 4KiB (or even 1KiB!), the feeling is truly magic.
 
 So go on, give it a shot, and let’s see what tiny wonders you can create!
 

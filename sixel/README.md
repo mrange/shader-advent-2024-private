@@ -11,7 +11,7 @@ No typo here—*Sixel* is real! It was introduced in the late 1970s by DEC as a 
 
 For us demo coders, Sixel offers a nifty way to create graphics directly in the terminal—an approach that's both cool and unexpected for most people. It’s an alternative to opening a window, and it might even save some bytes for those size-coding competitions!
 
-Let’s dive in and create a simple effect with Sixels using C#.
+Let’s create a simple effect with Sixels using C#.
 
 ## 🚀 Getting Started 🛠️
 
@@ -545,7 +545,7 @@ I hope this simple example sparks some ideas for your own sixel-based creations!
 
 The potential for quirky, mind-bending terminal art is endless!
 
-So go ahead, dive in, and see what wild and wonderful things you can create with sixels!
+So go ahead and see what wild and wonderful things you can create with sixels!
 
 🎄🌟🎄 Merry Christmas to all, and happy coding! 🎄🌟🎄
 

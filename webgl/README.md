@@ -14,7 +14,7 @@ Sure, [ShaderToy](https://www.shadertoy.com/) lets you embed shaders with an HTM
 <iframe width="640" height="360" frameborder="0" src="https://www.shadertoy.com/embed/MfjyWK?gui=true&t=10&paused=true&muted=false" allowfullscreen></iframe>
 ```
 
-But as a hacker, you want to dive deeper, right? By coding it yourself, you gain the freedom to customize textures, add music, and elevate your project to the next level!
+But as a hacker, you want to go deeper, right? By coding it yourself, you gain the freedom to customize textures, add music, and elevate your project to the next level!
 
 ## 🖼️🎨  It Starts with a Canvas 🎨🖼️
 

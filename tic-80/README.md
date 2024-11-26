@@ -137,7 +137,7 @@ Here’s how to try it out:
 
 ## 🔍 Starting with `TIC` 🔍
 
-Now, let’s dive into the `TIC` function, the engine driving our demo.
+Now, let’s look at the `TIC` function, the engine driving our demo.
 
 ```lua
 -- TIC() is the main function that TIC-80 calls every frame
@@ -186,7 +186,7 @@ poke(0x3FC5, 0x42)
 -- and so on...
 ```
 
-This is so satisfying! If you ask me, HAL (Hardware Abstraction Layer) was a mistake! Who needs it when we can dive right into memory and make magic happen?
+This is so satisfying! If you ask me, HAL (Hardware Abstraction Layer) was a mistake! Who needs it when we can poke right into memory and make magic happen?
 
 Here’s a simple example that creates a beautiful blue gradient:
 
@@ -479,7 +479,7 @@ end
 	<img src="assets/bounce.gif" alt="A bouncing robot in TIC-80" style="width: 50%;" />
 </p>
 
-TIC-80 is truly incredible! It’s a blast to tinker with retro effects, and getting started couldn’t be easier. You can [run it directly in the browser](https://tic80.com/create) or download it to dive in offline. The TIC-80 website is packed with tons of examples, and it includes everything you need to create your own retro demos or games.
+TIC-80 is truly incredible! It’s a blast to tinker with retro effects, and getting started couldn’t be easier. You can [run it directly in the browser](https://tic80.com/create) or download it to run it offline. The TIC-80 website is packed with tons of examples, and it includes everything you need to create your own retro demos or games.
 
 Deploying your TIC-80 programs is a breeze too. For example, to deploy to a static web app, just run `export html my-app`. You’ll get a zip file, upload its contents, and you’re all set!
 

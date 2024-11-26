@@ -448,7 +448,7 @@ Once everything is compiled and running, it should look like this:
 
 And there you have it! This wraps up our code walk-through. While we covered the essentials, there are more settings to tweak, all documented in the [complete example](wgl-app/).
 
-If you’re eager to dive in and experiment, the easiest way is to clone this repo or download the source files into a directory and open them in Visual Studio. Just remember to install `Desktop development with C++`!
+If you’re eager to start and experiment, the easiest way is to clone this repo or download the source files into a directory and open them in Visual Studio. Just remember to install `Desktop development with C++`!
 
 In the next part, we’ll tackle the challenge of shrinking this program to under 4KiB. As of now, it’s about 13 KiB, so we’re not too far off! However, there's a BIG issue that could disqualify it from size-coding competitions, but I’ll reveal more on that soon.
 

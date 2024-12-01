@@ -1,70 +1,69 @@
-# 🎄🌟🎄 Inner reflections are cool looking 🎄🌟🎄
+# 🎄🌟 Reflecting on Christmas Magic 🌟🎄
 
-🎅 Ho, ho, ho! Merry Christmas, fellow shader-hackers! 🎅
+🎅 Ho, ho, ho! Welcome, shader enthusiasts, to another festive foray into the world of WebGL! 🎅
 
-## Time for some more "hard-core" shader code
+## A Holiday Glow-Up for Your Shaders
 
-For those of you that gotten the basics of raymarching in GLSL down the next step could be some cool look reflections.
+If you've already unwrapped the basics of ray marching in GLSL, it’s time to take things up a notch. Let’s make something dazzling—like a shiny 3D block with glowing inner reflections.
 
-I am hoping to be able to help you a bit by showing how to build up a shader that has 3D block with glowing inner reflections.
+Think of it as building your own digital Christmas ornament, complete with all the sparkle and shine.
 
-## So what's the plan?
+## What's in Santa’s Shader Sack?
 
-The shader will consist of 3 raytracers.
+This shader will use **three ray tracers**, each working together like little elves:
 
-1. "World" raytracer that produces the background ground and sky.
-2. The 3D block outside raytracer. Reflects the world raytracer for some nice looking reflections. Refracts the incoming ray into the third and last raytracer.
-3. The inner reflections raytracer bounces a ray back and forth inside a the 3D block and accumulates the reflected glow. Use beer absorbition to fade out the glow.
+1. **The World Ray Tracer:** Creates the ground and sky—the stage for our glowing block.
+2. **The Block's Outer Ray Tracer:** Reflects the world around it and refracts light into the block.
+3. **The Inner Reflections Ray Tracer:** Handles light bouncing inside the block, accumulating a festive glow using Beer’s Law to fade out distant reflections.
 
-## The world raytracer
+## Step 1: Painting the World
 
-The world raytracer is the simplest one but utilizes some tricks to avoid aliasing.
+The first ray tracer builds the background. It’s simple with a touch of anti-aliasing magic to keep things smooth.
 
-The input to the raytracer is the ray-origin `ro` and the ray-direction `rd`. The return value is the pixel color.
-
-From the ray-direction compute the sky color:
+We start with the ray origin (`ro`) and direction (`rd`). From the ray direction, we calculate the sky color—a gradient that shifts with the vertical angle:
 
 ```glsl
-  col = hsv2rgb_approx(vec3(
-    0.6,                                // Fixed hue for sky color
-    clamp(0.3+0.9*rd.y, 0.0, 1.0),      // Saturation varies with vertical angle
-    1.5*clamp(2.0-2.*rd.y*rd.y, 0.0, 2.) // Brightness with non-linear falloff
-  ));
+col = hsv2rgb_approx(vec3(
+  0.6,                                // A cheerful hue for the sky
+  clamp(0.3 + 0.9 * rd.y, 0.0, 1.0),  // Saturation varies with height
+  1.5 * clamp(2.0 - 2.0 * rd.y * rd.y, 0.0, 2.0) // Non-linear brightness
+));
 ```
 
-Let me assure you I spent as little time as possible thinking about this and just tinkered until I got it to look good enough. I believe this is the modus operandi of most shader developers.
+The result of festive tinkering. Like most shader developers, I adjusted and eyeballed it until it looked good enough—our industry’s secret sauce! 🎄
 
-Then compute the ground. The ground is a grid and the way I usually do it is that I repeat a cross over the entire plane. A neat way I learnt awhile ago is this:
+### Step 2: Crafting the Ground
+
+For the ground, we draw a light gray grid on a white background. To create the grid, we use a technique called domain repetition to repeat a single cross "for free":
 
 ```glsl
 // Create grid coordinate system
-// Round coordinates to snap to grid points
+// Snap coordinates to the nearest grid point
 vec2 npp = round(bpp);
 vec2 cpp = bpp - npp;
 ```
 
-`cpp` is then the coordinate system for 1x1 cells. Computing the distance field for the grid is then as simple as this.
+Here, `cpp` defines a coordinate system for 1x1 grid cells. From there, creating the distance field for the grid lines is straightforward.
 
 ```glsl
 vec2 app = abs(cpp);
-float gd = min(app.x, app.y);
+float gd = min(app.x, app.y); // Distance to the nearest grid line
 ```
 
-`app.x` and `app.y` are vertical and horizontal lines combined with `min`.
+### Step 3: Anti-Aliasing Magic
 
-In order to reduce aliasing effects I fade out the grid depending on the distance but in addition I detect if the ray hits the plane at an angle and fades out the lines using this:
+To reduce aliasing, we make the grid lines fade based on distance and viewing angle. For this, we compute `gfre` like so:
 
 ```glsl
 // Grid line distance field with view-angle compensation
-// Reduces aliasing by adjusting line width based on view angle
-float gfre = 1.+rd.y;
+float gfre = 1.0 + rd.y;
 gfre *= gfre;
 gfre *= gfre;
 ```
 
-`gfre` will then be in `[0,1]` 0 meaning looking straight down on the plane and 1 meaning looking at the plane at 90 degree angle. How many times I multiply `gfre` is decided by experimenting until it looks good enough.
+Here’s the trick: `gfre` ranges from 0 (looking straight down) to 1 (viewing at a grazing angle). I kept tweaking how many times to multiply `gfre`—the classic shader developer's experiment-until-it-looks-right process.
 
-All in all the world raytracer looks like this:
+Here is the complete `renderWorld` function:
 
 ```glsl
 // Render the surrounding world environment
@@ -133,13 +132,13 @@ vec3 renderWorld(vec3 ro, vec3 rd) {
 }
 ```
 
-## Rendering the world
+## Rendering the World
 
-The world raytracer is not enough, we need to do a bit more to visualize it.
+The world ray tracer alone isn’t enough—we need to do a bit more to bring it to life.
 
-One thing that is a bit of a mind-meld in the beginning is how to setup the ray-direction given the fragment 2D coordinate.
+One concept that can feel a bit tricky at first is setting up the ray direction based on the fragment’s 2D coordinates.
 
-The easy solution is just to copy paste the code that sets them up which is what everyone else does:
+The simplest approach? Copy and paste the setup code—just like everyone else does:
 
 ```glsl
 // Set the starting point of the ray in 3D space
@@ -166,9 +165,9 @@ const float fov = 2.0;
 vec3 rd = normalize(-p.x * uu + p.y * vv + fov * ww);
 ```
 
-If `p.y` is in range [-1,1] and `p.x` adjusted for screen ratio `rd` will then be the ray-direction. Then it's just to pop in the ray-origin and the ray-direction in the `renderWorld` function above to get the pixel color.
+If `p.y` is in the range [-1, 1] and `p.x` is adjusted for the screen ratio, `rd` becomes the ray direction. After that, simply plug the ray origin and direction into the `renderWorld` function to get the pixel color:
 
-```
+```glsl
 // Initialize the color accumulator
 vec3 col = vec3(0.0);
 
@@ -188,8 +187,25 @@ col = aces_approx(col);
 col = sqrt(col);
 ```
 
-The complete world renderer example. Note I have included constants and functions that are not in use yet but they will be used when we add the other raytracers. If I have done the job correctly [create a new shadertoy](https://www.shadertoy.com/new) and copy and paste the code below into shadertoy, if you are lucky what you see is a rotating grid in white.
+To understand the ray direction setup, let’s break it down intuitively. In a 3D scene, imagine you’re looking through a camera. The ray direction determines where each pixel on the screen "looks" into the scene.
 
+Here’s how it works:
+
+1. **Camera orientation:** The `lookAt` vector specifies where the camera is pointing, and the `up` vector ensures the camera isn’t tilted sideways. Using these, we calculate three key vectors:
+   - `ww`: The forward direction of the camera (where it’s looking).
+   - `uu`: The right-hand direction, derived by crossing the `up` vector with `ww`.
+   - `vv`: The true upward direction, which is perpendicular to both `ww` and `uu`.
+
+2. **Field of view (FOV):** The `fov` value controls how wide the camera’s view is. A larger `fov` means a wider perspective, while a smaller one zooms in.
+
+3. **Mapping the screen to rays:** Each fragment’s 2D coordinate (`p`) is mapped to a 3D ray direction. This is done by combining the camera orientation (`uu`, `vv`, `ww`) with the FOV and the screen’s aspect ratio.
+
+In simpler terms, the code sets up a virtual "lens" through which rays are cast into the scene. Each pixel gets its own unique ray direction, which allows us to simulate perspective and depth. Once the ray directions are set, they’re passed to the ray tracer to determine what each pixel "sees."
+
+
+Below is the complete world renderer example. Note that some constants and functions included aren’t used yet—they’ll come into play when we add the other ray tracers.
+
+If I’ve done my job right, [create a new ShaderToy](https://www.shadertoy.com/new), paste the code below, and you should see a rotating grid in white.
 
 ```glsl
 // CC0: Shader Advent reflection shader example
@@ -499,21 +515,36 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 }
 ```
 
-## Rendering the box
+Here’s the improved version of your section:
 
-Next step we will add a box to the world. This will be raymarched which is a very common technique used on ShaderToy for rending 3D objects. The idea is that you start in the ray-origin and then ask the distance field for the 3D object how far it is from the current point to the 3D object, then step that distance in the ray direction and ask how far the new point is from the 3D object. Repeat until you either hit the object (the distance is small) or you step too far or you hit the max iteration.
+## Rendering the Box
 
-If you hit the object, use the stepped distance to compute the point of the object. Then using the distance field you can compute the normal (essentially by deriving the distance field around the point of the object).
+Next, let’s add a box to the scene. This box will be raymarched—a technique commonly used on ShaderToy for rendering 3D objects.
 
-With normal you can then compute the reflection direction, the refraction direction and apply cool lighting effects.
+The process works like this:
 
-That is what we will be doing in so many words but let's look at the code.
+1. Start at the ray origin.
+2. Query the distance field for the 3D object to determine how far the current point is from the object.
+3. Step forward in the ray direction by that distance.
+4. Repeat the query and step process until one of three things happens:
+   - You hit the object (the distance is very small).
+   - You step too far.
+   - You exceed the maximum number of iterations.
 
-### The distance field for the objects
+If you hit the object, use the last stepped distance to compute the exact point on the object. Then, use the distance field to calculate the object’s normal (essentially by deriving the distance field around the point).
 
-Now for the next step add the function `dfShapes` under the function `renderWorld` in the previous example:
+With the normal, you can calculate:
+- The reflection direction.
+- The refraction direction.
+- Cool lighting effects.
 
-This is the distance field for the box from the outside. To add a bit more zing to it compute the frame of the box. This will be used to create a glowing box frame.
+That’s the plan in a nutshell. Now, let’s dive into the code.
+
+### The Distance Field for the Objects
+
+For this step, add the `dfShapes` function under the `renderWorld` function from the previous example.
+
+This function defines the distance field for the box from the outside. To add some flair, it also computes the frame of the box, which will later create a glowing effect for the box edges.
 
 ```glsl
 // Distance field function for external box
@@ -549,12 +580,21 @@ float dfShapes(vec3 p) {
 }
 ```
 
-### The ray marching loop
+### The Ray Marching Loop
 
-Next add the ray marcher code below `dfShapes`. This is the core of ray marchers as it uses the distance field to find the intersection point between the ray-direction and the 3D object. As mentioned above it achieves this by asking how far the current point is from the 3D objects. Then it steps that far in the ray direction. It loops until it either got close enough to the object, or travelled to far, or ran out of itertions.
+Next, add the ray marching code below `dfShapes`. This loop is the heart of ray marching. It uses the distance field to find the intersection point between the ray direction and the 3D object.
 
-In addition; I have included a trick I learnt from IQ that can reduce artifacts that occur when the raydirection narrowly misses an object. The code then steps back to the point was the nearest a surface and use that as a result. It's a neat trick but like many tricks it sometimes works great and sometimes don't. You have to experiment to see if it helps or not.
+Here’s how it works:
+- The loop queries how far the current point is from the 3D object using the distance field.
+- It then steps forward in the ray direction by that distance.
+- The process repeats until one of three conditions is met:
+  1. The ray gets close enough to the object.
+  2. The ray travels too far.
+  3. The loop runs out of iterations.
 
+Additionally, I’ve included a trick I learned from IQ to reduce artifacts that can occur when the ray direction narrowly misses an object. This technique steps back to the point where the ray was closest to the surface and uses that as the result.
+
+It’s a clever trick, but like most hacks, it’s not foolproof—it works well in some cases and not so well in others. You’ll need to experiment to see if it helps in your scene.
 
 ```glsl
 // Ray marching algorithm for external box
@@ -595,15 +635,22 @@ float rayMarchShapes(vec3 ro, vec3 rd, float tinit) {
 }
 ```
 
-### Computing the normal
+### Computing the Normal
 
-Coming up the function to compute the normal of the distance field. An absolutely crucial step. The normal is the direction that is perpendicalur to the object at the current point and is used for many tasks such as lighting and reflections.
+Now let’s tackle the function that computes the normal of the distance field. This is an absolutely crucial step because the normal—essentially the direction perpendicular to the object’s surface at a given point—is essential for tasks like lighting and reflections.
 
-Understanding the code might not be intuitive to most but the good news is that as long as you understand what a normal you can copy paste the code below.
+While the concept of calculating normals might not be intuitive, the good news is that you don’t need to fully understand the math to use it. If you know what a normal is, you can simply copy and paste the code below.
 
-Essentially what the code does is that it the rate of change of the distance field in the x,y and z direction, forms a vector from it and then normalizes it (sets the length to 1).
+Here’s the gist of what’s happening:
+- The code measures how the distance field changes (its "rate of change") in the `x`, `y`, and `z` directions.
+- It forms a vector from these three values.
+- Finally, it normalizes the vector, which means adjusting its length to exactly 1.
 
-The episolon value is another parameter to tinker with, too small and you get lots of noise in the normals, too large and the normals looks "soft" around edges.
+The key parameter here is the `epsilon` value. It controls the step size for measuring the rate of change:
+- If `epsilon` is too small, the normals will be noisy and jittery.
+- If it’s too large, the normals will look smooth but may lose detail around edges.
+
+Finding the right balance for `epsilon` often involves a bit of trial and error.
 
 ```glsl
 // Compute surface normal using gradient of distance field
@@ -620,59 +667,63 @@ vec3 normalShapes(vec3 pos) {
 }
 ```
 
-### Computing the color by putting it all together
+### Computing the Color by Putting It All Together
 
-Now with the distance field defined, a ray marcher defined and a way to compute the normal we can compute the color.
+Now that we’ve defined the distance field, implemented the ray marcher, and have a method for calculating normals, it’s time to compute the final color.
 
-We use the `renderWorld` function from before to compute the background and the reflection on the box.
+The process begins with the `renderWorld` function, which provides the background and the reflections on the box. We also calculate the distance to the ground floor (`bd`) to fake some shadows.
 
-To fake some shadows we also compute the distance to the ground floor `bd`.
+Using the ray marcher, we find the distance to the box and compute the normal at the intersection point, which allows us to determine the reflection vector.
 
-Using the ray marcher function above we find the distance to our box and compute the normal of the intersection point, this allows us to compute the reflection vector.
+If the ray hits the box before hitting the floor, we calculate the box's color. The condition for detecting a hit might look a bit intimidating, but here’s a breakdown:
 
-If the ray hit the box before the ray hits the bottom floor we compute the color of the box. The condition for the hit is a bit of a mouthful so here's breaking it down:
+```glsl
+if (st < maxRayLengthShapes && (bt < 0.0 || st < bt)) {
+```
 
-`if (st < maxRayLengthShapes && (bt < 0.0 || st < bt)) {`
+1. **`st < maxRayLengthShapes`**: Checks if the ray hit the box within a valid distance.
+2. **`bt < 0.0`**: Determines if the ground is behind the ray's starting point (i.e., not visible).
+3. **`st < bt`**: If the ground is visible, this ensures the box is closer than the ground.
 
-1. `st < maxRayLengthShapes` - did we hit the box?
-2. `bt < 0.0` - did we hit the sky (ie the ground hit is behind us)?
-3. `st < bt` - If we didn't hit the sky is the ground hit further away than the box?
+If these conditions are true, the ray intersects the box, so we calculate its color. To do this, we call `renderWorld` in the reflected direction, apply a purple tint (`refCol`), and multiply by the Fresnel factor (`sfre`):
 
-If so, we hit the object and thus we compute the color for the box. We do this by calling `renderWorld` in the reflected direction, multiply with `refCol` to give a bit purple color to the reflection and finally multiply with fresnel factor `sfre`
-
-```code
+```glsl
 if (st < maxRayLengthShapes && (bt < 0.0 || st < bt)) {
   // Ray hit the object
-  // Render reflections on object's surface
+  // Render reflections on the object's surface
   vec3 rwcol = renderWorld(sp, sr);
-
-  col = rwcol*refCol*sfre;
+  col = rwcol * refCol * sfre;
 }
 ```
 
-The fresnel effect can be observed if you stand by water and look straight down, the sky almost don't reflect at all. When you lift your eyes towards the horizon the sky reflection gets stronger and stronger because the more the light rays hit the water surface on an angle the strong the reflection is. Many surface materials have the fresnel effect..
+### Understanding the Fresnel Effect
 
-There's a proper formula for all this but I tinker with stuff until I think it looks right. So the first step is to compute
+The Fresnel effect describes how reflection intensity changes based on the angle of view. For example, when looking straight down at water, you see almost no reflection of the sky. As your gaze shifts closer to the horizon, the reflection grows stronger. Many materials exhibit this effect.
+
+In the shader, we approximate the Fresnel effect with:
+
 ```glsl
-float sfre = 1.+dot(rd,sn);
+float sfre = 1.0 + dot(rd, sn);
 ```
 
-`sfre` will 0 when you look straight at the object, because the ray direction `rd` and the surface normal `sn` point in opposite direction, the more the surface curve away from you the dot product goes towards 0 meaning `sfre` will be 1 when the ray direction and the surface normal are perpendicular.
+Here’s what happens:
+- When looking straight at a surface, the ray direction (`rd`) and surface normal (`sn`) point in nearly opposite directions, so the dot product is negative, and `sfre` is close to 0.
+- When the ray direction and surface normal are perpendicular, the dot product approaches 0, making `sfre` equal to 1.
 
-I then multiply the fresnel value with itself to reduce reflection when looking almost head on. How many times do I do it? Until it looks good.
-
-Then finally I want to retain some reflection so I mix the fresnel value. All in all it looks like this:
+To refine the effect, we square `sfre` to reduce reflections when looking directly at the object. The number of times we multiply depends entirely on what looks visually pleasing. Lastly, we blend (`mix`) the Fresnel value to ensure some reflection remains:
 
 ```glsl
-// Fake fresnel effect (reflection intensity based on view angle)
-float sfre = 1.+dot(rd,+sn);
+// Fake Fresnel effect (reflection intensity based on view angle)
+float sfre = 1.0 + dot(rd, sn);
 sfre *= sfre;
-sfre = mix(0.05, 1.0,sfre);
+sfre = mix(0.05, 1.0, sfre);
 ```
 
-It's fake because it's inspired by nature, not physically "correct".
+While this isn’t physically accurate, it’s inspired by the natural behavior of light.
 
-If we hit the floor instead then use the distance from the box to compute a cheap shadow effect.
+### Floor Shadows
+
+If the ray doesn’t hit the box and instead hits the floor, we use the box’s distance to calculate a simple shadow effect:
 
 ```glsl
 } else if (bt > 0.0) {
@@ -681,13 +732,18 @@ If we hit the floor instead then use the distance from the box to compute a chea
   col *= mix(1.0, 0.125, exp(-bd));
 }
 ```
-And finally we use the glow distance to apply the glow effect. Very simple.
+
+### Adding Glow
+
+Finally, we use the glow distance to apply a subtle glow effect:
 
 ```glsl
 // Add glow effect to the rendering
-const vec3 glowCol = HSV2RGB_APPROX(vec3(0.66,0.5, 4E-3));
-col += glowCol/max(sglowDistance, toleranceShapes);
+const vec3 glowCol = HSV2RGB_APPROX(vec3(0.66, 0.5, 4E-3));
+col += glowCol / max(sglowDistance, toleranceShapes);
 ```
+
+The glow is simple yet effective, adding that extra bit of visual interest.
 
 All in all it looks like this:
 
@@ -746,28 +802,30 @@ vec3 renderShapes(vec3 ro, vec3 rd) {
 }
 ```
 
-### Putting it all together
+### Putting It All Together
 
-Now in order to show the box you have to call `renderShapes` from `effect` rather than `renderWorld` like so:
+To display the box, you need to call `renderShapes` from the `effect` function instead of `renderWorld`. Here’s how you can do it:
 
 ```glsl
 // Render the scene by tracing the ray (ro: origin, rd: direction)
 col = renderShapes(ro, rd);
 ```
 
-With some luck you should see a slowly rotating box with subtle reflections.
+If everything’s set up properly, you should see a slowly rotating box with subtle reflections.
 
-## Rendering the insides
+## Rendering the Insides
 
-Now it's time for the inside. Here the plan is to let the ray bounce back and forth inside the box accumulating the glow from the edges. To kick things up a notch I also add a rotating super sphere + glowing torus in the middle.
+Next up, it’s time to render the inside of the box. The idea here is to allow the ray to bounce back and forth inside the box, picking up the glow from the edges. To make things more exciting, I’ll also add a rotating super sphere and a glowing torus in the middle.
 
-The distance field function and the ray marcher is mostly the same as the outside so let's start with inside distance field
+The distance field function and the ray marcher for the inside will mostly be the same as for the outside, so let’s start with defining the inside distance field.
 
-### The distance field for the inside
+### The Distance Field for the Inside
 
-Add the `dfInsides` function below the `renderWorld` function.
+Add the `dfInsides` function below `renderWorld`.
 
-It's is similar to the outside distancefield except we inverted the box distance field as we are now inside of it. In addition we add a super sphere (kind of like a boxy sphere) and a torus and substract the torus from the super sphere "smoothly" to create nice looking normals. In order to subtract one shapes from another we usually do `max(distanceObject0, -distanceObject1)` but in order to do it smoothly we use the very useful soft max function `pmax`.
+This distance field is similar to the one for the outside, except we invert the box’s distance field because now we’re inside the box. Additionally, we’ll create a super sphere (which is like a boxy sphere) and a torus, subtracting the torus from the super sphere. We use smooth subtraction for this, which helps create better normals and a smoother look.
+
+To subtract one shape from another in distance fields, the typical method is using `max(distanceObject0, -distanceObject1)`, but to make the subtraction smoother, we can use a handy function called `pmax` (a smooth maximum function). This helps avoid hard edges and ensures the subtraction looks clean.
 
 ```glsl
 // "Super" sphere with a glowing torus
@@ -825,9 +883,9 @@ float dfInsides(vec3 p) {
 }
 ```
 
-### Just a "normal" ray marcher
+### Just a "Normal" Ray Marcher
 
-The ray marcher and the compute normal function are almost identical to the previous one but as we can't "miss" the inside I removed that check in the loop
+The ray marcher and the compute normal function for the inside are very similar to what we used for the outside. However, since we can’t “miss” the inside of the box (we're guaranteed to hit something), I’ve removed the check for missing the object from the loop.
 
 Add the following code under the `dfInsides` function above:
 
@@ -886,13 +944,13 @@ vec3 normalInsides(vec3 pos) {
 }
 ```
 
-### Compute the color the insides
+### Compute the Color for the Insides
 
-The plan here is that we will bounce the ray back and forth inside. How we do is that we start at a point inside the box and find the intersection between the ray and the inside objects. Compute the normal and produce the reflection ray. Then find the inserection of the reflect ray and the inside objects until we run out of bounces (say 5).
+The goal here is to simulate light bouncing back and forth inside the box. We start by tracing a ray from a point inside the box, finding where it intersects with the inside objects, and then computing the normal at that point. From there, we reflect the ray and continue this process until we either run out of bounces (e.g., 5 bounces) or the reflection becomes too weak.
 
-In order to produce colors we compute the glow colors like above but we accumulate the colors for each bounce in the variable `agg`. To make the colors fade out as each bounce absorbs some of the light and this is kept track of the variable `ragg` that starts at 1 and goes toward 0. In addition, we keep track of the total distance travelled in variable `tagg` which we use to compute color absorbtion using a simplied Beer's law formula.
+As the ray bounces around, we accumulate the color at each bounce in the `agg` variable. To simulate light absorption, we gradually reduce the intensity of the reflections using the `ragg` variable, which starts at 1 and decays toward 0 with each bounce. We also track the total distance the ray has traveled using `tagg`, which helps us compute light absorption based on a simplified version of Beer's law.
 
-All in all the code looks like this, add it below the function `normalInsides` above:
+Here’s how the code works, which you should add below the `normalInsides` function:
 
 ```glsl
 // Render the interior of the box
@@ -966,11 +1024,38 @@ vec3 renderInsides(vec3 ro, vec3 rd, float db) {
 }
 ```
 
-### Put it all together
+### Explanation of How the Code Works
 
-Now we are ready to put all together by updating the function `renderShapes`. Now in addition to compute the render world reflection we will compute refraction vector before stepping into the insides. Then we call the `renderInsides` function and accumulate the colors.
+1. **Color Accumulation (`agg`)**: This variable accumulates the colors from all the bounces, representing the light that reflects off the surfaces inside the box. Each bounce adds more color to this accumulated result.
 
-So find the code that starts with:
+2. **Reflection Intensity (`ragg`)**: This factor starts at 1 (full intensity) and decays with each bounce. If the reflection becomes too weak (i.e., `ragg < 0.1`), the loop will break early.
+
+3. **Total Distance (`tagg`)**: This keeps track of the total distance the ray has traveled inside the box, which helps simulate light absorption using Beer's law.
+
+4. **Ray Marching (`rayMarchInsides`)**: This function finds the intersection point for each bounce. The ray marches forward until it hits a surface or a maximum step distance is reached.
+
+5. **Surface Normal (`normalInsides`)**: The normal is computed at the intersection point, which is used to reflect the ray and determine the angle of reflection.
+
+6. **Reflection (`reflect`)**: After calculating the normal, the ray is reflected based on the angle of incidence, which is determined by the normal at the intersection.
+
+7. **Fresnel Effect (`ifre`)**: This effect simulates how reflections change depending on the angle at which you view the surface. When looking at a surface head-on, reflections are weaker, and when viewed at an angle, reflections are stronger.
+
+8. **Beer’s Law Absorption**: As light travels through a medium (like the inside of the box), it is gradually absorbed. This is modeled using an exponential decay based on the total distance traveled (`tagg`).
+
+9. **Glow Effect**: We simulate a soft glowing effect around the inside surfaces by adding the glow color based on the ray's distance from the object and the current reflection intensity.
+
+10. **Adaptive Step Distance (`db`)**: The step distance is adjusted dynamically based on the glow distance, helping prevent visual artifacts like self-intersections.
+
+### Putting It All Together
+
+Now that we’ve covered all the individual pieces, we’re ready to put everything together in the `renderShapes` function. At this stage, we need to:
+
+1. **Compute Reflections and Refractions**: In addition to calculating the reflection vector as before, we now compute the refraction vector to simulate light passing through surfaces and bending as it enters the inside of the box.
+2. **Call the `renderInsides` Function**: After computing the reflection and refraction, we call `renderInsides` to handle the bouncing rays and glow effects inside the box, accumulating the colors as we go.
+
+The code below shows how we integrate the reflection and refraction effects:
+
+Find the section that starts with:
 
 ```glsl
 // Fake fresnel effect (reflection intensity based on view angle)
@@ -978,7 +1063,7 @@ float sfre = 1.+dot(rd,+sn);
 sfre *= sfre;
 ```
 
-and replace it and the `if` statement below with this:
+Then replace that section and the `if` statement that follows with this:
 
 ```glsl
 // Fake fresnel effect (reflection intensity based on view angle)
@@ -1016,9 +1101,9 @@ if (st < maxRayLengthShapes && (bt < 0.0 || st < bt)) {
 }
 ```
 
-If you are really lucky should get a rotating box with internally reflecting glowing lines. If you struggle getting it to work I have prepared the [entire example in ShaderToy](https://www.shadertoy.com/view/4fcfWH).
+If you're lucky, you should see a rotating box with glowing lines inside, reflecting off the surfaces. It can be tricky to get everything working perfectly, especially when dealing with complex ray marching techniques. If you're having trouble or want to see a complete, working version, I've prepared the entire example on [ShaderToy](https://www.shadertoy.com/view/4fcfWH).
 
-Here is the entire source code:
+Below is the full source code for the shader:
 
 ```glsl
 // CC0: Shader Advent reflection shader example
@@ -1642,18 +1727,15 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 }
 ```
 
-## 🎉 Let's reflect on what we done 🎉
+## 🎉 Let’s Reflect on What We’ve Done 🎉
 
-We reached the end of the blog and hopefully it helped you out somewhat on how a shader that supports reflection could look like.
+We've reached the end, and hopefully, you now have a clearer idea of how shaders with reflections can be structured.
 
-A few words before we return to the Christmas dinner.
+Before you head back to your Christmas dinner, a quick thought: when I first studied shaders, I was often puzzled by strange constants or unusual combinations of variables. "How did they arrive at this?" I’d wonder. While there's sometimes deeper meaning, a lot of it comes down to trial and error. I rarely sit down and calculate everything from scratch. Shader coding is an interactive process, where intuition leads the way. The only metric that matters is that it looks cool. So go ahead—tinker and experiment until it feels right!
 
-When I first studied shaders by other people I was often confounded by the strange constants or weird combinations of variables. "How did they arrive at this specific code?" I often wondered looking for a deeper reason. While there certainly can be a hidden meaning shader tinkerers spend a lot of time tinkering with code and constants hunting that perfect look. It often start from intiution but at least when it comes to me I try many variants to get what I am looking for. I very seldomly sit down with pen and paper and calculate although that does happen. That's what so great with shader coding, it's a very interactive process where you can develop and use your mathematical and physical intuition guide you without being bogged down by boring reality. The only metric that matters is that it looks cool. So go ahead and tinker like madmen until you get what you want.
+Another tip: don’t be afraid to use multiple ray tracers. In this shader, we used `renderWorld`, `renderInsides`, and `renderShapes`. Early on, I tried building one massive ray tracer, but splitting them up allows for better optimization and easier tweaking. For example, specialized anti-aliasing in `renderWorld` wouldn’t be as easy to implement in a single ray tracer.
 
-Another technique I wanted to show is the use of multiple different ray tracers in the same shader. Here we have three `renderWorld`, `renderInsides` and `renderShapes`. When I started shader tinkering I often tried to build one gigantic ray tracer that solved it all but I have stepped away from it. I think using specialized ray tracers allows me to optimize them for what I need them to do. For example I use certain anti-aliasing techniques in `renderWorld` ray tracer that can be tricky to implement in a general ray tracer. Why pay the price of handling reflections in the `renderShapes` when I only need it on the inside of the box?
-
-
-✨🎄🎁 Merry Christmas, and reflect some normals! 🎁🎄✨
+✨🎄🎁 Merry Christmas and keep reflecting those normals! 🎁🎄✨
 
 🎅 - mrange
 

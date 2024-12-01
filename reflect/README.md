@@ -6,6 +6,8 @@
 
 If you've already unwrapped the basics of ray marching in GLSL, it’s time to take things up a notch. Let’s make something dazzling—like a shiny 3D block with glowing inner reflections.
 
+![The complete shader with reflections](assets/complete.jpg)
+
 Think of it as building your own digital Christmas ornament, complete with all the sparkle and shine.
 
 ## What's in Santa’s Shader Sack?

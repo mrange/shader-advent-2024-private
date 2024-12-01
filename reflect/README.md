@@ -188,10 +188,12 @@ col = aces_approx(col);
 col = sqrt(col);
 ```
 
-The complete world renderer example. Note I have included constants and functions that are not in use yet but they will be used when we add the other raytracers. If I have done the job correctly [create a new shadertoy](https://www.shadertoy.com/new) and copy and paste the code below into shadertoy.
+The complete world renderer example. Note I have included constants and functions that are not in use yet but they will be used when we add the other raytracers. If I have done the job correctly [create a new shadertoy](https://www.shadertoy.com/new) and copy and paste the code below into shadertoy, if you are lucky what you see is a rotating grid in white.
 
 
 ```glsl
+// CC0: Shader Advent reflection shader example
+
 // Macro definitions for built-in Shadertoy inputs
 #define TIME        iTime        // Current time in seconds since shader start
 #define RESOLUTION  iResolution  // Viewport resolution (width, height, 1)
@@ -204,13 +206,13 @@ const float refr_index = 0.8;    // Refractive index - determines how much light
                                  // bends less than in typical materials)
 
 // Mathematical and visual constants
-const float pi      = acos(-1.); // More precise way to define pi using arccos
-const float tau     = 2.*pi;     // Full circle rotation (2π)
-const float upSat   = 1.2;       // Saturation boost for color intensity
+const float pi      = acos(-1.);        // More precise way to define pi using arccos
+const float tau     = 2.*pi;            // Full circle rotation (2π)
+const float upSat   = 1.2;              // Saturation boost for color intensity
 const float phi     = (sqrt(5.)+1.)/2.; // Golden ratio - aesthetically pleasing proportion
-const float beerHue = 0.9;       // Hue value for coloration (potentially for Beer's law)
+const float beerHue = 0.9;              // Hue value for coloration (Beer's law)
 
-// Global rotation matrix for dynamically rotating internal object
+// Global rotation matrix for dynamically rotating internal objects
 mat3 g_rot;
 
 // Ray marching configuration for internal object rendering
@@ -218,41 +220,36 @@ mat3 g_rot;
 const int   maxRayMarchesInsides   = 50;   // Maximum number of steps to find surface
                                            // (prevents infinite loops)
 const float toleranceInsides       = .001; // Minimum distance to consider a surface hit
-const float normalEpisolonInsides  = 0.001; // Small offset for calculating surface normals
+const float normalEpisolonInsides  = 0.001;// Small offset for calculating surface normals
 const int   maxBouncesInsides      = 5;    // Limit on light bounces/reflections inside object
 float g_glowDistanceInsides;               // Tracking glow effect distance
 
-// Ray marching settings for external object rendering
+// Ray marching settings for external box rendering
 const int   maxRayMarchesShapes = 70;      // More steps for complex external surfaces
 const float toleranceShapes     = .001;    // Minimum distance to surface hit
 const float maxRayLengthShapes  = 20.;     // Maximum ray travel distance to prevent
                                            // unnecessary computation
 const float normalEpisolonShapes= 0.01;    // Slightly larger normal calculation precision
-float g_glowDistanceShapes;                // Tracking glow effect for external objects
+float g_glowDistanceShapes;                // Tracking glow effect for external box
 
 // Scene composition parameters
-                                                           // (normalized and scaled)
-const vec3 sunDir    = normalize(vec3(1.0)); // Directional light source
-                                             // (normalized to unit vector)
-const vec3  boxDim   = vec3(1., phi*phi, phi); // Object dimensions using golden ratio
-                                               // for aesthetically pleasing proportions
-const float boxEdge  = 0.005;  // Thickness of object's frame/outline
-const float bottom   = -boxDim.y-0.033; // Ground level, slightly below the object
+const vec3 sunDir    = normalize(vec3(1.0));    // Directional light source
+const vec3  boxDim   = vec3(1., phi*phi, phi);  // Box dimensions using golden ratio
+                                                // for aesthetically pleasing proportions
+const float boxEdge  = 0.005;                   // Thickness of box's frame/outline
+const float bottom   = -boxDim.y-0.033;         // Ground level, slightly below the box
 
 const vec3 rayOrigin = normalize(vec3(0.0, 3.0, -5.))*8.; // Camera position
-const vec3 lookAt    = vec3(0.0, 0.5*bottom, 0.0); // Define a "look-at" point, where the camera is focusing
+const vec3 lookAt    = vec3(0.0, 0.5*bottom, 0.0);        // Define a "look-at" point, where the camera is focusing
 
 // Approximate HSV to RGB conversion by XorDev
 // Creates smoother, more visually appealing color transitions compared to standard conversion
-// Unique trigonometric approach that produces interesting color blending
 // License: Unknown, author: XorDev, found: https://x.com/XorDev/status/1808902860677001297
 vec3 hsv2rgb_approx(vec3 hsv) {
   // Trigonometric color transformation
   // Uses cosine waves with offset to create non-linear color transitions
   return (cos(hsv.x*tau+vec3(0.,4.,2.))*hsv.y+2.-hsv.y)*hsv.z/2.;
 }
-
-// Macro version of HSV to RGB conversion for performance optimization
 #define  HSV2RGB_APPROX(hsv) ((cos(hsv.x*tau+vec3(0.,4.,2.))*upSat*hsv.y+2.-upSat*hsv.y)*hsv.z/2.)
 
 // ACES Filmic Tone Mapping Approximation
@@ -265,8 +262,6 @@ vec3 aces_approx(vec3 v) {
   // Reduce overall intensity
   v *= 0.6;
 
-  // Coefficients for tone mapping curve
-  // These values control how bright and contrasty the image appears
   float a = 2.51;
   float b = 0.03;
   float c = 2.43;
@@ -295,11 +290,11 @@ mat3 animatedRotationMatrix(float time) {
   // Combines rotations across multiple axes with varying speeds
   // Rows represent the transformed basis vectors
   return mat3(
-      c1 * c2,               // X-axis scaling with first two rotations
+      c1 * c2,                // X-axis scaling with first two rotations
       c1 * s2 * s3 - c3 * s1, // Y-axis rotation and scaling
       s1 * s3 + c1 * c3 * s2, // Z-axis interaction with all three rotations
 
-      c2 * s1,               // X-axis influenced by secondary and tertiary rotations
+      c2 * s1,                // X-axis influenced by secondary and tertiary rotations
       c1 * c3 + s1 * s2 * s3, // Y-axis affected by all three angles
       c3 * s1 * s2 - c1 * s3, // Z-axis with secondary and tertiary dependencies
 
@@ -313,8 +308,6 @@ mat3 animatedRotationMatrix(float time) {
 // Creates a smooth blend instead of a hard transition
 // License: MIT, author: Inigo Quilez, found: https://www.iquilezles.org/www/articles/smin/smin.htm
 float pmin(float a, float b, float k) {
-  // Calculates a smooth interpolation between a and b
-  // k controls the smoothness of the transition
   float h = clamp(0.5+0.5*(b-a)/k, 0.0, 1.0);
   return mix(b, a, h) - k*h*(1.0-h);
 }
@@ -328,7 +321,6 @@ float pmax(float a, float b, float k) {
 // 2D box distance function - calculates signed distance to a 2D box
 // License: MIT, author: Inigo Quilez, found: https://iquilezles.org/articles/distfunctions/
 float box(vec2 p, vec2 b) {
-  // Calculates distance from point to box edges
   vec2 d = abs(p)-b;
   return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
 }
@@ -336,19 +328,12 @@ float box(vec2 p, vec2 b) {
 // 3D box distance function - calculates signed distance to a 3D box
 // License: MIT, author: Inigo Quilez, found: https://iquilezles.org/articles/distfunctions/
 float box(vec3 p, vec3 b) {
-  // Calculates distance from point to box surfaces
   vec3 q = abs(p) - b;
   return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
 }
 
-// "Super" sphere - a non-standard sphere distance function with unique shape
-float ssphere4(vec3 p, float r) {
-  // Creates a more complex spherical shape by using power-based distance calculation
-  p *= p;
-  return pow(dot(p, p), 0.25)-r;
-}
-
 // Torus distance function - calculates distance to a donut-shaped object
+// License: MIT, author: Inigo Quilez, found: https://iquilezles.org/articles/distfunctions/
 float torus(vec3 p, vec2 t) {
   // Computes distance from point to torus surface
   // t.x is ring radius, t.y is tube radius
@@ -359,14 +344,18 @@ float torus(vec3 p, vec2 t) {
 // Box frame distance function - calculates distance to a wireframe box
 // License: MIT, author: Inigo Quilez, found: https://iquilezles.org/articles/distfunctions/
 float boxFrame(vec3 p, vec3 b, float e) {
-  // Creates a wireframe box with specified dimensions and edge thickness
-  // b: box dimensions, e: edge thickness
   p = abs(p)-b;
   vec3 q = abs(p+e)-e;
   return min(min(
       length(max(vec3(p.x,q.y,q.z),0.0))+min(max(p.x,max(q.y,q.z)),0.0),
       length(max(vec3(q.x,p.y,q.z),0.0))+min(max(q.x,max(p.y,q.z)),0.0)),
       length(max(vec3(q.x,q.y,p.z),0.0))+min(max(q.x,max(q.y,p.z)),0.0));
+}
+
+// "Super" sphere - a boxy looking "sphere". Has nice normals
+float ssphere4(vec3 p, float r) {
+  p *= p;
+  return pow(dot(p, p), 0.25)-r;
 }
 
 // Render the surrounding world environment
@@ -408,7 +397,7 @@ vec3 renderWorld(vec3 ro, vec3 rd) {
     gfre *= gfre;
 
     // Compute grid line distance
-    // Dynamically adjusts line width based on view angle to reduce hard edges
+    // Dynamically adjusts line width based on view angle to reduce aliasing
     float gd = min(app.x, app.y) - mix(0.01, 0.0, gfre);
 
     // Ground base color using HSV approximation macro
@@ -427,7 +416,6 @@ vec3 renderWorld(vec3 ro, vec3 rd) {
     vec3 bcol = mix(bbcol, bbcol*bfade, smoothstep(aa, -aa, gd));
 
     // Blend ground with sky, creating distance fog effect
-    // Simulates atmospheric perspective
     col = mix(col, bcol, exp(-0.008*bt));
   }
 
@@ -511,4 +499,263 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 }
 ```
 
+## Rendering the box
+
+Next step we will add a box to the world. This will be raymarched which is a very common technique used on ShaderToy for rending 3D objects. The idea is that you start in the ray-origin and then ask the distance field for the 3D object how far it is from the current point to the 3D object, then step that distance in the ray direction and ask how far the new point is from the 3D object. Repeat until you either hit the object (the distance is small) or you step too far or you hit the max iteration.
+
+If you hit the object, use the stepped distance to compute the point of the object. Then using the distance field you can compute the normal (essentially by deriving the distance field around the point of the object).
+
+With normal you can then compute the reflection direction, the refraction direction and apply cool lighting effects.
+
+That is what we will be doing in so many words but let's look at the code.
+
+### The distance field for the objects
+
+Now for the next step add the function `dfShapes` under the function `renderWorld` in the previous example:
+
+This is the distance field for the box from the outside. To add a bit more zing to it compute the frame of the box. This will be used to create a glowing box frame.
+
+```glsl
+// Distance field function for external box
+float dfShapes(vec3 p) {
+  // Compute distance to solid box
+  float dbox = box(p, boxDim);
+
+  // Compute distance to box frame for glow effect
+  float dboxFrame = boxFrame(p, boxDim, 0.) - boxEdge;
+
+  // Initialize distance to a large value
+  float d = 1E3;
+
+  // Set primary distance to box
+  d = dbox;
+
+  // Soften box edges using smooth maximum operation
+  // Creates a more organic, less sharp edge appearance
+  d = pmax(d, -(dboxFrame-2.*boxEdge), 8.*boxEdge);
+
+  // Include box frame in distance calculation
+  d = min(d, dboxFrame);
+
+  // Track glow distance for visual effects
+  float gd = 1E3;
+  gd = dboxFrame;
+
+  // Update global glow distance
+  // Used for creating glowing edge/surface effects
+  g_glowDistanceShapes = min(g_glowDistanceShapes, gd);
+
+  return d;
+}
+```
+
+### The ray marching loop
+
+Next add the ray marcher code below `dfShapes`. This is the core of ray marchers as it uses the distance field to find the intersection point between the ray-direction and the 3D object. As mentioned above it achieves this by asking how far the current point is from the 3D objects. Then it steps that far in the ray direction. It loops until it either got close enough to the object, or travelled to far, or ran out of itertions.
+
+In addition; I have included a trick I learnt from IQ that can reduce artifacts that occur when the raydirection narrowly misses an object. The code then steps back to the point was the nearest a surface and use that as a result. It's a neat trick but like many tricks it sometimes works great and sometimes don't. You have to experiment to see if it helps or not.
+
+
+```glsl
+// Ray marching algorithm for external box
+// Finds intersection point by stepping along the ray
+float rayMarchShapes(vec3 ro, vec3 rd, float tinit) {
+  float t = tinit;
+
+  // Optional backstep technique to reduce rendering artifacts
+#if defined(BACKSTEP_SHAPES)
+  vec2 dti = vec2(1e10,0.0);
+#endif
+
+  int i;
+  for (i = 0; i < maxRayMarchesShapes; ++i) {
+    // Compute distance to nearest surface
+    float d = dfShapes(ro + rd*t);
+
+    // Track closest approach for potential backstep
+#if defined(BACKSTEP_SHAPES)
+    if (d<dti.x) { dti=vec2(d,t); }
+#endif
+
+    // Stop if we're close to a surface or exceed max ray length
+    if (d < toleranceShapes || t > maxRayLengthShapes) {
+      break;
+    }
+
+    // Step along ray
+    t += d;
+  }
+
+  // Backstep technique for missed rays
+#if defined(BACKSTEP_SHAPES)
+  if(i==maxRayMarchesShapes) { t=dti.y; };
+#endif
+
+  return t;
+}
+```
+
+### Computing the normal
+
+Coming up the function to compute the normal of the distance field. An absolutely crucial step. The normal is the direction that is perpendicalur to the object at the current point and is used for many tasks such as lighting and reflections.
+
+Understanding the code might not be intuitive to most but the good news is that as long as you understand what a normal you can copy paste the code below.
+
+Essentially what the code does is that it the rate of change of the distance field in the x,y and z direction, forms a vector from it and then normalizes it (sets the length to 1).
+
+The episolon value is another parameter to tinker with, too small and you get lots of noise in the normals, too large and the normals looks "soft" around edges.
+
+```glsl
+// Compute surface normal using gradient of distance field
+vec3 normalShapes(vec3 pos) {
+  // Small offset for numerical gradient calculation
+  const vec2 eps = vec2(normalEpisolonShapes, 0.0);
+
+  // Compute normal by sampling distance field in small directions
+  return normalize(vec3(
+      dfShapes(pos+eps.xyy)-dfShapes(pos-eps.xyy)
+    , dfShapes(pos+eps.yxy)-dfShapes(pos-eps.yxy)
+    , dfShapes(pos+eps.yyx)-dfShapes(pos-eps.yyx))
+    );
+}
+```
+
+### Computing the color by putting it all together
+
+Now with the distance field defined, a ray marcher defined and a way to compute the normal we can compute the color.
+
+We use the `renderWorld` function from before to compute the background and the reflection on the box.
+
+To fake some shadows we also compute the distance to the ground floor `bd`.
+
+Using the ray marcher function above we find the distance to our box and compute the normal of the intersection point, this allows us to compute the reflection vector.
+
+If the ray hit the box before the ray hits the bottom floor we compute the color of the box. The condition for the hit is a bit of a mouthful so here's breaking it down:
+
+`if (st < maxRayLengthShapes && (bt < 0.0 || st < bt)) {`
+
+1. `st < maxRayLengthShapes` - did we hit the box?
+2. `bt < 0.0` - did we hit the sky (ie the ground hit is behind us)?
+3. `st < bt` - If we didn't hit the sky is the ground hit further away than the box?
+
+If so, we hit the object and thus we compute the color for the box. We do this by calling `renderWorld` in the reflected direction, multiply with `refCol` to give a bit purple color to the reflection and finally multiply with fresnel factor `sfre`
+
+```code
+if (st < maxRayLengthShapes && (bt < 0.0 || st < bt)) {
+  // Ray hit the object
+  // Render reflections on object's surface
+  vec3 rwcol = renderWorld(sp, sr);
+
+  col = rwcol*refCol*sfre;
+}
+```
+
+The fresnel effect can be observed if you stand by water and look straight down, the sky almost don't reflect at all. When you lift your eyes towards the horizon the sky reflection gets stronger and stronger because the more the light rays hit the water surface on an angle the strong the reflection is. Many surface materials have the fresnel effect..
+
+There's a proper formula for all this but I tinker with stuff until I think it looks right. So the first step is to compute
+```glsl
+float sfre = 1.+dot(rd,sn);
+```
+
+`sfre` will 0 when you look straight at the object, because the ray direction `rd` and the surface normal `sn` point in opposite direction, the more the surface curve away from you the dot product goes towards 0 meaning `sfre` will be 1 when the ray direction and the surface normal are perpendicular.
+
+I then multiply the fresnel value with itself to reduce reflection when looking almost head on. How many times do I do it? Until it looks good.
+
+Then finally I want to retain some reflection so I mix the fresnel value. All in all it looks like this:
+
+```glsl
+// Fake fresnel effect (reflection intensity based on view angle)
+float sfre = 1.+dot(rd,+sn);
+sfre *= sfre;
+sfre = mix(0.05, 1.0,sfre);
+```
+
+It's fake because it's inspired by nature, not physically "correct".
+
+If we hit the floor instead then use the distance from the box to compute a cheap shadow effect.
+
+```glsl
+} else if (bt > 0.0) {
+  // Ray hit the floor
+  // Apply fake shadow effect
+  col *= mix(1.0, 0.125, exp(-bd));
+}
+```
+And finally we use the glow distance to apply the glow effect. Very simple.
+
+```glsl
+// Add glow effect to the rendering
+const vec3 glowCol = HSV2RGB_APPROX(vec3(0.66,0.5, 4E-3));
+col += glowCol/max(sglowDistance, toleranceShapes);
+```
+
+All in all it looks like this:
+
+```glsl
+// Render external box and their interactions
+vec3 renderShapes(vec3 ro, vec3 rd) {
+  // Start with world background rendering
+  vec3 col = renderWorld(ro, rd);
+
+  // Calculate distance to floor plane
+  float bt = -(ro.y-bottom)/(rd.y);
+  vec3 bp = ro+rd*bt;
+
+  // Compute floor distance for fake shadow effect
+  float bd = dfShapes(bp);
+
+  // Reset glow distance tracking
+  g_glowDistanceShapes = 1E3;
+
+  // Ray march to find intersection with external box
+  float st = rayMarchShapes(ro, rd, 0.);
+  float sglowDistance = g_glowDistanceShapes;
+
+  // Compute intersection point and surface properties
+  vec3 sp = ro+rd*st;
+  vec3 sn = normalShapes(sp);
+
+  vec3 sr = reflect(rd,sn);
+
+  // Fake fresnel effect (reflection intensity based on view angle)
+  float sfre = 1.+dot(rd,+sn);
+  sfre *= sfre;
+  sfre = mix(0.05, 1.0,sfre);
+
+  // Reflection color
+  const vec3 refCol = HSV2RGB_APPROX(vec3(beerHue, 2./3., 1./3.));
+
+  if (st < maxRayLengthShapes && (bt < 0.0 || st < bt)) {
+    // Ray hit the object
+    // Render reflections on object's surface
+    vec3 rwcol = renderWorld(sp, sr);
+
+    col = rwcol*refCol*sfre;
+
+  } else if (bt > 0.0) {
+    // Ray hit the floor
+    // Apply fake shadow effect
+    col *= mix(1.0, 0.125, exp(-bd));
+  }
+
+  // Add glow effect to the rendering
+  const vec3 glowCol = HSV2RGB_APPROX(vec3(0.66,0.5, 4E-3));
+  col += glowCol/max(sglowDistance, toleranceShapes);
+
+  return col;
+}
+```
+
+### Putting it all together
+
+Now in order to show the box you have to call `renderShapes` from `effect` rather than `renderWorld` like so:
+
+```glsl
+// Render the scene by tracing the ray (ro: origin, rd: direction)
+col = renderShapes(ro, rd);
+```
+
+With some luck you should see a slowly rotating box with subtle reflections.
+
+## Rendering the insides
 

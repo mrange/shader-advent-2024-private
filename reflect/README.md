@@ -1103,6 +1103,28 @@ if (st < maxRayLengthShapes && (bt < 0.0 || st < bt)) {
 
 If you're lucky, you should see a rotating box with glowing lines inside, reflecting off the surfaces. It can be tricky to get everything working perfectly, especially when dealing with complex ray marching techniques. If you're having trouble or want to see a complete, working version, I've prepared the entire example on [ShaderToy](https://www.shadertoy.com/view/4fcfWH).
 
+## 🎉 Let’s Reflect on What We’ve Done 🎉
+
+We've reached the end, and hopefully, you now have a clearer idea of how shaders with reflections can be structured.
+
+Before you head back to your Christmas dinner, a quick thought: when I first studied shaders, I was often puzzled by strange constants or unusual combinations of variables. "How did they arrive at this?" I’d wonder. While there's sometimes deeper meaning, a lot of it comes down to trial and error. I rarely sit down and calculate everything from scratch. Shader coding is an interactive process, where intuition leads the way. The only metric that matters is that it looks cool. So go ahead—tinker and experiment until it feels right!
+
+Another tip: don’t be afraid to use multiple ray tracers. In this shader, we used `renderWorld`, `renderInsides`, and `renderShapes`. Early on, I tried building one massive ray tracer, but splitting them up allows for better optimization and easier tweaking. For example, specialized anti-aliasing in `renderWorld` wouldn’t be as easy to implement in a single ray tracer.
+
+✨🎄🎁 Merry Christmas and keep reflecting those normals! 🎁🎄✨
+
+🎅 - mrange
+
+## ❄️Licensing Information❄️
+
+All code content I created for this blog post is licensed under [CC0](https://creativecommons.org/public-domain/cc0/) (effectively public domain). Any code snippets from other developers retain their original licenses.
+
+The text content of this blog is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) (the same license as Stack Overflow).
+
+## Appendix
+
+### Appendix 1: The entire shader source code:
+
 Below is the full source code for the shader:
 
 ```glsl
@@ -1726,21 +1748,3 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
   fragColor = vec4(col, 1.0);
 }
 ```
-
-## 🎉 Let’s Reflect on What We’ve Done 🎉
-
-We've reached the end, and hopefully, you now have a clearer idea of how shaders with reflections can be structured.
-
-Before you head back to your Christmas dinner, a quick thought: when I first studied shaders, I was often puzzled by strange constants or unusual combinations of variables. "How did they arrive at this?" I’d wonder. While there's sometimes deeper meaning, a lot of it comes down to trial and error. I rarely sit down and calculate everything from scratch. Shader coding is an interactive process, where intuition leads the way. The only metric that matters is that it looks cool. So go ahead—tinker and experiment until it feels right!
-
-Another tip: don’t be afraid to use multiple ray tracers. In this shader, we used `renderWorld`, `renderInsides`, and `renderShapes`. Early on, I tried building one massive ray tracer, but splitting them up allows for better optimization and easier tweaking. For example, specialized anti-aliasing in `renderWorld` wouldn’t be as easy to implement in a single ray tracer.
-
-✨🎄🎁 Merry Christmas and keep reflecting those normals! 🎁🎄✨
-
-🎅 - mrange
-
-## ❄️Licensing Information❄️
-
-All code content I created for this blog post is licensed under [CC0](https://creativecommons.org/public-domain/cc0/) (effectively public domain). Any code snippets from other developers retain their original licenses.
-
-The text content of this blog is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) (the same license as Stack Overflow).

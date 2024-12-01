@@ -2,11 +2,13 @@
 
 ‼️ Ah, it's that time of the year: time to send the seasonal greeting cards!
 Making your own cards is fun, but alas, we are just shader coders; we only know
-how to make cool shaders. If only there was a way to convert a shader to an
-animated holiday card 🤔....
+how to make cool shaders. If only there was a way to make holiday cards from
+shaders 🤔....
 
-But there is!🎉 It's called barrier-grid (🚧-🏁) animations. Today we will show
-how you can convert your shader into an animated holiday card.
+But there is!🎉 It's called [barrier-grid (🚧-🏁)
+animations](https://en.wikipedia.org/wiki/Barrier-grid_animation_and_stereography).
+ Today we will show how you can convert your shader into an
+animated holiday card.
 
 Sneak peek of the result (click to watch on Youtube):
 
@@ -16,18 +18,18 @@ shader](https://img.youtube.com/vi/iDa7Zn4C6UA/0.jpg)](https://www.youtube.com/w
 ## 🎁Introduction🎁
 
 This technique was developed when participating to the [Demoscene Holiday Card
-Exchange](https://demoscene.exchanges.cards) over the past few years. The idea
-for the barrier-grid animations was inspired by the over head projector demo
-[Shapes by Cortex](https://www.pouet.net/prod.php?which=53773).
+Exchange](https://demoscene.exchanges.cards) over the past few years. The
+barrier-grid animations were inspired by the overhead projector demo [Shapes by
+Cortex](https://www.pouet.net/prod.php?which=53773).
 
 The card consists of a background, printed on a white paper, and a foreground,
 printed on a transparent film and cut to the shape of a circle. The foreground
-is mostly black, with some transparent areas. A hole is punched in the middle of
-both the background and the foreground, and they are attached using a brass
-fastener. This allows the foreground to be rotated 360 degrees. As the
-foreground is rotated, it reveals different parts of the background, creating an
-animation. In particular, this can be used make type of [barrier-grid
-animations](https://en.wikipedia.org/wiki/Barrier-grid_animation_and_stereography),
+has a black-and-white spiral; or opaque-and-transparent spiral when printed on a
+film. A hole is punched in the middle of both the background and the foreground,
+and they are attached using a brass fastener. This allows the foreground to be
+rotated 360 degrees. As the foreground is rotated, the spiral reveals different
+parts of the background, creating an animation. This is a kind of [barrier-grid
+animation](https://en.wikipedia.org/wiki/Barrier-grid_animation_and_stereography),
 with a spiral shaped barrier. These are also sometimes known as scanimations or
 Moiré animations.
 
@@ -44,17 +46,17 @@ them online. The rest you can get from a well-stocked craft store.
 
 <img src="images/materials.jpg" alt="Photograph of transparent film, brass fasteners, cardboard, spray adhesive, super glue, hole punch, precision cutting knife, compass, cutting board, paper, newspaper and disposable gloves" width="600 dp"/>
 
-1. **Transparent film, suitable for printing.** Laser printers require the use
-   of dedicated films that can withstand the heat without warping and shrinking.
+1. **Transparent film, suitable for printing.** Laser printers require specific
+   type of films that can withstand the heat without warping and shrinking.
    Furthermore, there's both monochrome laser and color laser transparencies,
-   which apperently have slightly different coatings. The basic design only uses
+   which apparently have slightly different coatings. The basic design only uses
    grayscale foregrounds, so monochrome laser transparencies are ok. I used
    "Lyreco Transparency film for monochrome laser printer", material: PET, size:
    A4.
 2. **Brass fasteners.** I used brass paper fasteners (split pins), with a width
    of ~ 3 mm.
-3. **Cardboard.** Each card requires a 150 mm x 450 mm rectangle. I used 500 mm
-   x 650 mm 240 g/m<sup>2</sup> cardboard sheets from Canson, so each sheet
+3. **Cardboard.** Each card requires a 150 mm × 450 mm rectangle. I used 500 mm
+   × 650 mm 240 g/m<sup>2</sup> cardboard sheets from Canson, so each sheet
    gives 4 cards. I preferred dark cardboard (black, ultramarine), because the
    animation will be quite dark, due to majority of the foreground being black.
 4. **Spray adhesive.** I used Maston 500 ml Spray Adhesive. Not all of them are
@@ -67,7 +69,7 @@ them online. The rest you can get from a well-stocked craft store.
    film and the paper, so it needs to be one of the types that look a bit like
    hollow cylinders. The ones that only reach a few cm from the edge of the
    paper cannot be used.
-7. **Precision cutting knife**. X-acto or similar.
+7. **Precision cutting knife**. X-Acto or similar.
 8. **Compass**. The tool for drawing circles, not the device for finding the
    magnetic north.
 9. **Paper cutting board**. Preferably with one dimension over 450 mm and a
@@ -81,19 +83,19 @@ them online. The rest you can get from a well-stocked craft store.
 ## 🎞️Making the animation as a OpenGL shader🎞️
 
 The OpenGL shader should output both the background (paper print) and the
-foreground (film print). First, write a general shader effect in Shadertoy and
-making sure that it loops with a period of t = 1. So the looping animation can
-be put in a function `vec3 animation(vec2 uv,float t) {...}` which takes the
-screen coordinates (-1 .. 1) and time as parameters and outputs an RGB color.
+foreground (film print). First, write a general shader effect in Shadertoy with
+an animation that loops with a period of t = 1. So the looping animation can be
+a function `vec3 animation(vec2 uv,float t) {...}` which takes the screen
+coordinates (from -1 to 1) and time as parameters and outputs an RGB color.
 
 The foreground will be a 16-armed spiral with 50 rings from center to edge, with
 majority of it being black and 20% will be transparent (white). For each pixel
 we can calculate "phase", with something like `float phase =
-mod(16*atan2(uv.y,uv.x)/(2*pi)+50*length(vec2(uv.x,uv.y)),1)` and in the
-foreground, if `phase < 0.2`, then the pixel is white, otherwise it is black.
-The spiral loops after it is turned 1/16th circle, so in the final card, the
-animation starts looping after the foreground is turned 1/16th circle. The
-foreground looks like this:
+mod(16*atan2(uv.y,uv.x)/(2*pi)+50*length(uv),1)` and in the foreground, if
+`phase < 0.2`, then the pixel is white, otherwise it is black. The spiral loops
+after it is turned 1/16th circle, so in the final card, the animation starts
+looping after the foreground is turned 1/16th circle. The foreground looks like
+this:
 
 <img src="images/foreground.jpg" alt="Foreground of the shader barried-grid animation" width="600 dp"/>
 
@@ -107,8 +109,8 @@ every instance we see not only the current slice t of the animation, but all
 colors in a time range of [t,t - 0.2]. So there will be significant "motion
 blur". Decreasing the duty cycle reduces the motion blur, but makes the whole
 animation darker, and vice versa. You may want to experiment here to get the
-results you want; values 0.2 .. 0.3 usually worked well. The background looks
-like this:
+results you want; values from 0.2 to 0.3 usually worked well. The background
+looks like this:
 
 <img src="images/background.jpg" alt="Background of the shader barried-grid animation" width="600 dp"/>
 
@@ -120,8 +122,9 @@ Finally, due to alignment errors in the final card, the effect tends to break
 near the middle and to work better on the edges. Thus, effects with darkness in
 the middle (tunnels, starfields) seem to work the best.
 
-Examples of animations I've made over the years. In ShaderToy, use mouse to see
-how the animation looks as a barrier-grid animation:
+Examples of animations I've made over the years are in the table below. Click on
+the links to see source code or the ShaderToy prototype. In ShaderToy, use mouse
+to see how the animation looks as a barrier-grid animation.
 
 | Year | Effect | Source                          | Shadertoy prototype                                                                                    |
 |------|--------|---------------------------------|--------------------------------------------------------------------------------------------------------|
@@ -132,7 +135,7 @@ how the animation looks as a barrier-grid animation:
 
 The codes here are extremely unoptimized and slow for what they do, but that
 doesn't matter, as they will be running on a holiday card with more computing
-power than your computer 😸
+power than your computer. 😸🤡
 
 Now, fork one of the shaders on ShaderToy and make your own animation! Once you
 are happy with your shader, save it into .frag file, following the examples
@@ -140,10 +143,13 @@ above, and continue to the next step.
 
 ## 🚀Exporting the designs as JPGs using Python🚀
 
+I wrote a simple script [card.py](code/card.py) that uses PyOpenGL to render the
+design and Pillow-PIL to export it as a JPG.
+
 Prerequisites: [Python](https://www.python.org/) and
 [poetry](https://python-poetry.org/). Then:
 
-1. Download the sourcecode from the subfolder [code/](code)
+1. Download all the files from the subfolder [code/](code)
 
 2. Run:
 
@@ -153,13 +159,12 @@ poetry run python card.py <your_shader>.frag
 ```
 
 This will export background.jpg and foreground.jpg, with nominal sizes of 145 mm
-x 145 mm in 8192 x 8192 resolution.
+× 145 mm in 8192 × 8192 resolution.
 
 Try `poetry run python card.py --help` for more options; `--preview` allows
-previewing the design before exporting the designs. I had to disable the Windows
-GPU driver [timeout detection and
-recovery](https://github.com/ROCm/ROCm/issues/2335) as some of the designs were
-so slow to export... 🦥
+previewing the design before exporting. I had to disable the Windows GPU driver
+[timeout detection and recovery](https://github.com/ROCm/ROCm/issues/2335) as
+some of the designs were so slow to export... 🦥
 
 ## 🖨️Printing the design🖨️
 
@@ -169,12 +174,12 @@ animation will work better when the tiny lines are sharp.
 Print the background.jpg on a normal white paper and foreground.jpg on the
 transparent film.
 
-Note that the foreground design will be *mirrored*: we want the printed side of
-the film facing directly against the printed side of the paper. Otherwise, there
-will be a gap equal of the film thickness between the foreground and the
-background, which makes the animation work less well. The designs include some
-small and large circles to allow figuring out which side is which; otherwise
-it's a bit tough to see from the film.
+Note that the Python script *mirrors* foreground design: we want the printed
+side of the film facing directly against the printed side of the paper.
+Otherwise, there will be a gap equal of the film thickness between the
+foreground and the background, which makes the animation work less well. The
+designs include some small and large circles to allow figuring out which side is
+which; otherwise it's a bit tough to see from the film.
 
 To actually print the designs on Windows, Paint has good enough control of the
 final dimensions of the print. It read the DPI correctly, so if you do Page
@@ -185,9 +190,9 @@ print centered on paper and exactly 145 mm x 145 mm.
 
 Time to get crafty and actually make the card!
 
-1. Cut a 150 mm x 450 mm rectangle from the cardboard.
+1. Cut a 150 mm × 450 mm rectangle from the cardboard.
 
-<img src="images/rectangle.jpg" alt="Photograph showing a 150 mm x 450 mm rectangle cut from cardboards" width="600 dp"/>
+<img src="images/rectangle.jpg" alt="Photograph showing a 150 mm × 450 mm rectangle cut from cardboards" width="600 dp"/>
 
 2. With the backside of the knife, score the cardboard, splitting the cardboard
    into a 151 mm left, 150 mm middle and a 149 mm right section. This slight
@@ -204,7 +209,7 @@ Time to get crafty and actually make the card!
 <img src="images/fold_sides.jpg" alt="Photograph showing how the three sections are folded, with the scored side on the outside of the fold" width="600 dp"/>
 
 4. Mark the center of the right section. This is done by drawing two diagonal
-   lines corner to corner.
+   lines from corner to corner.
 
 <img src="images/mark_center.jpg" alt="Photograph showing how the center of the right section is marked by drawing two diagonal lines" width="600 dp"/>
 
@@ -218,18 +223,18 @@ Time to get crafty and actually make the card!
 
 <img src="images/cut_circle.jpg" alt="Photograph showing cutting a circle" width="600 dp"/>
 
-7. Cut the background print into a 145 mm x 145 mm square. You can use scissors
+7. Cut the background print into a 145 mm × 145 mm square. You can use scissors
    here; this cut is not super critical.
 
 <img src="images/cut_background.jpg" alt="Photograph showing cutting the background design from paper" width="600 dp"/>
 
-8. Cut a 130 mm x 130 mm square from white paper.
+8. Cut a 130 mm × 130 mm square from white paper.
 
-<img src="images/cut_paper_square.jpg" alt="Photograph showing cutting a 130 mm x 130 mm square from paper" width="600 dp"/>
+<img src="images/cut_paper_square.jpg" alt="Photograph showing cutting a 130 mm × 130 mm square from paper" width="600 dp"/>
 
 9. Place the background print and the white paper square on newspaper, face
    down, and spray them with the spray adhesive. Do this outdoors; the spray
-   adhesive smells bad and makes every surface sticky (duh). Use gloves.
+   adhesive smells bad and makes all nearby surfaces sticky (duh). Use gloves.
 
 <img src="images/spray_adhesive.jpg" alt="Photograph showing how spray adhesive is applied behind the papers" width="600 dp"/>
 
@@ -256,7 +261,8 @@ Time to get crafty and actually make the card!
 <img src="images/split_pin_backside.jpg" alt="Photograph showing the backside of the card, with the split pin coming through to the backside" width="600 dp"/>
 
 14. Place a drop of super glue into each of the four corners of the middle
-    section, then fold the right section on top.
+    section, then fold the right section on top. Use a fresh pair of gloves,
+    just in case.
 
 <img src="images/superglue.jpg" alt="Photograph showing four drops of super glue, one in each corner of the middle section" width="600 dp"/>
 
@@ -265,6 +271,15 @@ Time to get crafty and actually make the card!
 <img src="images/final.jpg" alt="Photograph of the final card" width="600 dp"/>
 
 Enjoy your shader holiday card! Merry XMas and Happy Holidays! 🎅🃏✉️🎉🎅 - pestis
+
+## ❄️Licensing Information❄️
+
+My code is [CC0](https://creativecommons.org/public-domain/cc0/) (effectively
+public domain). Any code snippets from other developers retain their original
+licenses.
+
+The text and content is licensed under [CC BY-SA
+4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 
 
 

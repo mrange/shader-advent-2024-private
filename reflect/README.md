@@ -207,6 +207,10 @@ Below is the complete world renderer example. Note that some constants and funct
 
 If I’ve done my job right, [create a new ShaderToy](https://www.shadertoy.com/new), paste the code below, and you should see a rotating grid in white.
 
+Alternatively, visit the [shader I uploaded to ShaderToy](https://www.shadertoy.com/view/MftBWH).
+
+![Shader demonstrating the `renderWorld` function](assets/step1.jpg)
+
 ```glsl
 // CC0: Shader Advent reflection shader example
 
@@ -811,7 +815,9 @@ To display the box, you need to call `renderShapes` from the `effect` function i
 col = renderShapes(ro, rd);
 ```
 
-If everything’s set up properly, you should see a slowly rotating box with subtle reflections.
+If everything’s set up properly, you should see a slowly rotating box with subtle reflections. If you struggle following my instructions see this [ShaderToy shader](https://www.shadertoy.com/view/McdBWH).
+
+![Shader demonstrating the `renderShapes` function](assets/step2.jpg)
 
 ## Rendering the Insides
 
@@ -1102,6 +1108,8 @@ if (st < maxRayLengthShapes && (bt < 0.0 || st < bt)) {
 ```
 
 If you're lucky, you should see a rotating box with glowing lines inside, reflecting off the surfaces. It can be tricky to get everything working perfectly, especially when dealing with complex ray marching techniques. If you're having trouble or want to see a complete, working version, I've prepared the entire example on [ShaderToy](https://www.shadertoy.com/view/4fcfWH).
+
+![The complete shader with reflections](assets/complete.jpg)
 
 ## 🎉 Let’s Reflect on What We’ve Done 🎉
 

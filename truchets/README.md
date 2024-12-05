@@ -6,7 +6,7 @@
 
 ![A Truchet by Shane on ShaderToy](assets/shane-truchet.jpg)
 
-Truchet patterns—or [Truchet tiles](https://en.wikipedia.org/wiki/Truchet_tiles)—are a gift that keeps on giving! With just a single tile, arranged randomly, you can create intricate, surprising designs.
+Truchet patterns—or [Truchet tiles](https://en.wikipedia.org/wiki/Truchet_tiles)—are cool! With just a single tile, arranged randomly, you can create intricate, surprising designs.
 
 Take the classic *Smith tile*, for example:
 <p align="center">
@@ -16,21 +16,21 @@ Take the classic *Smith tile*, for example:
 This tile is simple: it fits with itself, no matter how you rotate it. Fill a whole grid with random rotations of the Smith tile, and suddenly, you’ve got an endlessly fascinating pattern:
 ![A 2D plane full of Smith tiles](assets/smith-plane.png)
 
-For some retro flair, there’s even the classic C64 trick that randomly fills the screen with slashes (`\`) and backslashes (`/`), creating an unexpected maze-like effect.
+For some retro feeling, there’s even the classic C64 trick that randomly fills the screen with slashes (`\`) and backslashes (`/`), creating an unexpected maze-like effect.
 
 ```basic
 10 PRINT CHR$(205.5+RND(1));
 20 GOTO 10
 ```
 
-Try this on a C64 emulator for instant retro vibes!
+Try this on a C64 emulator and be surprised!
 ![C64 truchet](assets/c64-truchet.png)
 
 ## ❓❓ So, How Do We Make a Shader Out of This? ❓❓
 
 Step one: [create a new ShaderToy shader](https://www.shadertoy.com/new).
 
-Let’s start simple by making a Smith tile in GLSL. Think of each tile as a square (side = 1), with two circles centered in opposite corners, each with a radius of 0.5. Throw in a border square, and voilà: you’ve got your base tile!
+Let’s start simple by making a Smith tile in GLSL. Think of each tile as a square (side = 1), with two circles centered in opposite corners, each with a radius of 0.5. Throw in a border square and you’ve got your base tile!
 
 Let's begin by defining the helper functions for the box and circle:
 ```glsl
@@ -147,7 +147,7 @@ vec2 cp = tp - np;     // Coordinates within the unit square
 float dtile = smithTile(cp);
 ```
 
-Applying simple domain repetition to the Smith tile creates a wavy, hypnotic pattern. It’s nice, but we can spice it up by adding a dash of pseudo-randomness! To do that, we’ll introduce a `hash` function that randomizes the rotation of each tile, creating a much richer and more dynamic pattern.
+Applying simple domain repetition to the Smith tile creates a wavy, hypnotic pattern. It’s nice, but we can spice it up by adding a dash of pseudo-randomness! To do that, we’ll introduce a `hash` function that will be used to randomize the rotation of each tile.
 
 ```glsl
 // Produces a pseudo-random value based on a 2D coordinate
@@ -292,7 +292,7 @@ float smithTile(vec2 p) {
 
 ## 🎉🎁🎉 That’s it for today! 🎉🎁🎉
 
-Truchet patterns are a fantastic way to create intriguing designs, and there are endless possibilities—even multi-layered Truchet patterns! If you’re up for some holiday shader fun, why not tinker with them yourself?
+Truchet tiles are a fantastic way to create intriguing patterns, and there are endless possibilities—even multi-layered Truchet patterns! If you’re up for some holiday shader fun, why not tinker with them yourself?
 
 For inspiration, check out these awesome Truchet shaders by [Shane](https://www.shadertoy.com/user/Shane), like the [quadtree Truchet](https://www.shadertoy.com/view/4t3BW4) or the mesmerizing [Hyperbolic Poincare Weave](https://www.shadertoy.com/view/tljyRR). And [byt3_m3chanic](https://www.shadertoy.com/user/byt3_m3chanic) has crafted some amazing Truchet shaders too, often in 3D, like [this one](https://www.shadertoy.com/view/lcySzz).
 

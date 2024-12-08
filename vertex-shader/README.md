@@ -450,7 +450,7 @@ If you’re having trouble getting these examples to work, you can download the 
 
 I hope this gave you a quick introduction to tinkering with vertex shaders to create fun effects.
 
-To give you a little extra inspiration, I’ve dug up a few of my incomplete (and possibly buggy) shaders from my personal library. They’re in the same state they were when I last worked on them, so use at your own risk! Here are some additional KodeLife vertex shader examples:
+To give you a little extra inspiration, I’ve dug up a few of my incomplete (and possibly buggy) shaders from my personal library. They’re in the same state they were when I last worked on them, so use at your own risk!
 
 1. [mrange & Virgill - *Delusions of Mediocrity* (Windows 4K intro)](delusions.klproj)
 2. [Fractal 2D Tree](2d_tree.klproj)

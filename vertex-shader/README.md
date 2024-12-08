@@ -4,7 +4,7 @@
 
 Many of us know [ShaderToy](https://www.shadertoy.com/) as a playground for experimenting with and sharing Fragment Shaders (also called Pixel Shaders in DirectX). But there's another type of shader that often flies under the radar: Vertex Shaders. Though less popular among shader enthusiasts, vertex shaders unlock a new world of possibilities—especially when combined with fragment shaders.
 
-Take, for example, the 4KiB intro *Delusions of Mediocrity*. Here, most of the magic happens in the vertex shader, which generates vertices using a supershape formula. The fragment shaders handle the colors and post-processing effects.
+Take, for example, our 4KiB intro *Delusions of Mediocrity*. Here, most of the magic happens in the vertex shader, which generates vertices using a supershape formula. The fragment shaders handle the colors and post-processing effects.
 ![Delusions of Mediocrity](assets/intro.jpg)
 
 ## Getting Started with Vertex Shaders

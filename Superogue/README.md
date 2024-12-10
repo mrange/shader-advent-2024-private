@@ -4,14 +4,9 @@
 
 ## Introduction:
 
-This article is about writing micro shaders. Small pieces of minimal shadercode that can be used for
-either smaller intro sizes (like 4k, 1k, 512 or even 256 byte intros), or for a livecoding setting where you
-are able to setup your code quickly and build out from there, so that both yourself and the audience
-are comfortable with the progression.
+This article is about writing micro shaders. Small pieces of minimal shadercode that can be used for either smaller intro sizes (like 4k, 1k, 512 or even 256 byte intros), or for a livecoding setting where you are able to setup your code quickly and build out from there, so that both yourself and the audience are comfortable with the progression.
 
-These setup codes and shortcuts are useful because of their size as well as they are easy to remember by heart
-when used in a livecoding setting. This tutorial assumes original OpenGL/core code, but can also easily be adapted to WebGL
-which is a little stricter with float/int casting. So without further ado lets get into it...
+These setup codes and shortcuts are useful because of their size as well as they are easy to remember by heart when used in a livecoding setting. This tutorial assumes original OpenGL/core code, but can also easily be adapted to WebGL which is a little stricter with float/int casting. So without further ado lets get into it...
 
 ## Minimal Raymarching loop:
 
@@ -31,18 +26,15 @@ gl_FragColor=vec4(1/z);
 }
 ```
 
-Asuming a fixed resolution of 1920x1080 for UV space, the code above consists of setting start position `p` and extracting a raydirection `r` from UV coordinates.
-As well as a single line raymarching loop that calls our `float S(p)` SDF function.
+Asuming a fixed resolution of 1920x1080 for UV space, the code above consists of setting start position `p` and extracting a raydirection `r` from UV coordinates. As well as a single line raymarching loop that calls our `float S(p)` SDF function.
 
 ![Shader Image 1](shaderadvent1.png)
 
-Instead of using a sphere function for the SDF (`d=length(p)-radius`) i'm picking a simple domain-repeated octahedron
- shape instead for slightly less uniformity. Once we have a hit we take the one over total z-value to determine the color value.
+Instead of using a sphere function for the SDF (`d=length(p)-radius`) i'm picking a simple domain-repeated octahedron shape instead for slightly less uniformity. Once we have a hit we take the one over total z-value to determine the color value.
 
 ## Adding Shading, Rotation and Color
 
-So now we have a basic marcher up and running, lets modify it a little bit to add some
-camera rotation, shading and color.
+So now we have a basic marcher up and running, lets modify it a little bit to add some camera rotation, shading and color.
 
 ```glsl
 uniform float time;
@@ -62,19 +54,15 @@ gl_FragColor=vec4(vec3(1-uv.y,1,1+uv.y)*l/z,1);
 }
 ```
 
-As you can see above i've added a small rotation function R that I use to rotate our camera/ray direction (`r.xy*=R(t/7);r.xz*=R(t/9);`).
-To get some proper shading, we need to extract a normal `n` as well and use that to calculate a very basic diffuse/specular lighting by
-taking the dot-product between the extracted normal and the ray-direction.
+As you can see above i've added a small rotation function R that I use to rotate our camera/ray direction (`r.xy*=R(t/7);r.xz*=R(t/9);`). To get some proper shading, we need to extract a normal `n` as well and use that to calculate a very basic diffuse/specular lighting by taking the dot-product between the extracted normal and the ray-direction.
 
 ![Shader Image 2](shaderadvent2.png)
 
-Lastly, i've added a little orange/blue vertical color-gradient to the overall image (`vec3(1-uv.y,1,1+uv.y)`) to add a little
-color to the overall picture.
+Lastly, i've added a little orange/blue vertical color-gradient to the overall image (`vec3(1-uv.y,1,1+uv.y)`) to add a little color to the overall picture.
 
 ## Adding some reflection and vignetting:
 
-Now while the above code looks somewhat passable, you will still not blow any minds in your shaderjam/showdown.
-To add some flair i've developed a small 2-liner hashed-reflection method that will give your visuals a little oompf.
+Now while the above code looks somewhat passable, you will still not blow any minds in your shaderjam/showdown. To add some flair i've developed a small 2-liner hashed-reflection method that will give your visuals a little oompf.
 
 ```glsl
 uniform float time;
@@ -109,15 +97,10 @@ Then from here:
 
 ![Shader Image 3](shaderadvent3.png)
 
-The above method will just keep bouncing around the scene until you run out of marching-steps.
-Not the most speed-optimised approach, but it is extremely small to implement.
+The above method will just keep bouncing around the scene until you run out of marching-steps. Not the most speed-optimised approach, but it is extremely small to implement.
 
 As a final touch I've added a small vignetting `v=1-length(uv/2);` to soften the edges.
 
 ## Conclusion:
 
-I hope you've enjoyed reading this article. I hope this will help you make the visuals for you tiny intro or livecoding
-session at least somewhat passable without spending hundreds of lines of code. Thanks to Marten Range for setting this up and to
-all other contributors to this years Shader Advent.
-
-[Return to blog overview](index.html)
+I hope you've enjoyed reading this article. I hope this will help you make the visuals for you tiny intro or livecoding session at least somewhat passable without spending hundreds of lines of code. Thanks to Marten Range for setting this up and to all other contributors to this years Shader Advent.

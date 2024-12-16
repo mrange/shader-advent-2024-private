@@ -52,7 +52,7 @@ void APIENTRY debugCallback(
     printf(message);
     printf("\n");
 }
-    
+
 // Buffer for debug messages
 char debugLog[0xFFFF];  // 65535 characters
 #endif
@@ -88,7 +88,7 @@ PIXELFORMATDESCRIPTOR pixelFormatSpecification {
   ,   PFD_DRAW_TO_WINDOW            // dwFlags        : Will draw in a window
     | PFD_SUPPORT_OPENGL            //                  Using OpenGL
     | PFD_DOUBLEBUFFER              //                  Use double buffering (smoother display)
-  , PFD_TYPE_RGBA                   // iPixelType     : Use RGBA colors                        
+  , PFD_TYPE_RGBA                   // iPixelType     : Use RGBA colors
   , 32                              // cColorBits     : 32 bits for color (8 each for R,G,B,A)
   , 0                               // cRedBits       : Not set
   , 0                               // cRedShift      : Not set
@@ -113,7 +113,7 @@ PIXELFORMATDESCRIPTOR pixelFormatSpecification {
   , 0                               // dwDamageMask   : Not set
 };
 
- 
+
 /*
  * Main Program Entry Point
  * This code initializes OpenGL, creates a window, and runs the main rendering loop
@@ -136,7 +136,7 @@ int WINAPI WinMain(
   /*
    * Step 1: Initialize Window
    */
-  
+
   #ifdef _DEBUG
   // In debug mode, we need to manually get the instance handle
   auto hInstance = GetModuleHandle(0);
@@ -145,8 +145,8 @@ int WINAPI WinMain(
 
   // Complete the window class specification by setting the hInstance
   windowClassSpecification.hInstance = hInstance;
-  
-  // Register the window class with Windows. This is necessary to create a window 
+
+  // Register the window class with Windows. This is necessary to create a window
   // instance later based on the specifications defined in `windowClassSpecification`.
   auto regOk = RegisterClassA(&windowClassSpecification);
   assert(regOk && "Failed to register window class");
@@ -160,7 +160,7 @@ int WINAPI WinMain(
   auto rectOk = AdjustWindowRect(&windowRect, dwStyle, 0);
   assert(rectOk && "Failed to adjust window rect");
 
-  // Calculate the dimensions of the adjusted window and find the center position 
+  // Calculate the dimensions of the adjusted window and find the center position
   // based on the screen size, so the window will open centered on the screen.
   auto width        = windowRect.right - windowRect.left;
   auto height       = windowRect.bottom - windowRect.top;
@@ -184,7 +184,7 @@ int WINAPI WinMain(
    * Step 2: Initialize OpenGL
    */
 
-  // Obtain the device context (DC) for the specified window, which allows us to draw 
+  // Obtain the device context (DC) for the specified window, which allows us to draw
   // and interact with the window's graphics.
   auto hdc = GetDC(hwnd);
   assert(hdc && "Failed to get DC");
@@ -193,17 +193,17 @@ int WINAPI WinMain(
   auto pixelFormat = ChoosePixelFormat(hdc, &pixelFormatSpecification);
   assert(pixelFormat && "Failed to choose pixel format");
 
-  // Apply the selected pixel format to the device context, ensuring that it is properly configured 
+  // Apply the selected pixel format to the device context, ensuring that it is properly configured
   // for OpenGL rendering.
   auto setOk = SetPixelFormat(hdc, pixelFormat, &pixelFormatSpecification);
   assert(setOk && "Failed to set pixel format");
 
-  // Create and activate an OpenGL rendering context for the device context, which allows us 
+  // Create and activate an OpenGL rendering context for the device context, which allows us
   // to perform OpenGL operations in this window.
   auto hglrc = wglCreateContext(hdc);
   assert(hglrc && "Failed to create GL context");
 
-  // Make the created OpenGL context current for the specified device context, enabling 
+  // Make the created OpenGL context current for the specified device context, enabling
   // OpenGL commands to affect the window's rendering.
   auto makeOk = wglMakeCurrent(hdc, hglrc);
   assert(makeOk && "Failed to make GL context current");
@@ -217,7 +217,7 @@ int WINAPI WinMain(
   glEnable(GL_DEBUG_OUTPUT);
 
   // Retrieve a pointer to the OpenGL function `glDebugMessageCallback` using `wglGetProcAddress`.
-  // OpenGL functions like this one are often not directly accessible, as they may be specific 
+  // OpenGL functions like this one are often not directly accessible, as they may be specific
   // to certain OpenGL versions or extensions. By looking them up at runtime, we ensure compatibility
   // with different graphics drivers and hardware setups.
   auto glDebugMessageCallback = (PFNGLDEBUGMESSAGECALLBACKPROC)wglGetProcAddress("glDebugMessageCallback");
@@ -227,10 +227,10 @@ int WINAPI WinMain(
   glDebugMessageCallback(debugCallback, 0);
   #endif
 
-  // Create the shader program using `glCreateShaderProgramv` which creates a shader 
-  // program in one step by specifying the shader type and the shader source code. This function 
-  // allows us to skip manual shader compilation and linking steps. We specify `GL_FRAGMENT_SHADER` 
-  // as the shader type, with `1` indicating that there’s one shader source in `fragmentShaders`.
+  // Create the shader program using `glCreateShaderProgramv` which creates a shader
+  // program in one step by specifying the shader type and the shader source code. This function
+  // allows us to skip manual shader compilation and linking steps. We specify `GL_FRAGMENT_SHADER`
+  // as the shader type, with `1` indicating that thereï¿½s one shader source in `fragmentShaders`.
   GLchar const* fragmentShaders[] = { GetFragmentShaderSource() };
   auto glCreateShaderProgramv = (PFNGLCREATESHADERPROGRAMVPROC)wglGetProcAddress("glCreateShaderProgramv");
   auto shaderProgram = glCreateShaderProgramv(GL_FRAGMENT_SHADER, 1, fragmentShaders);
@@ -238,6 +238,20 @@ int WINAPI WinMain(
   // Ensure that `shaderProgram` was created successfully. A non-positive value would indicate
   // a failure to create the program, so we use an assertion to catch this in debug builds.
   assert(shaderProgram > 0 && "Failed to create shader program");
+
+  auto glGetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)wglGetProcAddress("glGetUniformLocation");
+  // Get the location of the `iTime` uniform in the shader program. This location will be used
+  // to set the value of `iTime`.
+  auto iTimeLocation = glGetUniformLocation(shaderProgram, "iTime");
+  // Get the location of the `iResolution` uniform in the shader program. This location is
+  // used to pass the resolution of the rendering window.
+  auto iResolutionLocation = glGetUniformLocation(shaderProgram, "iResolution");
+  assert(iTimeLocation > -1 && iResolutionLocation > -1 && "Failed to get uniform locations");
+
+  // Activate the shader program so it will be applied to all pixels
+  // in subsequent draw calls, such as the upcoming call to `glRects`.
+  auto glUseProgram = (PFNGLUSEPROGRAMPROC)wglGetProcAddress("glUseProgram");
+  glUseProgram(shaderProgram);
 
   #ifdef _DEBUG
   // Retrieve the compilation log for `shaderProgram` and print it
@@ -248,20 +262,6 @@ int WINAPI WinMain(
   // Final setup is complete, so disable debug output
   glDisable(GL_DEBUG_OUTPUT);
   #endif
-
-  auto glGetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)wglGetProcAddress("glGetUniformLocation");
-  // Get the location of the `iTime` uniform in the shader program. This location will be used 
-  // to set the value of `iTime`.
-  auto iTimeLocation = glGetUniformLocation(shaderProgram, "iTime");
-  // Get the location of the `iResolution` uniform in the shader program. This location is 
-  // used to pass the resolution of the rendering window.
-  auto iResolutionLocation = glGetUniformLocation(shaderProgram, "iResolution");
-  assert(iTimeLocation > -1 && iResolutionLocation > -1 && "Failed to get uniform locations");
-
-  // Activate the shader program so it will be applied to all pixels 
-  // in subsequent draw calls, such as the upcoming call to `glRects`.
-  auto glUseProgram = (PFNGLUSEPROGRAMPROC)wglGetProcAddress("glUseProgram");
-  glUseProgram(shaderProgram);
 
   /*
    * Step 4: Main Render Loop
@@ -277,23 +277,23 @@ int WINAPI WinMain(
   auto glUniform3f = (PFNGLUNIFORM3FPROC)wglGetProcAddress("glUniform3f");
 
   while (!done) {
-    // Process Windows messages in a loop. This is typical in a Win32 application to handle 
+    // Process Windows messages in a loop. This is typical in a Win32 application to handle
     // system events like keyboard input, window resizing, or close requests.
     while (PeekMessageA(&msg, 0, 0, 0, PM_REMOVE)) {
       // Check if the message is `WM_QUIT`, which indicates the application should close.
       // If so, set `done` to true to break out of the main loop.
       if (msg.message == WM_QUIT) done = true;
-      // Prepare the message for further processing. `TranslateMessage` handles input-specific 
+      // Prepare the message for further processing. `TranslateMessage` handles input-specific
       // tasks like converting keystrokes into character messages.
       TranslateMessage(&msg);
-      // Dispatch the message to the appropriate window procedure, which will handle the message 
+      // Dispatch the message to the appropriate window procedure, which will handle the message
       // (e.g., updating the window or responding to user actions).
       DispatchMessageA(&msg);
     }
 
     // Update shader uniforms with the current time and resolution.
 
-    // Get the current time in milliseconds and calculate the elapsed time (`iTime`) 
+    // Get the current time in milliseconds and calculate the elapsed time (`iTime`)
     // since the program started, in seconds.
     auto now = GetTickCount64();
     auto iTime = (now - before) / 1000.0f;
@@ -301,7 +301,7 @@ int WINAPI WinMain(
     // Set the `iTime` uniform in the shader program with the calculated time.
     glUniform1f(iTimeLocation, iTime);
 
-    // Set the `iResolution` uniform with the current window resolution (x, y, depth). 
+    // Set the `iResolution` uniform with the current window resolution (x, y, depth).
     glUniform3f(
       iResolutionLocation
     , static_cast<GLfloat>(xres)
@@ -309,7 +309,7 @@ int WINAPI WinMain(
     , 1.0f
     );
 
-    // Draw a fullscreen quad (rectangle) that covers the viewport from -1 to 1 
+    // Draw a fullscreen quad (rectangle) that covers the viewport from -1 to 1
     // in normalized device coordinates. This applies the shader across the entire window.
     glRects(-1, -1, 1, 1);
 
@@ -322,31 +322,31 @@ int WINAPI WinMain(
   return 0;
 }
 
-// Windows sends messages to our window through the WndProc callback function. 
+// Windows sends messages to our window through the WndProc callback function.
 // This allows us to respond to various events, such as resizing or closing the window.
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-  // Ignore system commands related to screensaver activation or monitor power 
+  // Ignore system commands related to screensaver activation or monitor power
   // management to prevent interference with our application.
   if (uMsg == WM_SYSCOMMAND && (wParam == SC_SCREENSAVE || wParam == SC_MONITORPOWER))
     return 0;
 
-  // Handle window closing events. If the user requests to close the window, 
+  // Handle window closing events. If the user requests to close the window,
   // destroys the window, or presses the ESC key, we initiate shutdown.
   if (
     // Check if the window is being closed
-        uMsg == WM_CLOSE 
+        uMsg == WM_CLOSE
     // Check if the window is being destroyed
-    ||  uMsg == WM_DESTROY 
+    ||  uMsg == WM_DESTROY
     // Check if the ESC key was pressed
     ||  (uMsg == WM_CHAR || uMsg == WM_KEYDOWN) && wParam == VK_ESCAPE) {
-    // Post a quit message to the message queue, which will be picked up 
+    // Post a quit message to the message queue, which will be picked up
     // by our main loop to terminate the application.
     PostQuitMessage(0);
     return 0;
   }
 
-  // Handle window resizing. Update the global variables with the new 
+  // Handle window resizing. Update the global variables with the new
   // width and height, and adjust the OpenGL viewport accordingly.
   if (uMsg == WM_SIZE) {
     xres = LOWORD(lParam);  // Get the new width
@@ -356,7 +356,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     glViewport(0, 0, xres, yres);
   }
 
-  // For any other messages, forward them to the default window procedure 
+  // For any other messages, forward them to the default window procedure
   // for further processing.
   return DefWindowProcA(hWnd, uMsg, wParam, lParam);
 }
@@ -364,7 +364,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 GLchar const * GetFragmentShaderSource() {
   // Return the fragment shader source code using a raw string literal for convenience.
   // Shader by Kishimisu: https://www.shadertoy.com/view/mtyGWy
-  return 
+  return
     R"SHADER(
 #version 300 es
 // Prelude compatible with simple ShaderToy shaders
@@ -387,9 +387,9 @@ void main() {
 
 // Paste ShaderToy shader code here -->
 
-/* This animation is the material of my first youtube tutorial about creative 
-    coding, which is a video in which I try to introduce programmers to GLSL 
-    and to the wonderful world of shaders, while also trying to share my recent 
+/* This animation is the material of my first youtube tutorial about creative
+    coding, which is a video in which I try to introduce programmers to GLSL
+    and to the wonderful world of shaders, while also trying to share my recent
     passion for this community.
                                         Video URL: https://youtu.be/f4s1h2YETNY
 */
@@ -409,7 +409,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
     vec2 uv = (fragCoord * 2.0 - iResolution.xy) / iResolution.y;
     vec2 uv0 = uv;
     vec3 finalColor = vec3(0.0);
-    
+
     for (float i = 0.0; i < 4.0; i++) {
         uv = fract(uv * 1.5) - 0.5;
 
@@ -424,7 +424,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 
         finalColor += col * d;
     }
-        
+
     fragColor = vec4(finalColor, 1.0);
 }
 )SHADER";

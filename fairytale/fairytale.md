@@ -24,9 +24,9 @@ And when the king is in a bad mood in the kingdom of Shadertoy, everybody gets t
 
 The king thought about this. He was a mean man, and didn’t want to give away his wealth, but the kingdom did have a lot of goblins in it, and he was not fond of goblins. “What about the goblins?” He said out loud. “Yes, that’s it. The kingdom must build me a castle, and whoever builds me the most beautiful part of the castle, be it a wall or a door or a moat, they shall be lord over all goblins in the kingdom.”
 
-Ugh thought Count Variable to himself, but quietly because the king was in one of his moods. Who wants a thousand stinking old goblins? 
+_Ugh,_ thought Count Variable to himself, but quietly because the king was in one of his moods. _Who wants a thousand stinking old goblins?_ 
 
-But then, a bit later, as he walked down the long corridor of the castle to get his breakfast, he started thinking... Well, goblins are rather tasty when baked in a pie. He stopped walking and licked his lips. Yes, if I was lord of the goblins, I could eat them all and no-one, not even the goblins, could stop me. But I can’t be bothered making anything myself for this silly castle. Let the peasants do it and I will steal the credit.
+But then, a bit later, as he walked down the long corridor of the castle to get his breakfast, he started thinking... _Well, goblins are rather tasty when baked in a pie._ He stopped walking and licked his lips. _Yes, if I was lord of the goblins, I could eat them all and no-one, not even the goblins, could stop me. But I can’t be bothered making anything myself for this silly castle. Let the peasants do it and I will steal the credit._
 
 
 ## Chapter 2 – Meet the Goblins
@@ -84,7 +84,7 @@ Hastily apologising, she explained that she had been out chopping wood in the fo
 
 “Why should they?” said another. “The king don’t like us, he thinks he owns everything and everyone. The trouble is, he’s got those nasty men with the big sticks, so we end up having to do what they say. Goblins will never be free in this kingdom. This is bad.”
 
-“What if we won the prize? Then we would be lords of ourselves, and we would be free!”
+Noff spoke up. “What if we won the prize? Then we would be lords of ourselves, and we would be free!”
 
 Every head turned and looked at Noff, and Noff immediately regretted saying her idea. She was a small goblin, and not as thoughtful as some. Most goblins would like to think about an idea all morning before telling anyone, just in case it was silly. Noff just opened her big mouth (and it was big, though not that big if you are a goblin). And then, all at once, the rest of the goblins burst out laughing.
 
@@ -145,7 +145,7 @@ Moat.
 
 In exactly the same color that she had designed herself. She felt a chill of betrayal run through her.
 
-Someone stole my idea! She realised at once. And there, wading in the moat, showing off its beautiful blueness to the king himself, was Count Variable.
+_Someone stole my idea!_ She realised at once. And there, wading in the moat, showing off its beautiful blueness to the king himself, was Count Variable.
 
 “Oh yes your majesty,” she heard the disloyal advisor saying to the king. “I worked hard all night to make this.” Noff was outraged at his lie. She had made this!
 
@@ -177,7 +177,7 @@ vec3 paint=vec3(0.8,0.3,0.1);
 
 Immediately, the moat turned red. Red-hot, that is. Count Variable hooted in pain and swam to the land as quickly as he could, where he lay on the grass feeling sorry for himself. “It’s like getting in the bath too soon,” he muttered, trying to cool off.
 
-The king looked at his disloyal advisor with narrowed eyes and sighed. “He is disloyal, I suppose I shouldn't be surprised,” he said. “Very well Norman, I see you were the true maker of this magic moat, and in the name of myself, I declare you lord of the goblins. I hope you’re happy with them.”
+It was obvious that "Norman" knew more about the way the moat was made than the Count did. The king looked at his disloyal advisor with narrowed eyes and sighed. “He is disloyal, I suppose I shouldn't be surprised,” he said. “Very well Norman, I see you were the true maker of this magic moat, and in the name of myself, I declare you lord of the goblins. I hope you’re happy with them.”
 
 Noff smiled. “Goblins have a lot of hidden surprises,” she said in her best Norman voice. “I will set them free, to live as they wish.”
 
